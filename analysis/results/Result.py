@@ -70,9 +70,7 @@ class Metrics:
 
 class ResultDetails:
 	
-	def __init__(
-			self
-	):
+	def __init__(self):
 		self.with_constraint_metrics = None
 		self.no_constraint_metrics = None
 		self.semi_constraint_metrics = None
@@ -119,19 +117,18 @@ class Result:
 			task_name,
 			method_name,
 			mode,
-			result_id=None,
-			train_future_frames=None,
-			test_future_frames=None,
-			context_fraction=None
+			corruption_type,
+			result_id=None
 	):
 		self.task_name = task_name
 		self.method_name = method_name
 		self.mode = mode
+		self.corruption_type = corruption_type
 		
 		# Specific Attributes
-		self.train_num_future_frames = train_future_frames
-		self.test_num_future_frames = test_future_frames
-		self.context_fraction = context_fraction
+		self.train_num_future_frames = None
+		self.test_num_future_frames = None
+		self.context_fraction = None
 		
 		# Common Attributes
 		self.result_details = None
@@ -152,7 +149,8 @@ class Result:
 			const.METHOD_NAME: self.method_name,
 			const.MODE: self.mode,
 			const.RESULT_ID: self.result_id,
-			const.DATE: self.result_date
+			const.DATE: self.result_date,
+			const.CORRUPTION_TYPE: self.corruption_type
 		}
 		
 		if self.train_num_future_frames is not None:
@@ -176,6 +174,7 @@ class Result:
 			method_name=result_dict[const.METHOD_NAME],
 			mode=result_dict[const.MODE],
 			result_id=result_dict[const.RESULT_ID],
+			corruption_type=result_dict[const.CORRUPTION_TYPE]
 		)
 		
 		if const.TRAIN_NUM_FUTURE_FRAMES in result_dict:

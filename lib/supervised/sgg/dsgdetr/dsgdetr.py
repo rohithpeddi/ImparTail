@@ -365,6 +365,11 @@ class ObjectClassifier(nn.Module):
 					pred_boxes = entry[const.BOXES][entry[const.BOXES][:, 0] == i, 1:]
 					feats = entry[const.FEATURES][entry[const.BOXES][:, 0] == i]
 					labels = entry[const.LABELS][entry[const.BOXES][:, 0] == i]
+
+					if not torch.any(entry['boxes'][:, 0] == i):
+						# print(f"No detections found, skipped the frame: {i}")
+						continue
+
 					for j in range(len(self.classes) - 1):
 						# NMS according to obj categories
 						inds = torch.nonzero(torch.argmax(scores, dim=1) == j).view(-1)
@@ -401,9 +406,10 @@ class ObjectClassifier(nn.Module):
 				global_idx = torch.arange(0, entry[const.BOXES].shape[0])
 				
 				for i in range(b):
-					local_human_idx = torch.argmax(entry[const.DISTRIBUTION][
-						                               box_idx == i, 0])  # the local bbox index with highest human score in this frame
-					HUMAN_IDX[i] = global_idx[box_idx == i][local_human_idx]
+					if torch.any(box_idx == i):
+						# the local bbox index with highest human score in this frame
+						local_human_idx = torch.argmax(entry[const.DISTRIBUTION][box_idx == i, 0])
+						HUMAN_IDX[i] = global_idx[box_idx == i][local_human_idx]
 				
 				entry[const.PRED_LABELS][HUMAN_IDX.squeeze()] = 1
 				entry[const.PRED_SCORES][HUMAN_IDX.squeeze()] = entry[const.DISTRIBUTION][HUMAN_IDX.squeeze(), 0]

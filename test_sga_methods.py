@@ -1,6 +1,6 @@
 import math
 from lib.supervised.config import Config
-from test_sga_base import TestSGABase
+from test_sga_base import TestSTSGBase
 from lib.supervised.sgg.dsgdetr.track import get_sequence_with_tracking
 from lib.supervised.sgg.dsgdetr.matcher import HungarianMatcher
 from lib.supervised.sga.dsgdetr_gen_ant import DsgDetrGenAnt
@@ -10,7 +10,7 @@ from lib.supervised.sga.dsgdetr_gen_ant import DsgDetrGenAnt
 # -------------------------------------- TEST SCENESAYER METHODS ------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------
 
-class TestODE(TestSGABase):
+class TestODE(TestSTSGBase):
 
     def __init__(self, conf):
         super().__init__(conf)
@@ -62,7 +62,7 @@ class TestODE(TestSGABase):
         return self.compute_scene_sayer_context_score(result, gt_annotation, context_fraction)
 
 
-class TestSDE(TestSGABase):
+class TestSDE(TestSTSGBase):
 
     def __init__(self, conf):
         super().__init__(conf)
@@ -120,7 +120,7 @@ class TestSDE(TestSGABase):
 # ---------------------------------------------------------------------------------------------------------------
 
 
-class TestSTTranAnt(TestSGABase):
+class TestSTTranAnt(TestSTSGBase):
 
     def __init__(self, conf):
         super().__init__(conf)
@@ -169,7 +169,7 @@ class TestSTTranAnt(TestSGABase):
         return self.compute_transformer_ff_score(entry, gt_annotation)
 
 
-class TestSTTranGenAnt(TestSGABase):
+class TestSTTranGenAnt(TestSTSGBase):
 
     def __init__(self, conf):
         super().__init__(conf)
@@ -217,7 +217,7 @@ class TestSTTranGenAnt(TestSGABase):
         return self.compute_transformer_context_score(result, gt_annotation, context_fraction)
 
 
-class TestDsgDetrAnt(TestSGABase):
+class TestDsgDetrAnt(TestSTSGBase):
 
     def __init__(self, conf):
         super().__init__(conf)
@@ -270,7 +270,7 @@ class TestDsgDetrAnt(TestSGABase):
         return self.compute_transformer_context_score(result, gt_annotation, context_fraction)
 
 
-class TestDsgDetrGenAnt(TestSGABase):
+class TestDsgDetrGenAnt(TestSTSGBase):
 
     def __init__(self, conf):
         super().__init__(conf)

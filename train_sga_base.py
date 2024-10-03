@@ -12,10 +12,10 @@ import wandb
 from dataloader.action_genome.ag_dataset import AG
 from dataloader.action_genome.ag_dataset import cuda_collate_fn
 from lib.object_detector import Detector
-from sga_base import SGABase
+from stsg_base import STSGBase
 
 
-class TrainSGABase(SGABase):
+class TrainSTSGBase(STSGBase):
 
     def __init__(self, conf):
         super().__init__(conf)

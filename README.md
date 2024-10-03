@@ -1,9 +1,9 @@
 <h1 align=center>
-  Towards Scene Graph Anticipation
+  Logic constrained learning of Spatio Temporal Scene Graphs
 </h1>
 
 <p align=center>  
-  Rohith Peddi, Saksham Singh, Saurabh, Parag Singla, Vibhav Gogate
+  Rohith Peddi, Saurabh, Ayush, Parag Singla, Vibhav Gogate
 </p>
 
 <div align=center>
@@ -26,32 +26,7 @@
 
 ## UPDATE
 
-**Sep 30th 2024:** Released pre-trained models and updated code.
-
-**Aug 2024:** Our submission is accepted as an **Oral Presentation** in ECCV.
-
-**July 2024:** Towards Scene Graph Anticipation was accepted at ECCV 2024.
-
-**Mar 2024:** Released code for the [paper](https://arxiv.org/pdf/2403.04899v1.pdf) 
-
-
 ----
-
-<h3 align=center>
-  TASK PICTURE
-</h3>
-
-![TaskPicture](https://github.com/rohithpeddi/SceneSayer/assets/23375299/cd5a7092-7b4f-4711-8835-c6a1ff621162)
-
-----
-
-<h3 align=center>
-  TECHNICAL APPROACH
-</h3>
-
-
-![TechnicalApproach](https://github.com/rohithpeddi/SceneSayer/assets/23375299/43bda602-a9ab-4846-9501-51e2ba4474ad)
-
 
 -------
 ### ACKNOWLEDGEMENTS
@@ -64,6 +39,7 @@ We thank all the authors for releasing their code.
 3. [Tempura](https://github.com/sayaknag/unbiasedSGG)
 4. [TorchDiffEq](https://github.com/rtqichen/torchdiffeq)
 5. [TorchDyn](https://github.com/DiffEqML/torchdyn)
+6. [SceneSayer](https://github.com/rohithpeddi/SceneSayer)
 
 
 -------
@@ -95,8 +71,6 @@ conda activate sga
 pip install torch==1.10.1+cu111 torchvision==0.11.2+cu111 torchaudio==0.10.1 -f https://download.pytorch.org/whl/cu111/torch_stable.html
 pip install -r requirements.txt
 ```
-
-# Setup
 
 ### Build draw_rectangles modules
 
@@ -217,19 +191,6 @@ Please see the scripts/tests for testing Python modules.
 
 ------
 
-
-# Citation
-
-```
-@misc{peddi2024scene,
-      title={Towards Scene Graph Anticipation}, 
-      author={Rohith Peddi and Saksham Singh and Saurabh and Parag Singla and Vibhav Gogate},
-      year={2024},
-      eprint={2403.04899},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
-}
-```
 
 
 

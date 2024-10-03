@@ -1,13 +1,13 @@
 from lib.supervised.config import Config
 from lib.supervised.sgg.dsgdetr.track import get_sequence_with_tracking
-from train_sga_base import TrainSGABase
+from train_sga_base import TrainSTSGBase
 
 
 # -------------------------------------------------------------------------------------
 # ------------------------------- BASELINE METHODS ---------------------------------
 # -------------------------------------------------------------------------------------
 
-class TrainSTTranAnt(TrainSGABase):
+class TrainSTTranAnt(TrainSTSGBase):
 
     def __init__(self, conf):
         super().__init__(conf)
@@ -55,7 +55,7 @@ class TrainSTTranAnt(TrainSGABase):
         self.compute_baseline_evaluation_score(pred, gt)
 
 
-class TrainSTTranGenAnt(TrainSGABase):
+class TrainSTTranGenAnt(TrainSTSGBase):
 
     def __init__(self, conf):
         super().__init__(conf)
@@ -104,7 +104,7 @@ class TrainSTTranGenAnt(TrainSGABase):
         self.compute_baseline_evaluation_score(pred, gt)
 
 
-class TrainDsgDetrAnt(TrainSGABase):
+class TrainDsgDetrAnt(TrainSTSGBase):
 
     def __init__(self, conf):
         super().__init__(conf)
@@ -154,7 +154,7 @@ class TrainDsgDetrAnt(TrainSGABase):
         self.compute_baseline_evaluation_score(pred, gt)
 
 
-class TrainDsgDetrGenAnt(TrainSGABase):
+class TrainDsgDetrGenAnt(TrainSTSGBase):
 
     def __init__(self, conf):
         super().__init__(conf)
@@ -208,7 +208,7 @@ class TrainDsgDetrGenAnt(TrainSGABase):
 # ------------------------------- SCENE SAYER METHODS ---------------------------------
 # -------------------------------------------------------------------------------------
 
-class TrainODE(TrainSGABase):
+class TrainODE(TrainSTSGBase):
 
     def __init__(self, conf):
         super().__init__(conf)
@@ -257,7 +257,7 @@ class TrainODE(TrainSGABase):
         self.compute_scene_sayer_evaluation_score(pred, gt)
 
 
-class TrainSDE(TrainSGABase):
+class TrainSDE(TrainSTSGBase):
 
     def __init__(self, conf):
         super().__init__(conf)

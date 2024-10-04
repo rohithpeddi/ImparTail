@@ -1,21 +1,18 @@
 import copy
 import csv
 import os
-import pickle
 from abc import abstractmethod
 
-import numpy as np
 import torch
-
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+
 from analysis.results.FirebaseService import FirebaseService
 from analysis.results.Result import Result, ResultDetails, Metrics
 from dataloader.corrupted.image_based.ag_dataset import ImageCorruptedAG
 from dataloader.corrupted.image_based.ag_dataset import cuda_collate_fn as ag_data_cuda_collate_fn
 from lib.object_detector import Detector
 from lib.supervised.evaluation_recall import BasicSceneGraphEvaluator
-from constants import DataloaderConstants as const
 from stsg_base import STSGBase
 
 

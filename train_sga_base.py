@@ -9,8 +9,8 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 import wandb
-from dataloader.action_genome.ag_dataset import AG
-from dataloader.action_genome.ag_dataset import cuda_collate_fn
+from dataloader.standard.action_genome.ag_dataset import StandardAG
+from dataloader.standard.action_genome.ag_dataset import cuda_collate_fn as ag_data_cuda_collate_fn
 from lib.object_detector import Detector
 from stsg_base import STSGBase
 
@@ -142,7 +142,7 @@ class TrainSTSGBase(STSGBase):
             self._scheduler.step(score)
 
     def init_dataset(self):
-        self._train_dataset = AG(
+        self._train_dataset = StandardAG(
             phase="train",
             datasize=self._conf.datasize,
             data_path=self._conf.data_path,
@@ -150,7 +150,7 @@ class TrainSTSGBase(STSGBase):
             filter_small_box=False if self._conf.mode == 'predcls' else True
         )
 
-        self._test_dataset = AG(
+        self._test_dataset = StandardAG(
             phase="test",
             datasize=self._conf.datasize,
             data_path=self._conf.data_path,
@@ -161,7 +161,7 @@ class TrainSTSGBase(STSGBase):
         self._dataloader_train = DataLoader(
             self._train_dataset,
             shuffle=True,
-            collate_fn=cuda_collate_fn,
+            collate_fn=ag_data_cuda_collate_fn,
             pin_memory=True,
             num_workers=0
         )
@@ -169,7 +169,7 @@ class TrainSTSGBase(STSGBase):
         self._dataloader_test = DataLoader(
             self._test_dataset,
             shuffle=False,
-            collate_fn=cuda_collate_fn,
+            collate_fn=ag_data_cuda_collate_fn,
             pin_memory=False
         )
 

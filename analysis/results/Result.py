@@ -118,7 +118,9 @@ class Result:
 			method_name,
 			mode,
 			corruption_type,
-			result_id=None
+			result_id=None,
+			train_future_frames=None,
+			test_future_frames=None,
 	):
 		self.task_name = task_name
 		self.method_name = method_name
@@ -126,8 +128,8 @@ class Result:
 		self.corruption_type = corruption_type
 		
 		# Specific Attributes
-		self.train_num_future_frames = None
-		self.test_num_future_frames = None
+		self.train_num_future_frames = train_future_frames
+		self.test_num_future_frames = test_future_frames
 		self.context_fraction = None
 		
 		# Common Attributes

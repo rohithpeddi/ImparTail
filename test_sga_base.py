@@ -44,6 +44,13 @@ class TestSTSGBase(STSGBase):
         self._combined_ff_evaluators_dict = {}
         self._combined_cf_evaluators_dict = {}
 
+        # Define the corruption function name
+        # (Dataset - Video - Corruption Type) Possible Values
+        # (Fixed - Fixed - {corruption_name})
+        # (Mixed - Fixed), (Mixed - Mixed)
+        # [{fixed_fixed_rain}, {mixed_fixed}, {mixed_mixed}]
+        self._corruption_name = None
+
     def _init_evaluators(self):
         print("Replaced default single evaluator with multiple evaluators")
         # Evaluators order - [With Constraint, No Constraint, Semi Constraint]
@@ -212,7 +219,7 @@ class TestSTSGBase(STSGBase):
         if is_future_frame:
             # Create the results file
             for i, future_frame_window in enumerate(self._future_frame_windows):
-                file_name = f'{self._conf.method_name}_{self._conf.mode}_train_{self._conf.max_window}_test_{future_frame_window}.csv'
+                file_name = f'{self._conf.method_name}_{self._conf.mode}_train_{self._conf.max_window}_test_{future_frame_window}_{self._corruption_name}.csv'
                 results_file_path = os.path.join(mode_results_dir, file_name)
 
                 with open(results_file_path, "a", newline='') as activity_idx_step_idx_annotation_csv_file:
@@ -237,7 +244,7 @@ class TestSTSGBase(STSGBase):
 
         if not is_future_frame:
             for i, context_fraction in enumerate(self._context_fractions):
-                file_name = f'{self._conf.method_name}_{self._conf.mode}_train_{self._conf.max_window}_test_{context_fraction}.csv'
+                file_name = f'{self._conf.method_name}_{self._conf.mode}_train_{self._conf.max_window}_test_{context_fraction}_{self._corruption_name}.csv'
                 results_file_path = os.path.join(mode_results_dir, file_name)
 
                 with open(results_file_path, "a", newline='') as activity_idx_step_idx_annotation_csv_file:

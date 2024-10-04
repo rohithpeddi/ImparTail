@@ -144,7 +144,7 @@ class TestSGGBase(STSGBase):
         # 2. Write to the CSV File
         self._write_evaluation_statistics()
         # 3. Publish the results to Firebase
-        # self._publish_results_to_firebase()
+        self._publish_results_to_firebase()
 
     def _write_evaluation_statistics(self):
         # Create the results directory

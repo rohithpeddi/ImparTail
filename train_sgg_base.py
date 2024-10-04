@@ -51,7 +51,7 @@ class TrainSGGBase(STSGBase):
         ).to(device=self._device)
         self._object_detector.eval()
 
-    def _train_model(self):
+    def train_model(self):
         tr = []
         for epoch in range(self._conf.nepoch):
             self._model.train()
@@ -69,7 +69,7 @@ class TrainSGGBase(STSGBase):
                     entry = self._object_detector(im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all=None)
 
                 # ----------------- Process the video (Method Specific)-----------------
-                pred = self.process_train_video(entry, frame_size)
+                pred = self.process_train_video(entry, frame_size, gt_annotation)
                 # ----------------------------------------------------------------------
 
                 attention_distribution = pred[const.ATTENTION_DISTRIBUTION]
@@ -151,7 +151,7 @@ class TrainSGGBase(STSGBase):
                     entry = self._object_detector(im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all=None)
 
                     # ----------------- Process the video (Method Specific)-----------------
-                    pred = self.process_test_video(entry, frame_size)
+                    pred = self.process_test_video(entry, frame_size, gt_annotation)
                     # ----------------------------------------------------------------------
 
                     self._evaluator.evaluate_scene_graph(gt_annotation, pred)
@@ -194,9 +194,9 @@ class TrainSGGBase(STSGBase):
         )
 
     @abstractmethod
-    def process_train_video(self, video, frame_size) -> dict:
+    def process_train_video(self, video, frame_size, gt_annotation) -> dict:
         pass
 
     @abstractmethod
-    def process_test_video(self, video, frame_size) -> dict:
+    def process_test_video(self, video, frame_size, gt_annotation) -> dict:
         pass

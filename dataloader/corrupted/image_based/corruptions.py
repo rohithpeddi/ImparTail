@@ -515,3 +515,18 @@ class MixedVideoCorruptionGenerator(BaseImageCorruptionGenerator):
             corruption_transform_list.append(self._corruption_name_to_function[corruption_transform])
 
         return corruption_transform_list
+
+
+class StandardGenerator(BaseImageCorruptionGenerator):
+
+    def __init__(self, corruption_severity_level):
+        super().__init__()
+        self._corruption_severity_level = 0
+
+    def fetch_corruption_transforms(self, num_frames):
+        corruption_transform_list = []
+        for _ in range(num_frames):
+            corruption_transform = const.NO_CORRUPTION
+            corruption_transform_list.append(self._corruption_name_to_function[corruption_transform])
+
+        return corruption_transform_list

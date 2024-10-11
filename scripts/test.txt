@@ -10,4 +10,4 @@ python test_sga_methods.py --method_name=sttran_gen_ant --ckpt=
 python test_sga_methods.py --method_name=dsgdetr_ant --ckpt=
 python test_sga_methods.py --method_name=dsgdetr_gen_ant --ckpt=
 python test_sga_methods.py --method_name=ode --ckpt=
-python test_sga_methods.py --method_name=sde --ckpt=
+python test_sga_methods.py --method_name=sde --ckpt=/data/rohith/ag/checkpoints/sga/sde/sde_predcls_future_3_epoch_9.tar

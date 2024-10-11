@@ -39,7 +39,7 @@ class Config(object):
         
         self.hp_recon_loss = 1.0
         
-        self.use_raw_data = False
+        self.use_corruptions = False
         
         self.parser = self.setup_parser()
         self.args = vars(self.parser.parse_args())
@@ -79,4 +79,6 @@ class Config(object):
         parser.add_argument('--bce_loss', action='store_true')
         parser.add_argument('--modified_gt', action='store_true')
         parser.add_argument("--task_name", default="sga", type=str)
+        parser.add_argument("--use_corruptions", action="store_true")
+
         return parser

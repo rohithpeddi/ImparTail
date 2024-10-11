@@ -70,3 +70,9 @@ wandb
 loguru
 ffmpeg==1.4
 mmcv-full==1.7.0
+pyrebase4
+scikit-image
+Wand
+arcade==2.4.3
+pyglet==1.4.9
+pymunk==5.7.0

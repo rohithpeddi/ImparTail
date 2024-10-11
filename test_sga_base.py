@@ -9,6 +9,7 @@ from tqdm import tqdm
 
 from analysis.results.FirebaseService import FirebaseService
 from analysis.results.Result import Result, ResultDetails, Metrics
+from dataloader.standard.action_genome.ag_dataset import StandardAG
 from dataloader.corrupted.image_based.ag_dataset import ImageCorruptedAG
 from dataloader.corrupted.image_based.ag_dataset import cuda_collate_fn as ag_data_cuda_collate_fn
 from lib.object_detector import Detector
@@ -341,23 +342,47 @@ class TestSTSGBase(STSGBase):
         return
 
     def _init_dataset(self):
-        # Using the parameters set in the configuration file, initialize the corrupted dataset
-        self._test_dataset = ImageCorruptedAG(
-            phase='test',
-            datasize=self._conf.datasize,
-            data_path=self._conf.data_path,
-            filter_nonperson_box_frame=True,
-            filter_small_box=False if self._conf.mode == 'predcls' else True
-        )
+
+        if self._conf.use_corruptions:
+            # Using the parameters set in the configuration file, initialize the corrupted dataset
+            self._test_dataset = ImageCorruptedAG(
+                phase='test',
+                datasize=self._conf.datasize,
+                data_path=self._conf.data_path,
+                filter_nonperson_box_frame=True,
+                filter_small_box=False if self._conf.mode == 'predcls' else True,
+                dataset_corruption_mode=self._conf.dataset_corruption_mode,
+                video_corruption_mode=self._conf.video_corruption_mode,
+                dataset_corruption_type=self._conf.dataset_corruption_type,
+                corruption_severity_level=self._conf.corruption_severity_level
+            )
+
+            self._dataloader_test = DataLoader(
+                self._test_dataset,
+                shuffle=False,
+                collate_fn=ag_data_cuda_collate_fn,
+                pin_memory=False
+            )
+
+            self._corruption_name = (f"{self._conf.dataset_corruption_mode}_{self._conf.video_corruption_mode}_"
+                                     f"{self._conf.dataset_corruption_type}_{self._conf.corruption_severity_level}")
+        else:
+            self._test_dataset = StandardAG(
+                phase="test",
+                datasize=self._conf.datasize,
+                data_path=self._conf.data_path,
+                filter_nonperson_box_frame=True,
+                filter_small_box=False if self._conf.mode == 'predcls' else True
+            )
+
+            self._dataloader_test = DataLoader(
+                self._test_dataset,
+                shuffle=False,
+                collate_fn=ag_data_cuda_collate_fn,
+                pin_memory=False
+            )
 
         self._object_classes = self._test_dataset.object_classes
-
-        self._dataloader_test = DataLoader(
-            self._test_dataset,
-            shuffle=False,
-            collate_fn=ag_data_cuda_collate_fn,
-            pin_memory=False
-        )
 
     @abstractmethod
     def process_test_video_future_frame(self, entry, frame_size, gt_annotation):

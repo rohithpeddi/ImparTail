@@ -1,6 +1,8 @@
 from lib.supervised.config import Config
 from train_sgg_base import TrainSGGBase
-
+from lib.supervised.sgg.sttran.sttran import STTran
+from lib.supervised.sgg.dsgdetr.dsgdetr import DsgDETR
+from lib.supervised.sgg.tempura.tempura import TEMPURA
 
 class TrainSTTran(TrainSGGBase):
 
@@ -8,7 +10,6 @@ class TrainSTTran(TrainSGGBase):
         super().__init__(conf)
 
     def init_model(self):
-        from lib.supervised.sgg.sttran.sttran import STTran
         self._model = STTran(mode=self._conf.mode,
                              attention_class_num=len(self._train_dataset.attention_relationships),
                              spatial_class_num=len(self._train_dataset.spatial_relationships),
@@ -35,7 +36,7 @@ class TrainDsgDetr(TrainSGGBase):
         self._matcher = None
 
     def init_model(self):
-        from lib.supervised.sgg.dsgdetr.dsgdetr import DsgDETR
+
         from lib.supervised.sgg.dsgdetr.matcher import HungarianMatcher
 
         self._model = DsgDETR(mode=self._conf.mode,
@@ -47,7 +48,6 @@ class TrainDsgDetr(TrainSGGBase):
                               dec_layer_num=self._conf.dec_layer).to(device=self._device)
 
         self._matcher = HungarianMatcher(0.5, 1, 1, 0.5)
-        self._matcher.eval()
 
     def process_train_video(self, entry, frame_size, gt_annotation) -> dict:
         from lib.supervised.sgg.dsgdetr.track import get_sequence_with_tracking
@@ -68,7 +68,6 @@ class TrainTempura(TrainSGGBase):
         super().__init__(conf)
 
     def init_model(self):
-        from lib.supervised.sgg.tempura.tempura import TEMPURA
         model = TEMPURA(mode=self._conf.mode,
                         attention_class_num=len(self._test_dataset.attention_relationships),
                         spatial_class_num=len(self._test_dataset.spatial_relationships),
@@ -86,7 +85,6 @@ class TrainTempura(TrainSGGBase):
                         rel_head=self._conf.rel_head,
                         K=self._conf.K,
                         tracking=self._conf.tracking).to(device=self._device)
-        model.eval()
 
     def process_train_video(self, entry, frame_size, gt_annotation) -> dict:
         from lib.supervised.sgg.tempura.ds_track import get_sequence
@@ -114,7 +112,7 @@ def main():
     else:
         raise NotImplementedError
 
-    train_class.train_model()
+    train_class.init_method_training()
 
 
 if __name__ == "__main__":

@@ -305,6 +305,8 @@ class ResultConstants:
     CORRUPTION_TYPE = "corruption_type"
     CORRUPTION_LEVEL = "corruption_level"
 
+    PARTIAL_PERCENTAGE = "partial_percentage"
+
 
 class CorruptionConstants:
     GAUSSIAN_NOISE = "gaussian_noise"

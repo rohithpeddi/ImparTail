@@ -198,6 +198,7 @@ class TestSGGBase(STSGBase):
             task_name=self._conf.task_name,
             method_name=self._conf.method_name,
             mode=self._conf.mode,
+            partial_percentage=self._conf.partial_percentage,
             corruption_type=self._corruption_name,
         )
 

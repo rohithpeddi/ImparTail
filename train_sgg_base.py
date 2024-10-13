@@ -52,7 +52,7 @@ class TrainSGGBase(STSGBase):
         ).to(device=self._device)
         self._object_detector.eval()
 
-    def train_model(self):
+    def _train_model(self):
         tr = []
         for epoch in range(self._conf.nepoch):
             self._model.train()
@@ -212,3 +212,23 @@ class TrainSGGBase(STSGBase):
     @abstractmethod
     def process_test_video(self, video, frame_size, gt_annotation) -> dict:
         pass
+
+    def init_method_training(self):
+        # 0. Initialize the config
+        self._init_config()
+
+        # 1. Initialize the dataset
+        self.init_dataset()
+
+        # 2. Initialize evaluators
+        self._init_evaluators()
+
+        # 3. Initialize and load pre-trained models
+        self.init_model()
+        self._load_checkpoint()
+        self._init_object_detector()
+        self._init_optimizer()
+        self._init_scheduler()
+
+        # 4. Initialize model training
+        self._train_model()

@@ -118,6 +118,7 @@ class Result:
 			method_name,
 			mode,
 			corruption_type,
+			partial_percentage=None,
 			result_id=None,
 			train_future_frames=None,
 			test_future_frames=None,
@@ -131,6 +132,7 @@ class Result:
 		self.train_num_future_frames = train_future_frames
 		self.test_num_future_frames = test_future_frames
 		self.context_fraction = None
+		self.partial_percentage = partial_percentage
 		
 		# Common Attributes
 		self.result_details = None
@@ -152,7 +154,8 @@ class Result:
 			const.MODE: self.mode,
 			const.RESULT_ID: self.result_id,
 			const.DATE: self.result_date,
-			const.CORRUPTION_TYPE: self.corruption_type
+			const.CORRUPTION_TYPE: self.corruption_type,
+			const.PARTIAL_PERCENTAGE: self.partial_percentage
 		}
 		
 		if self.train_num_future_frames is not None:
@@ -166,6 +169,9 @@ class Result:
 			
 		if self.result_details is not None:
 			result_dict[const.RESULT_DETAILS] = self.result_details.to_dict()
+
+		if self.partial_percentage is not None:
+			result_dict[const.PARTIAL_PERCENTAGE] = self.partial_percentage
 		
 		return result_dict
 	
@@ -193,5 +199,8 @@ class Result:
 			
 		if const.DATE in result_dict:
 			result.result_date = result_dict[const.DATE]
+
+		if const.PARTIAL_PERCENTAGE in result_dict:
+			result.partial_percentage = result_dict[const.PARTIAL_PERCENTAGE]
 		
 		return result

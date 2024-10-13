@@ -38,8 +38,16 @@ class Config(object):
         self.max_future = 5
         
         self.hp_recon_loss = 1.0
-        
+
+        # ---------------- Corruptions ----------------
         self.use_corruptions = False
+
+        # ---------------- Partial Annotations ----------------
+        self.use_partial_annotations = False
+        self.partial_ratio = 0.1
+
+        # ---------------- Use wandb ----------------
+        self.use_wandb = False
         
         self.parser = self.setup_parser()
         self.args = vars(self.parser.parse_args())
@@ -56,13 +64,9 @@ class Config(object):
         parser.add_argument('--mode', dest='mode', help='predcls/sgcls/sgdet', default='predcls', type=str)
         parser.add_argument('--save_path', default='/data/rohith/ag/checkpoints', type=str)
         parser.add_argument('--model_path', default=None, type=str)
-        parser.add_argument('--method_name', default='NeuralODE', type=str)
+        parser.add_argument('--method_name', default='sttran', type=str)
         parser.add_argument('--results_path', default='results', type=str)
-        parser.add_argument('--max_window', default=5, type=int)
-        parser.add_argument('--brownian_size', default=1, type=int)
-        parser.add_argument('--ode_ratio', default=1.0, type=float)
-        parser.add_argument('--sde_ratio', default=1.0, type=float)
-        parser.add_argument('--bbox_ratio', default=0.1, type=float)
+
         parser.add_argument('--features_path', default=None, type=str)
         parser.add_argument('--additional_data_path', default=None, type=str)
         parser.add_argument('--baseline_context', default=3, type=int)
@@ -79,6 +83,22 @@ class Config(object):
         parser.add_argument('--bce_loss', action='store_true')
         parser.add_argument('--modified_gt', action='store_true')
         parser.add_argument("--task_name", default="sga", type=str)
+
+        # ---------------- SGA ----------------
+        parser.add_argument('--max_window', default=5, type=int)
+        parser.add_argument('--brownian_size', default=1, type=int)
+        parser.add_argument('--ode_ratio', default=1.0, type=float)
+        parser.add_argument('--sde_ratio', default=1.0, type=float)
+        parser.add_argument('--bbox_ratio', default=0.1, type=float)
+
+        # ---------------- Corruptions ----------------
         parser.add_argument("--use_corruptions", action="store_true")
+
+        # ---------------- Partial Annotations ----------------
+        parser.add_argument("--use_partial_annotations", action="store_true")
+        parser.add_argument("--partial_ratio", default=0.1, type=float)
+
+        # ---------------- Use wandb ----------------
+        parser.add_argument("--use_wandb", action="store_true")
 
         return parser

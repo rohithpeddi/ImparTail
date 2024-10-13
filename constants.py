@@ -7,6 +7,7 @@ class Constants:
     CLASS = "class"
     BACKGROUND = "__background__"
     ANNOTATIONS = "annotations"
+    PARTIAL = "partial"
     MINI = "mini"
     METADATA = "metadata"
     SET = "set"

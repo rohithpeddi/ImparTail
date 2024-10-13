@@ -9,6 +9,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 
 from constants import Constants as const
+from dataloader.partial.action_genome.ag_dataset import PartialAG
 from dataloader.standard.action_genome.ag_dataset import StandardAG
 from dataloader.standard.action_genome.ag_dataset import cuda_collate_fn as ag_data_cuda_collate_fn
 from lib.object_detector import Detector
@@ -162,13 +163,24 @@ class TrainSGGBase(STSGBase):
             self._scheduler.step(score)
 
     def init_dataset(self):
-        self._train_dataset = StandardAG(
-            phase="train",
-            datasize=self._conf.datasize,
-            data_path=self._conf.data_path,
-            filter_nonperson_box_frame=True,
-            filter_small_box=False if self._conf.mode == 'predcls' else True
-        )
+
+        if self._conf.use_partial_annotations:
+            self._train_dataset = PartialAG(
+                phase="train",
+                datasize=self._conf.datasize,
+                partial_ratio=self._conf.partial_ratio,
+                data_path=self._conf.data_path,
+                filter_nonperson_box_frame=True,
+                filter_small_box=False if self._conf.mode == 'predcls' else True,
+            )
+        else:
+            self._train_dataset = StandardAG(
+                phase="train",
+                datasize=self._conf.datasize,
+                data_path=self._conf.data_path,
+                filter_nonperson_box_frame=True,
+                filter_small_box=False if self._conf.mode == 'predcls' else True
+            )
 
         self._test_dataset = StandardAG(
             phase="test",

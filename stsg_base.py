@@ -28,7 +28,7 @@ class STSGBase:
         self._checkpoint_save_dir_path = None
 
         # Init Wandb
-        self._enable_wandb = False
+        self._enable_wandb = self._conf.use_wandb
 
     def _init_config(self):
         print('The CKPT saved here:', self._conf.save_path)
@@ -48,7 +48,10 @@ class STSGBase:
             self._conf.mode = self._checkpoint_name.split('_')[-5]
         else:
             # Set the checkpoint name and save path details
-            self._checkpoint_name = f"{self._conf.method_name}_{self._conf.mode}_future_{self._conf.max_window}"
+            if self._conf.use_partial_annotations:
+                self._checkpoint_name = f"{self._conf.method_name}_partial_{self._conf.partial_ratio}_{self._conf.mode}_future_{self._conf.max_window}"
+            else:
+                self._checkpoint_name = f"{self._conf.method_name}_{self._conf.mode}_future_{self._conf.max_window}"
 
         self._checkpoint_save_dir_path = os.path.join(self._conf.save_path, self._checkpoint_name)
 

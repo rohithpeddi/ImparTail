@@ -7,6 +7,7 @@ import pandas as pd
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 from constants import Constants as const
 from dataloader.partial.action_genome.ag_dataset import PartialAG
@@ -61,10 +62,17 @@ class TrainSGGBase(STSGBase):
             counter = 0
             start_time = time.time()
             self._object_detector.is_train = True
-            for train_idx in range(len(self._dataloader_train)):
+            for train_idx in tqdm(range(len(self._dataloader_train))):
                 data = next(train_iter)
                 im_data, im_info, gt_boxes, num_boxes = [copy.deepcopy(d.cuda(0)) for d in data[:4]]
-                gt_annotation = self._train_dataset.gt_annotations[data[4]]
+
+                video_index = data[4]
+                gt_annotation = self._train_dataset.gt_annotations[video_index]
+
+                if len(gt_annotation) == 0:
+                    print(f'No annotations found in the video {video_index}. Skipping...')
+                    continue
+
                 frame_size = (im_info[0][:2] / im_info[0, 2]).cpu().data
                 with torch.no_grad():
                     entry = self._object_detector(im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all=None)
@@ -79,6 +87,11 @@ class TrainSGGBase(STSGBase):
 
                 attention_label = torch.tensor(pred[const.ATTENTION_GT], dtype=torch.long).to(
                     device=attention_distribution.device).squeeze()
+
+                # Change to shape [1] if the tensor defaults to a single value
+                if len(attention_label.shape) == 0:
+                    attention_label = attention_label.unsqueeze(0)
+
                 if not self._conf.bce_loss:
                     # Adjust Labels for MLM Loss
                     spatial_label = -torch.ones([len(pred[const.SPATIAL_GT]), 6], dtype=torch.long).to(
@@ -205,6 +218,8 @@ class TrainSGGBase(STSGBase):
             pin_memory=False
         )
 
+        self._object_classes = self._train_dataset.object_classes
+
     @abstractmethod
     def process_train_video(self, video, frame_size, gt_annotation) -> dict:
         pass
@@ -225,6 +240,7 @@ class TrainSGGBase(STSGBase):
 
         # 3. Initialize and load pre-trained models
         self.init_model()
+        self._init_loss_functions()
         self._load_checkpoint()
         self._init_object_detector()
         self._init_optimizer()

@@ -376,20 +376,28 @@ class Detector(nn.Module):
         for frame_idx, gt_frame_bboxes in enumerate(gt_annotation):
             for frame_bbox in gt_frame_bboxes:
                 if const.PERSON_BBOX in frame_bbox.keys():
-                    FINAL_BBOXES[bbox_idx, 1:] = torch.from_numpy(frame_bbox[const.PERSON_BBOX][0])
+                    FINAL_BBOXES[bbox_idx, 1:] = torch.from_numpy(np.array(frame_bbox[const.PERSON_BBOX][0]))
                     FINAL_BBOXES[bbox_idx, 0] = frame_idx
                     FINAL_LABELS[bbox_idx] = 1
                     HUMAN_IDX[frame_idx] = bbox_idx
                     bbox_idx += 1
                 else:
-                    FINAL_BBOXES[bbox_idx, 1:] = torch.from_numpy(frame_bbox[const.BBOX])
+                    FINAL_BBOXES[bbox_idx, 1:] = torch.from_numpy(np.array(frame_bbox[const.BBOX]))
                     FINAL_BBOXES[bbox_idx, 0] = frame_idx
                     FINAL_LABELS[bbox_idx] = frame_bbox[const.CLASS]
                     im_idx.append(frame_idx)
                     pair.append([int(HUMAN_IDX[frame_idx]), bbox_idx])
-                    a_rel.append(frame_bbox[const.ATTENTION_RELATIONSHIP].tolist())
-                    s_rel.append(frame_bbox[const.SPATIAL_RELATIONSHIP].tolist())
-                    c_rel.append(frame_bbox[const.CONTACTING_RELATIONSHIP].tolist())
+
+                    if type(frame_bbox[const.ATTENTION_RELATIONSHIP]) == torch.Tensor:
+                        a_rel.append(frame_bbox[const.ATTENTION_RELATIONSHIP].tolist())
+                        s_rel.append(frame_bbox[const.SPATIAL_RELATIONSHIP].tolist())
+                        c_rel.append(frame_bbox[const.CONTACTING_RELATIONSHIP].tolist())
+                    else:
+                        # A raw list of relations is provided
+                        a_rel.append(frame_bbox[const.ATTENTION_RELATIONSHIP])
+                        s_rel.append(frame_bbox[const.SPATIAL_RELATIONSHIP])
+                        c_rel.append(frame_bbox[const.CONTACTING_RELATIONSHIP])
+
                     bbox_idx += 1
         return FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX, im_idx, pair, a_rel, s_rel, c_rel
 

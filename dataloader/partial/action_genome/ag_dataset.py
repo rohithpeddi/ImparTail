@@ -5,10 +5,12 @@ import random
 import cv2
 import numpy as np
 import torch
+import json
 
 from dataloader.base_ag_dataset import BaseAG
 from constants import Constants as const
 from fasterRCNN.lib.model.utils.blob import prep_im_for_blob, im_list_to_blob
+from utils import NumpyEncoder
 
 
 class PartialAG(BaseAG):
@@ -24,7 +26,8 @@ class PartialAG(BaseAG):
     ):
         super().__init__(phase, datasize, data_path, filter_nonperson_box_frame, filter_small_box)
         # Filter out objects in the ground truth based on object observation ratio.
-        self._gt_annotations = self.filter_gt_annotations(partial_percentage * 0.01)
+        filtered_gt_annotations = self.filter_gt_annotations(partial_percentage)
+        self._gt_annotations = filtered_gt_annotations
 
     @staticmethod
     def estimate_distribution(data):
@@ -78,19 +81,24 @@ class PartialAG(BaseAG):
 
         return filtered_data
 
-    def filter_gt_annotations(self, partial_ratio):
+    def filter_gt_annotations(self, partial_percentage):
         # Load from cache if the partial file exists in the cache directory.
         annotations_path = os.path.join(self._data_path, const.ANNOTATIONS)
-        cache_file = os.path.join(annotations_path, "partial",  f'partial_{partial_ratio}.npy')
+        cache_file = os.path.join(annotations_path, "partial",  f'partial_{partial_percentage}.json')
 
         if os.path.exists(cache_file):
-            np_filtered_gt_annotations = np.load(cache_file, allow_pickle=True)
-            # convert numpy array to list of lists
-            return np_filtered_gt_annotations.tolist()
+            print(f"Loading filtered ground truth annotations from {cache_file}")
+            with open(cache_file, 'r') as file:
+                filtered_gt_annotations = json.loads(file.read())
+            return filtered_gt_annotations
 
         #--------------------------------------------------------------------------------------------
         # Filter out objects in the ground truth based on partial observation ratio.
         #--------------------------------------------------------------------------------------------
+        print("--------------------------------------------------------------------------------")
+        print("No file found in the cache directory.")
+        print(f"Filtering ground truth annotations based on partial observation ratio: {partial_percentage}%")
+        print("--------------------------------------------------------------------------------")
 
         # 1. Estimate statistics of object class occurrences in the ground truth annotations.
         data_obj_class_list = []
@@ -108,7 +116,10 @@ class PartialAG(BaseAG):
             data_obj_class_list.append(video_obj_list)
 
         # 2. Construct filter based on the probability distribution of the obj class occurrences.
-        filtered_data_obj_class_list = self.filter_annotations_preserve_distribution(data_obj_class_list, partial_ratio)
+        filtered_data_obj_class_list = self.filter_annotations_preserve_distribution(
+            data=data_obj_class_list,
+            partial_annotation_ratio=partial_percentage * 0.01
+        )
 
         # 3. Construct filtered ground truth annotations based on filtered obj class occurrences.
         filtered_gt_annotations = []
@@ -118,18 +129,21 @@ class PartialAG(BaseAG):
                 filtered_video_frame_annotation_dict = []
                 for frame_obj_id, frame_obj_dict in enumerate(video_frame_annotation_dict):
                     if frame_obj_id == 0:
-                        filtered_video_frame_annotation_dict.append(frame_obj_dict)
                         continue
                     obj_class_id = frame_obj_dict[const.CLASS]
                     if obj_class_id in filtered_data_obj_class_list[video_id][video_frame_id]:
                         filtered_video_frame_annotation_dict.append(frame_obj_dict)
-                filtered_video_annotation_dict.append(filtered_video_frame_annotation_dict)
+                # Add a person object frame only when an object is observed in the frame.
+                if len(filtered_video_frame_annotation_dict) > 0:
+                    filtered_video_frame_annotation_dict.insert(0, video_frame_annotation_dict[0])
+                    filtered_video_annotation_dict.append(filtered_video_frame_annotation_dict)
             filtered_gt_annotations.append(filtered_video_annotation_dict)
 
         # 4. Save the filtered ground truth annotations to the cache directory.
         os.makedirs(os.path.join(annotations_path, "partial"), exist_ok=True)
-        np_filtered_gt_annotations = np.array(filtered_gt_annotations, dtype=object)
-        np.save(cache_file, np_filtered_gt_annotations)
+        filtered_gt_annotations_json = json.dumps(filtered_gt_annotations, cls=NumpyEncoder)
+        with open(cache_file, 'w') as f:
+            f.write(filtered_gt_annotations_json)
 
         return filtered_gt_annotations
 

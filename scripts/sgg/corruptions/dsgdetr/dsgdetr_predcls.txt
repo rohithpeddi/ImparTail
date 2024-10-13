@@ -1,0 +1,46 @@
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type no_corruption --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type gaussian_noise --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type shot_noise --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type impulse_noise --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type speckle_noise --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type gaussian_blur --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type defocus_blur --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type motion_blur --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type zoom_blur --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type fog --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type frost --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type snow --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type spatter --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type contrast --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type brightness --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type elastic_transform --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type pixelate --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type jpeg_compression --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type sun_glare --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type rain --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type dust --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type wildfire_smoke --corruption_severity_level 3
+-----------------------------------------------------------------------------
+python test_sgg_methods.py --task_name sgg --method_name dsgdetr --mode predcls --ckpt /data/rohith/ag/checkpoints/predcls/dsgdetr_predcls.tar --dataset_corruption_mode fixed --dataset_corruption_type saturate --corruption_severity_level 3
+-----------------------------------------------------------------------------

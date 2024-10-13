@@ -149,7 +149,7 @@ class TrainSTSGBase(STSGBase):
             self._train_dataset = PartialAG(
                 phase="train",
                 datasize=self._conf.datasize,
-                partial_ratio=self._conf.partial_ratio,
+                partial_percentage=self._conf.partial_percentage,
                 data_path=self._conf.data_path,
                 filter_nonperson_box_frame=True,
                 filter_small_box=False if self._conf.mode == 'predcls' else True,

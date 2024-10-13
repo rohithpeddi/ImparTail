@@ -17,14 +17,14 @@ class PartialAG(BaseAG):
             self,
             phase,
             datasize,
-            partial_ratio=0.1,
+            partial_percentage=10,
             data_path=None,
             filter_nonperson_box_frame=True,
             filter_small_box=False
     ):
         super().__init__(phase, datasize, data_path, filter_nonperson_box_frame, filter_small_box)
         # Filter out objects in the ground truth based on object observation ratio.
-        self._gt_annotations = self.filter_gt_annotations(partial_ratio)
+        self._gt_annotations = self.filter_gt_annotations(partial_percentage * 0.01)
 
     @staticmethod
     def estimate_distribution(data):

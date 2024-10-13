@@ -1,6 +1,7 @@
-"""
-Let's get the relationships yo
-"""
+import math
+
+from torch import Tensor
+from torch.nn.utils.rnn import pad_sequence
 
 from lib.word_vectors import obj_edge_vectors
 from lib.fpn.box_utils import center_size
@@ -9,197 +10,36 @@ from lib.draw_rectangles.draw_rectangles import draw_union_boxes
 
 import torch
 import torch.nn as nn
-import copy
+from constants import Constants as const
+
+EncoderLayer = nn.TransformerEncoderLayer
+Encoder = nn.TransformerEncoder
 
 
-class TransformerEncoderLayer(nn.Module):
+class PositionalEncoding(nn.Module):
 
-    def __init__(self, embed_dim=1936, nhead=4, dim_feedforward=2048, dropout=0.1):
+    def __init__(self, d_model: int, dropout: float = 0.1, max_len: int = 5000):
         super().__init__()
-        self.self_attn = nn.MultiheadAttention(embed_dim, nhead, dropout=dropout)
+        self.dropout = nn.Dropout(p=dropout)
 
-        self.linear1 = nn.Linear(embed_dim, dim_feedforward)
-        self.dropout = nn.Dropout(dropout)
-        self.linear2 = nn.Linear(dim_feedforward, embed_dim)
+        position = torch.arange(max_len).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2) * (-math.log(10000.0) / d_model))
+        pe = torch.zeros(1, max_len, d_model)
+        pe[0, :, 0::2] = torch.sin(position * div_term)
+        pe[0, :, 1::2] = torch.cos(position * div_term)
+        self.register_buffer('pe', pe)
 
-        self.norm1 = nn.LayerNorm(embed_dim)
-        self.norm2 = nn.LayerNorm(embed_dim)
-        self.dropout1 = nn.Dropout(dropout)
-        self.dropout2 = nn.Dropout(dropout)
-
-    def forward(self, src, input_key_padding_mask):
-        # local attention
-        src2, local_attention_weights = self.self_attn(src, src, src, key_padding_mask=input_key_padding_mask)
-
-        src = src + self.dropout1(src2)
-        src = self.norm1(src)
-        src2 = self.linear2(self.dropout(nn.functional.relu(self.linear1(src))))
-        src = src + self.dropout2(src2)
-        src = self.norm2(src)
-
-        return src, local_attention_weights
-
-
-class TransformerDecoderLayer(nn.Module):
-
-    def __init__(self, embed_dim=1936, nhead=4, dim_feedforward=2048, dropout=0.1):
-        super().__init__()
-
-        self.multihead2 = nn.MultiheadAttention(embed_dim, nhead, dropout=dropout)
-
-        self.linear1 = nn.Linear(embed_dim, dim_feedforward)
-        self.dropout = nn.Dropout(dropout)
-        self.linear2 = nn.Linear(dim_feedforward, embed_dim)
-
-        self.norm3 = nn.LayerNorm(embed_dim)
-        self.dropout2 = nn.Dropout(dropout)
-        self.dropout3 = nn.Dropout(dropout)
-
-    def forward(self, global_input, input_key_padding_mask, position_embed):
-        tgt2, global_attention_weights = self.multihead2(query=global_input + position_embed,
-                                                         key=global_input + position_embed,
-                                                         value=global_input, key_padding_mask=input_key_padding_mask)
-        tgt = global_input + self.dropout2(tgt2)
-        tgt = self.norm3(tgt)
-        tgt2 = self.linear2(self.dropout(nn.functional.relu(self.linear1(tgt))))
-        tgt = tgt + self.dropout3(tgt2)
-
-        return tgt, global_attention_weights
-
-
-class TransformerEncoder(nn.Module):
-
-    def __init__(self, encoder_layer, num_layers):
-        super().__init__()
-        self.layers = _get_clones(encoder_layer, num_layers)
-        self.num_layers = num_layers
-
-    def forward(self, input, input_key_padding_mask):
-        output = input
-        weights = torch.zeros([self.num_layers, output.shape[1], output.shape[0], output.shape[0]]).to(output.device)
-
-        for i, layer in enumerate(self.layers):
-            output, local_attention_weights = layer(output, input_key_padding_mask)
-            weights[i] = local_attention_weights
-        if self.num_layers > 0:
-            return output, weights
+    def forward(self, x: Tensor, indices=None) -> Tensor:
+        """
+        Args:
+            x: Tensor, shape [batch_size, seq_len, embedding_dim]
+        """
+        if indices is None:
+            x = x + self.pe[:, :x.size(1)]
         else:
-            return output, None
-
-
-class TransformerDecoder(nn.Module):
-
-    def __init__(self, decoder_layer, num_layers, embed_dim):
-        super().__init__()
-        self.layers = _get_clones(decoder_layer, num_layers)
-        self.num_layers = num_layers
-
-    def forward(self, global_input, input_key_padding_mask, position_embed):
-
-        output = global_input
-        weights = torch.zeros([self.num_layers, output.shape[1], output.shape[0], output.shape[0]]).to(output.device)
-
-        for i, layer in enumerate(self.layers):
-            output, global_attention_weights = layer(output, input_key_padding_mask, position_embed)
-            weights[i] = global_attention_weights
-
-        if self.num_layers > 0:
-            return output, weights
-        else:
-            return output, None
-
-
-class transformer(nn.Module):
-    ''' Spatial Temporal Transformer
-        local_attention: spatial encoder
-        global_attention: temporal decoder
-        position_embedding: frame encoding (window_size*dim)
-        mode: both--use the features from both frames in the window
-              latter--use the features from the latter frame in the window
-    '''
-
-    def __init__(self, enc_layer_num=1, dec_layer_num=3, embed_dim=1936, nhead=8, dim_feedforward=2048,
-                 dropout=0.1, mode=None):
-        super(transformer, self).__init__()
-        self.mode = mode
-
-        encoder_layer = TransformerEncoderLayer(embed_dim=embed_dim, nhead=nhead, dim_feedforward=dim_feedforward,
-                                                dropout=dropout)
-        self.local_attention = TransformerEncoder(encoder_layer, enc_layer_num)
-
-        decoder_layer = TransformerDecoderLayer(embed_dim=embed_dim, nhead=nhead, dim_feedforward=dim_feedforward,
-                                                dropout=dropout)
-
-        self.global_attention = TransformerDecoder(decoder_layer, dec_layer_num, embed_dim)
-
-        self.position_embedding = nn.Embedding(2, embed_dim)  # present and next frame
-        nn.init.uniform_(self.position_embedding.weight)
-
-    def forward(self, features, im_idx):
-        rel_idx = torch.arange(im_idx.shape[0])
-
-        l = torch.sum(im_idx == torch.mode(im_idx)[0])  # the highest box number in the single frame
-        b = int(im_idx[-1] + 1)
-        rel_input = torch.zeros([l, b, features.shape[1]]).to(features.device)
-        masks = torch.zeros([b, l], dtype=torch.uint8).to(features.device)
-        # TODO Padding/Mask maybe don't need for-loop
-        for i in range(b):
-            rel_input[:torch.sum(im_idx == i), i, :] = features[im_idx == i]
-            masks[i, torch.sum(im_idx == i):] = 1
-
-        # spatial encoder
-        local_output, local_attention_weights = self.local_attention(rel_input, masks)
-        local_output = (local_output.permute(1, 0, 2)).contiguous().view(-1, features.shape[1])[masks.view(-1) == 0]
-
-        global_input = torch.zeros([l * 2, b - 1, features.shape[1]]).to(features.device)
-        position_embed = torch.zeros([l * 2, b - 1, features.shape[1]]).to(features.device)
-        idx = -torch.ones([l * 2, b - 1]).to(features.device)
-        idx_plus = -torch.ones([l * 2, b - 1], dtype=torch.long).to(features.device)  # TODO
-
-        # sliding window size = 2
-        for j in range(b - 1):
-            global_input[:torch.sum((im_idx == j) + (im_idx == j + 1)), j, :] = local_output[
-                (im_idx == j) + (im_idx == j + 1)]
-            idx[:torch.sum((im_idx == j) + (im_idx == j + 1)), j] = im_idx[(im_idx == j) + (im_idx == j + 1)]
-            idx_plus[:torch.sum((im_idx == j) + (im_idx == j + 1)), j] = rel_idx[
-                (im_idx == j) + (im_idx == j + 1)]  # TODO
-
-            position_embed[:torch.sum(im_idx == j), j, :] = self.position_embedding.weight[0]
-            position_embed[torch.sum(im_idx == j):torch.sum(im_idx == j) + torch.sum(im_idx == j + 1), j, :] = \
-            self.position_embedding.weight[1]
-
-        global_masks = (torch.sum(global_input.view(-1, features.shape[1]), dim=1) == 0).view(l * 2, b - 1).permute(1,
-                                                                                                                    0)
-        # temporal decoder
-        global_output, global_attention_weights = self.global_attention(global_input, global_masks, position_embed)
-
-        output = torch.zeros_like(features)
-
-        if self.mode == 'both':
-            # both
-            for j in range(b - 1):
-                if j == 0:
-                    output[im_idx == j] = global_output[:, j][idx[:, j] == j]
-
-                if j == b - 2:
-                    output[im_idx == j + 1] = global_output[:, j][idx[:, j] == j + 1]
-                else:
-                    output[im_idx == j + 1] = (global_output[:, j][idx[:, j] == j + 1] +
-                                               global_output[:, j + 1][idx[:, j + 1] == j + 1]) / 2
-
-        elif self.mode == 'latter':
-            # later
-            for j in range(b - 1):
-                if j == 0:
-                    output[im_idx == j] = global_output[:, j][idx[:, j] == j]
-
-                output[im_idx == j + 1] = global_output[:, j][idx[:, j] == j + 1]
-
-        return output, global_attention_weights, local_attention_weights
-
-
-def _get_clones(module, N):
-    return nn.ModuleList([copy.deepcopy(module) for i in range(N)])
+            pos = torch.cat([self.pe[:, index] for index in indices])
+            x = x + pos
+        return self.dropout(x)
 
 
 class ObjectClassifier(nn.Module):
@@ -467,12 +307,21 @@ class ObjectClassifier(nn.Module):
             return entry
 
 
+
 class STTran(nn.Module):
 
-    def __init__(self, mode='sgdet',
-                 attention_class_num=None, spatial_class_num=None, contact_class_num=None, obj_classes=None,
-                 rel_classes=None,
-                 enc_layer_num=None, dec_layer_num=None):
+    def __init__(
+            self,
+            mode=const.SGDET,
+            attention_class_num=None,
+            spatial_class_num=None,
+            contact_class_num=None,
+            obj_classes=None,
+            rel_classes=None,
+            enc_layer_num=None,
+            dec_layer_num=None
+    ):
+
         """
         :param classes: Object classes
         :param rel_classes: Relationship classes. None if were not using rel mode
@@ -484,7 +333,7 @@ class STTran(nn.Module):
         self.attention_class_num = attention_class_num
         self.spatial_class_num = spatial_class_num
         self.contact_class_num = contact_class_num
-        assert mode in ('sgdet', 'sgcls', 'predcls')
+        assert mode in (const.SGDET, const.SGCLS, const.PREDCLS)
         self.mode = mode
 
         self.object_classifier = ObjectClassifier(mode=self.mode, obj_classes=self.obj_classes)
@@ -503,54 +352,86 @@ class STTran(nn.Module):
         self.subj_fc = nn.Linear(2048, 512)
         self.obj_fc = nn.Linear(2048, 512)
         self.vr_fc = nn.Linear(256 * 7 * 7, 512)
-
-        embed_vecs = obj_edge_vectors(obj_classes, wv_type='glove.6B', wv_dir='data', wv_dim=200)
+        embed_vecs = obj_edge_vectors(obj_classes, wv_type=const.GLOVE_6B, wv_dir='checkpoints', wv_dim=200)
         self.obj_embed = nn.Embedding(len(obj_classes), 200)
         self.obj_embed.weight.data = embed_vecs.clone()
 
         self.obj_embed2 = nn.Embedding(len(obj_classes), 200)
         self.obj_embed2.weight.data = embed_vecs.clone()
 
-        self.glocal_transformer = transformer(enc_layer_num=enc_layer_num, dec_layer_num=dec_layer_num, embed_dim=1936,
-                                              nhead=8,
-                                              dim_feedforward=2048, dropout=0.1, mode='latter')
+        d_model = 1936
+        self.positional_encoder = PositionalEncoding(d_model, max_len=400)
+        # temporal encoder
+        global_encoder = EncoderLayer(d_model=d_model, dim_feedforward=2048, nhead=8, batch_first=True)
+        self.temporal_transformer = Encoder(global_encoder, num_layers=3)
+        # spatial encoder
+        local_encoder = EncoderLayer(d_model=d_model, dim_feedforward=2048, nhead=8, batch_first=True)
+        self.spatial_transformer = Encoder(local_encoder, num_layers=1)
 
-        self.a_rel_compress = nn.Linear(1936, self.attention_class_num)
-        self.s_rel_compress = nn.Linear(1936, self.spatial_class_num)
-        self.c_rel_compress = nn.Linear(1936, self.contact_class_num)
+        self.a_rel_compress = nn.Linear(d_model, self.attention_class_num)
+        self.s_rel_compress = nn.Linear(d_model, self.spatial_class_num)
+        self.c_rel_compress = nn.Linear(d_model, self.contact_class_num)
 
     def forward(self, entry):
         entry = self.object_classifier(entry)
 
-        if entry is None:
-            return None
-
         # visual part
-        subj_rep = entry['features'][entry['pair_idx'][:, 0]]
+        subj_rep = entry[const.FEATURES][entry[const.PAIR_IDX][:, 0]]
         subj_rep = self.subj_fc(subj_rep)
-        obj_rep = entry['features'][entry['pair_idx'][:, 1]]
+        obj_rep = entry[const.FEATURES][entry[const.PAIR_IDX][:, 1]]
         obj_rep = self.obj_fc(obj_rep)
-        vr = self.union_func1(entry['union_feat']) + self.conv(entry['spatial_masks'])
+        vr = self.union_func1(entry[const.UNION_FEAT]) + self.conv(entry[const.SPATIAL_MASKS])
         vr = self.vr_fc(vr.view(-1, 256 * 7 * 7))
         x_visual = torch.cat((subj_rep, obj_rep, vr), 1)
 
         # semantic part
-        subj_class = entry['pred_labels'][entry['pair_idx'][:, 0]]
-        obj_class = entry['pred_labels'][entry['pair_idx'][:, 1]]
+        subj_class = entry[const.PRED_LABELS][entry[const.PAIR_IDX][:, 0]]
+        obj_class = entry[const.PRED_LABELS][entry[const.PAIR_IDX][:, 1]]
         subj_emb = self.obj_embed(subj_class)
         obj_emb = self.obj_embed2(obj_class)
         x_semantic = torch.cat((subj_emb, obj_emb), 1)
-
         rel_features = torch.cat((x_visual, x_semantic), dim=1)
+
         # Spatial-Temporal Transformer
-        global_output, global_attention_weights, local_attention_weights = self.glocal_transformer(
-            features=rel_features, im_idx=entry['im_idx'])
+        # Spatial message passing
+        frames = []
+        im_indices = entry[const.BOXES][entry[const.PAIR_IDX][:, 1], 0]
+        for l in im_indices.unique():
+            frames.append(torch.where(im_indices == l)[0])
+        frame_features = pad_sequence([rel_features[index] for index in frames], batch_first=True)
+        masks = (1 - pad_sequence([torch.ones(len(index)) for index in frames], batch_first=True)).bool()
+        rel_ = self.spatial_transformer(frame_features, src_key_padding_mask=masks.cuda())
+        rel_features = torch.cat([rel_[i, :len(index)] for i, index in enumerate(frames)])
 
-        entry["attention_distribution"] = self.a_rel_compress(global_output)
-        entry["spatial_distribution"] = self.s_rel_compress(global_output)
-        entry["contacting_distribution"] = self.c_rel_compress(global_output)
+        # Temporal message passing
+        sequences = []
+        for l in obj_class.unique():
+            k = torch.where(obj_class.view(-1) == l)[0]
+            if len(k) > 0:
+                sequences.append(k)
+        pos_index = []
+        for index in sequences:
+            im_idx, counts = torch.unique(entry[const.PAIR_IDX][index][:, 0].view(-1), return_counts=True, sorted=True)
+            counts = counts.tolist()
+            pos = torch.cat([torch.LongTensor([im] * count) for im, count in zip(range(len(counts)), counts)])
+            pos_index.append(pos)
+        sequence_features = pad_sequence([rel_features[index] for index in sequences], batch_first=True)
+        masks = (1 - pad_sequence([torch.ones(len(index)) for index in sequences], batch_first=True)).bool()
+        pos_index = pad_sequence(pos_index, batch_first=True) if self.mode == const.SGDET else None
+        sequence_features_position_embedded = self.positional_encoder(sequence_features, pos_index)
 
-        entry["spatial_distribution"] = torch.sigmoid(entry["spatial_distribution"])
-        entry["contacting_distribution"] = torch.sigmoid(entry["contacting_distribution"])
+        rel_ = self.temporal_transformer(sequence_features_position_embedded, src_key_padding_mask=masks.cuda())
+        rel_flat = torch.cat([rel[:len(index)] for index, rel in zip(sequences, rel_)])
+        indices_flat = torch.cat(sequences).unsqueeze(1).repeat(1, rel_features.shape[1])
+        assert len(indices_flat) == len(entry[const.PAIR_IDX])
+        global_output = torch.zeros_like(rel_features).to(rel_features.device)
+        global_output.scatter_(0, indices_flat, rel_flat)
 
+        entry[const.GLOBAL_OUTPUT] = global_output
+        entry[const.ATTENTION_DISTRIBUTION] = self.a_rel_compress(global_output)
+        entry[const.SPATIAL_DISTRIBUTION] = self.s_rel_compress(global_output)
+        entry[const.CONTACTING_DISTRIBUTION] = self.c_rel_compress(global_output)
+
+        entry[const.SPATIAL_DISTRIBUTION] = torch.sigmoid(entry[const.SPATIAL_DISTRIBUTION])
+        entry[const.CONTACTING_DISTRIBUTION] = torch.sigmoid(entry[const.CONTACTING_DISTRIBUTION])
         return entry

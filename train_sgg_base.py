@@ -156,7 +156,7 @@ class TrainSGGBase(STSGBase):
             self._model.eval()
             self._object_detector.is_train = False
             with torch.no_grad():
-                for b in range(len(self._dataloader_test)):
+                for b in tqdm(range(len(self._dataloader_test))):
                     data = next(test_iter)
                     im_data, im_info, gt_boxes, num_boxes = [copy.deepcopy(d.cuda(0)) for d in data[:4]]
                     gt_annotation = self._test_dataset.gt_annotations[data[4]]

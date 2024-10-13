@@ -387,7 +387,6 @@ class Detector(nn.Module):
                     FINAL_LABELS[bbox_idx] = frame_bbox[const.CLASS]
                     im_idx.append(frame_idx)
                     pair.append([int(HUMAN_IDX[frame_idx]), bbox_idx])
-
                     if type(frame_bbox[const.ATTENTION_RELATIONSHIP]) == torch.Tensor:
                         a_rel.append(frame_bbox[const.ATTENTION_RELATIONSHIP].tolist())
                         s_rel.append(frame_bbox[const.SPATIAL_RELATIONSHIP].tolist())
@@ -397,7 +396,6 @@ class Detector(nn.Module):
                         a_rel.append(frame_bbox[const.ATTENTION_RELATIONSHIP])
                         s_rel.append(frame_bbox[const.SPATIAL_RELATIONSHIP])
                         c_rel.append(frame_bbox[const.CONTACTING_RELATIONSHIP])
-
                     bbox_idx += 1
         return FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX, im_idx, pair, a_rel, s_rel, c_rel
 
@@ -537,7 +535,7 @@ class Detector(nn.Module):
             }
         return entry
 
-    def forward(self, im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all):
+    def forward(self, im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all, gt_annotation_mask=None):
         if self.mode == 'sgdet':
             attribute_dictionary = self._forward_sgdet(im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all)
         else:

@@ -10,7 +10,8 @@ from tqdm import tqdm
 
 import wandb
 
-from dataloader.partial.action_genome.ag_dataset import PartialAG
+from dataloader.partial_obj.action_genome.ag_dataset import PartialObjAG
+from dataloader.partial_rel.action_genome.ag_dataset import PartialRelAG
 from dataloader.standard.action_genome.ag_dataset import StandardAG
 from dataloader.standard.action_genome.ag_dataset import cuda_collate_fn as ag_data_cuda_collate_fn
 from lib.object_detector import Detector
@@ -144,9 +145,23 @@ class TrainSTSGBase(STSGBase):
             self._scheduler.step(score)
 
     def init_dataset(self):
-
-        if self._conf.use_partial_annotations:
-            self._train_dataset = PartialAG(
+        if self._conf.use_partial_obj_annotations:
+            print("-----------------------------------------------------")
+            print("Loading the partial object dataset")
+            print("-----------------------------------------------------")
+            self._train_dataset = PartialObjAG(
+                phase="train",
+                datasize=self._conf.datasize,
+                partial_percentage=self._conf.partial_percentage,
+                data_path=self._conf.data_path,
+                filter_nonperson_box_frame=True,
+                filter_small_box=False if self._conf.mode == 'predcls' else True,
+            )
+        elif self._conf.use_partial_rel_annotations:
+            print("-----------------------------------------------------")
+            print("Loading the partial relation dataset")
+            print("-----------------------------------------------------")
+            self._train_dataset = PartialRelAG(
                 phase="train",
                 datasize=self._conf.datasize,
                 partial_percentage=self._conf.partial_percentage,
@@ -155,6 +170,9 @@ class TrainSTSGBase(STSGBase):
                 filter_small_box=False if self._conf.mode == 'predcls' else True,
             )
         else:
+            print("-----------------------------------------------------")
+            print("Loading the standard dataset")
+            print("-----------------------------------------------------")
             self._train_dataset = StandardAG(
                 phase="train",
                 datasize=self._conf.datasize,

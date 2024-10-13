@@ -10,7 +10,8 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from constants import Constants as const
-from dataloader.partial.action_genome.ag_dataset import PartialAG
+from dataloader.partial_obj.action_genome.ag_dataset import PartialObjAG
+from dataloader.partial_rel.action_genome.ag_dataset import PartialRelAG
 from dataloader.standard.action_genome.ag_dataset import StandardAG
 from dataloader.standard.action_genome.ag_dataset import cuda_collate_fn as ag_data_cuda_collate_fn
 from lib.object_detector import Detector
@@ -69,13 +70,26 @@ class TrainSGGBase(STSGBase):
                 video_index = data[4]
                 gt_annotation = self._train_dataset.gt_annotations[video_index]
 
+                if self._conf.use_partial_rel_annotations:
+                    gt_annotation_mask = self._train_dataset.gt_annotations_mask[video_index]
+                else:
+                    gt_annotation_mask = None
+
                 if len(gt_annotation) == 0:
                     print(f'No annotations found in the video {video_index}. Skipping...')
                     continue
 
                 frame_size = (im_info[0][:2] / im_info[0, 2]).cpu().data
                 with torch.no_grad():
-                    entry = self._object_detector(im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all=None)
+                    entry = self._object_detector(
+                        im_data,
+                        im_info,
+                        gt_boxes,
+                        num_boxes,
+                        gt_annotation,
+                        im_all=None,
+                        gt_annotation_mask=gt_annotation_mask
+                    )
 
                 # ----------------- Process the video (Method Specific)-----------------
                 pred = self.process_train_video(entry, frame_size, gt_annotation)
@@ -177,8 +191,23 @@ class TrainSGGBase(STSGBase):
 
     def init_dataset(self):
 
-        if self._conf.use_partial_annotations:
-            self._train_dataset = PartialAG(
+        if self._conf.use_partial_obj_annotations:
+            print("-----------------------------------------------------")
+            print("Loading the partial object dataset")
+            print("-----------------------------------------------------")
+            self._train_dataset = PartialObjAG(
+                phase="train",
+                datasize=self._conf.datasize,
+                partial_percentage=self._conf.partial_percentage,
+                data_path=self._conf.data_path,
+                filter_nonperson_box_frame=True,
+                filter_small_box=False if self._conf.mode == 'predcls' else True,
+            )
+        elif self._conf.use_partial_rel_annotations:
+            print("-----------------------------------------------------")
+            print("Loading the partial relation dataset")
+            print("-----------------------------------------------------")
+            self._train_dataset = PartialRelAG(
                 phase="train",
                 datasize=self._conf.datasize,
                 partial_percentage=self._conf.partial_percentage,
@@ -187,6 +216,9 @@ class TrainSGGBase(STSGBase):
                 filter_small_box=False if self._conf.mode == 'predcls' else True,
             )
         else:
+            print("-----------------------------------------------------")
+            print("Loading the standard dataset")
+            print("-----------------------------------------------------")
             self._train_dataset = StandardAG(
                 phase="train",
                 datasize=self._conf.datasize,

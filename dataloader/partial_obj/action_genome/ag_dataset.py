@@ -13,7 +13,7 @@ from fasterRCNN.lib.model.utils.blob import prep_im_for_blob, im_list_to_blob
 from utils import NumpyEncoder
 
 
-class PartialAG(BaseAG):
+class PartialObjAG(BaseAG):
 
     def __init__(
             self,
@@ -84,7 +84,7 @@ class PartialAG(BaseAG):
     def filter_gt_annotations(self, partial_percentage):
         # Load from cache if the partial file exists in the cache directory.
         annotations_path = os.path.join(self._data_path, const.ANNOTATIONS)
-        cache_file = os.path.join(annotations_path, "partial",  f'partial_{partial_percentage}.json')
+        cache_file = os.path.join(annotations_path, const.PARTIAL_OBJ,  f'partial_{partial_percentage}.json')
 
         if os.path.exists(cache_file):
             print(f"Loading filtered ground truth annotations from {cache_file}")
@@ -140,7 +140,7 @@ class PartialAG(BaseAG):
             filtered_gt_annotations.append(filtered_video_annotation_dict)
 
         # 4. Save the filtered ground truth annotations to the cache directory.
-        os.makedirs(os.path.join(annotations_path, "partial"), exist_ok=True)
+        os.makedirs(os.path.join(annotations_path, const.PARTIAL_OBJ), exist_ok=True)
         filtered_gt_annotations_json = json.dumps(filtered_gt_annotations, cls=NumpyEncoder)
         with open(cache_file, 'w') as f:
             f.write(filtered_gt_annotations_json)

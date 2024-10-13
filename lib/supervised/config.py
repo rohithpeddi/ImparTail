@@ -43,7 +43,8 @@ class Config(object):
         self.use_corruptions = False
 
         # ---------------- Partial Annotations ----------------
-        self.use_partial_annotations = False
+        self.use_partial_obj_annotations = False
+        self.use_partial_rel_annotations = False
         self.partial_percentage = 100
 
         # ---------------- Use wandb ----------------
@@ -95,7 +96,8 @@ class Config(object):
         parser.add_argument("--use_corruptions", action="store_true")
 
         # ---------------- Partial Annotations ----------------
-        parser.add_argument("--use_partial_annotations", action="store_true")
+        parser.add_argument("--use_partial_obj_annotations", action="store_true")
+        parser.add_argument("--use_partial_rel_annotations", action="store_true")
         parser.add_argument("--partial_percentage", default=100, type=int)
 
         # ---------------- Use wandb ----------------

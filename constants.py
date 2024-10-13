@@ -110,6 +110,9 @@ class Constants:
     PERSON = "person"
     OBJECT = "object"
 
+    PARTIAL_PERCENTAGE = "partial_percentage"
+    PARTIAL_OBJ = "partial_obj"
+    PARTIAL_REL = "partial_rel"
 
 class DetectorConstants:
     BOXES = "boxes"
@@ -306,6 +309,8 @@ class ResultConstants:
     CORRUPTION_LEVEL = "corruption_level"
 
     PARTIAL_PERCENTAGE = "partial_percentage"
+    PARTIAL_OBJ = "partial_obj"
+    PARTIAL_REL = "partial_rel"
 
 
 class CorruptionConstants:

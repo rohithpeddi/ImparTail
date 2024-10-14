@@ -26,8 +26,9 @@ class PartialRelAG(BaseAG):
     ):
         super().__init__(phase, datasize, data_path, filter_nonperson_box_frame, filter_small_box)
         # Filter out objects in the ground truth based on object observation ratio.
-        filtered_gt_annotations = self.filter_gt_annotations(partial_percentage)
-        self._gt_annotations_mask = filtered_gt_annotations
+        # filtered_gt_annotations = self.filter_gt_annotations(partial_percentage)
+        # self._gt_annotations_mask = filtered_gt_annotations
+        self._gt_annotations = self.filter_gt_annotations(partial_percentage)
 
     @staticmethod
     def estimate_rel_distribution(data):
@@ -204,6 +205,7 @@ class PartialRelAG(BaseAG):
 
                     if rel_enabled:
                         filtered_video_frame_annotation_dict.append(filtered_frame_obj_dict)
+
                 # Add a person object frame only when an object is observed in the frame.
                 if len(filtered_video_frame_annotation_dict) > 0:
                     filtered_video_frame_annotation_dict.insert(0, video_frame_annotation_dict[0])

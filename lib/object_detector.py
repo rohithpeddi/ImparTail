@@ -346,8 +346,7 @@ class Detector(nn.Module):
         pair_rois = torch.cat((FINAL_BBOXES[pair[:, 0], 1:], FINAL_BBOXES[pair[:, 1], 1:]), 1).data.cpu().numpy()
         spatial_masks = torch.tensor(draw_union_boxes(pair_rois, 27) - 0.5).to(FINAL_FEATURES.device)
 
-        FINAL_DISTRIBUTIONS, FINAL_PRED_SCORES, PRED_LABELS = self._compute_final_distributions_and_labels(
-            FINAL_FEATURES)
+        FINAL_DISTRIBUTIONS, FINAL_PRED_SCORES, PRED_LABELS = self._compute_final_distributions_and_labels(FINAL_FEATURES)
         attribute_dictionary = self._construct_attribute_dictionary(
             FINAL_BBOXES, FINAL_LABELS, FINAL_SCORES, im_idx, pair, HUMAN_IDX, FINAL_FEATURES,
             union_boxes, union_feat, spatial_masks, a_rel, s_rel, c_rel, FINAL_DISTRIBUTIONS, PRED_LABELS,

@@ -240,3 +240,7 @@ class BaseAG(Dataset):
     @property
     def gt_annotations(self):
         return self._gt_annotations
+
+    @property
+    def gt_annotations_mask(self):
+        return self._gt_annotations_mask

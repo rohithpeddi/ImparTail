@@ -81,6 +81,30 @@ class PartialRelAG(BaseAG):
 
         return filtered_data
 
+    @staticmethod
+    def get_rel_class_list(gt_annotations, relationship_name):
+        data_rel_class_list = []
+        for video_id, video_annotation_dict in enumerate(gt_annotations):
+            video_rel_list = []
+            for video_frame_id, video_frame_annotation_dict in enumerate(video_annotation_dict):
+                video_frame_gt_rel_id_list = []
+                for frame_obj_id, frame_obj_dict in enumerate(video_frame_annotation_dict):
+                    if frame_obj_id == 0:
+                        # video_frame_gt_obj_id_list.append(0)
+                        continue
+
+                    rel_id_list = frame_obj_dict[relationship_name]
+
+                    if isinstance(rel_id_list, torch.Tensor):
+                        rel_id_list = rel_id_list.detach().cpu().numpy().tolist()
+
+                    assert isinstance(rel_id_list, list)
+                    video_frame_gt_rel_id_list.extend(rel_id_list)
+                video_rel_list.append(video_frame_gt_rel_id_list)
+            data_rel_class_list.append(video_rel_list)
+
+        return data_rel_class_list
+
     def filter_gt_annotations(self, partial_percentage):
         # Load from cache if the partial file exists in the cache directory.
         annotations_path = os.path.join(self._data_path, const.ANNOTATIONS)
@@ -101,29 +125,28 @@ class PartialRelAG(BaseAG):
         print("--------------------------------------------------------------------------------")
 
         # 1. Estimate statistics of object class occurrences in the ground truth annotations.
-        data_rel_class_list = []
-        for video_id, video_annotation_dict in enumerate(self._gt_annotations):
-            video_rel_list = []
-            for video_frame_id, video_frame_annotation_dict in enumerate(video_annotation_dict):
-                video_frame_gt_rel_id_list = []
-                for frame_obj_id, frame_obj_dict in enumerate(video_frame_annotation_dict):
-                    if frame_obj_id == 0:
-                        # video_frame_gt_obj_id_list.append(0)
-                        continue
-                    attention_rel = frame_obj_dict[const.ATTENTION_REL]
-                    spatial_rel = frame_obj_dict[const.SPATIAL_REL]
-                    contacting_rel = frame_obj_dict[const.CONTACTING_REL]
+        attention_rel_class_list = []
+        spatial_rel_class_list = []
+        contacting_rel_class_list = []
 
-                    video_frame_gt_rel_id_list.append(attention_rel)
-                    video_frame_gt_rel_id_list.append(spatial_rel)
-                    video_frame_gt_rel_id_list.append(contacting_rel)
+        attention_rel_class_list = self.get_rel_class_list(self._gt_annotations, const.ATTENTION_RELATIONSHIP)
+        spatial_rel_class_list = self.get_rel_class_list(self._gt_annotations, const.SPATIAL_RELATIONSHIP)
+        contacting_rel_class_list = self.get_rel_class_list(self._gt_annotations, const.CONTACTING_RELATIONSHIP)
 
-                video_rel_list.append(video_frame_gt_rel_id_list)
-            data_rel_class_list.append(video_rel_list)
 
         # 2. Construct filter based on the probability distribution of the obj class occurrences.
-        filtered_data_rel_class_list = self.filter_annotations_preserve_distribution(
-            data=data_rel_class_list,
+        filtered_attention_rel_class_list = self.filter_annotations_preserve_distribution(
+            data=attention_rel_class_list,
+            partial_annotation_ratio=partial_percentage * 0.01
+        )
+
+        filtered_spatial_rel_class_list = self.filter_annotations_preserve_distribution(
+            data=spatial_rel_class_list,
+            partial_annotation_ratio=partial_percentage * 0.01
+        )
+
+        filtered_contacting_rel_class_list = self.filter_annotations_preserve_distribution(
+            data=contacting_rel_class_list,
             partial_annotation_ratio=partial_percentage * 0.01
         )
 
@@ -136,24 +159,47 @@ class PartialRelAG(BaseAG):
                 for frame_obj_id, frame_obj_dict in enumerate(video_frame_annotation_dict):
                     if frame_obj_id == 0:
                         continue
-                    attention_rel = frame_obj_dict[const.ATTENTION_REL]
-                    spatial_rel = frame_obj_dict[const.SPATIAL_REL]
-                    contacting_rel = frame_obj_dict[const.CONTACTING_REL]
+                    attention_rel = frame_obj_dict[const.ATTENTION_RELATIONSHIP]
+                    spatial_rel = frame_obj_dict[const.SPATIAL_RELATIONSHIP]
+                    contacting_rel = frame_obj_dict[const.CONTACTING_RELATIONSHIP]
+
+                    if isinstance(attention_rel, torch.Tensor):
+                        attention_rel = attention_rel.detach().cpu().numpy().tolist()
+
+                    if isinstance(spatial_rel, torch.Tensor):
+                        spatial_rel = spatial_rel.detach().cpu().numpy().tolist()
+
+                    if isinstance(contacting_rel, torch.Tensor):
+                        contacting_rel = contacting_rel.detach().cpu().numpy().tolist()
 
                     filtered_frame_obj_dict = frame_obj_dict.copy()
-                    filtered_frame_obj_dict[const.ATTENTION_REL] = []
-                    filtered_frame_obj_dict[const.SPATIAL_REL] = []
-                    filtered_frame_obj_dict[const.CONTACTING_REL] = []
+                    filtered_frame_obj_dict[const.ATTENTION_RELATIONSHIP] = []
+                    filtered_frame_obj_dict[const.SPATIAL_RELATIONSHIP] = []
+                    filtered_frame_obj_dict[const.CONTACTING_RELATIONSHIP] = []
 
                     rel_enabled = False
-                    if attention_rel in filtered_data_rel_class_list[video_id][video_frame_id]:
-                        filtered_frame_obj_dict[const.ATTENTION_REL] = attention_rel
+                    # Check the intersection of the attention_rel list with the filtered_attention_rel_class_list.
+                    # Add all the intersection elements to the filtered_frame_obj_dict.
+                    filtered_attention_rel = set(attention_rel).intersection(filtered_attention_rel_class_list[video_id][video_frame_id])
+                    filtered_attention_rel = list(filtered_attention_rel)
+                    if len(filtered_attention_rel) > 0:
+                        filtered_frame_obj_dict[const.ATTENTION_RELATIONSHIP] = filtered_attention_rel
                         rel_enabled = True
-                    if spatial_rel in filtered_data_rel_class_list[video_id][video_frame_id]:
-                        filtered_frame_obj_dict[const.SPATIAL_REL] = spatial_rel
+
+                    # Check the intersection of the spatial_rel list with the filtered_spatial_rel_class_list.
+                    # Add all the intersection elements to the filtered_frame_obj_dict.
+                    filtered_spatial_rel = set(spatial_rel).intersection(filtered_spatial_rel_class_list[video_id][video_frame_id])
+                    filtered_spatial_rel = list(filtered_spatial_rel)
+                    if len(filtered_spatial_rel) > 0:
+                        filtered_frame_obj_dict[const.SPATIAL_RELATIONSHIP] = filtered_spatial_rel
                         rel_enabled = True
-                    if contacting_rel in filtered_data_rel_class_list[video_id][video_frame_id]:
-                        filtered_frame_obj_dict[const.CONTACTING_REL] = contacting_rel
+
+                    # Check the intersection of the contacting_rel list with the filtered_contacting_rel_class_list.
+                    # Add all the intersection elements to the filtered_frame_obj_dict.
+                    filtered_contacting_rel = set(contacting_rel).intersection(filtered_contacting_rel_class_list[video_id][video_frame_id])
+                    filtered_contacting_rel = list(filtered_contacting_rel)
+                    if len(filtered_contacting_rel) > 0:
+                        filtered_frame_obj_dict[const.CONTACTING_RELATIONSHIP] = filtered_contacting_rel
                         rel_enabled = True
 
                     if rel_enabled:
@@ -165,7 +211,7 @@ class PartialRelAG(BaseAG):
             filtered_gt_annotations.append(filtered_video_annotation_dict)
 
         # 4. Save the filtered ground truth annotations to the cache directory.
-        os.makedirs(os.path.join(annotations_path, "partial"), exist_ok=True)
+        os.makedirs(os.path.join(annotations_path, const.PARTIAL_REL), exist_ok=True)
         filtered_gt_annotations_json = json.dumps(filtered_gt_annotations, cls=NumpyEncoder)
         with open(cache_file, 'w') as f:
             f.write(filtered_gt_annotations_json)

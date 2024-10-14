@@ -1,0 +1,66 @@
+# ------------------------------------------------------------------------------
+# ---------------------------- SGDET (Scene Graph Determination) --------------------
+# ------------------------------------------------------------------------------
+
+# Partial Annotations with percentage 10
+
+python train_sgg_methods.py --method_name=sttran --mode=sgdet --use_partial_rel_annotations --partial_percentage=10
+python train_sgg_methods.py --method_name=dsgdetr --mode=sgdet --use_partial_rel_annotations --partial_percentage=10
+python train_sgg_methods.py --method_name=tempura --mode=sgdet --use_partial_rel_annotations --partial_percentage=10
+
+# Partial Annotations with percentage 40
+
+python train_sgg_methods.py --method_name=sttran --mode=sgdet --use_partial_rel_annotations --partial_percentage=40
+python train_sgg_methods.py --method_name=dsgdetr --mode=sgdet --use_partial_rel_annotations --partial_percentage=40
+python train_sgg_methods.py --method_name=tempura --mode=sgdet --use_partial_rel_annotations --partial_percentage=40
+
+# Partial Annotations with percentage 70
+
+python train_sgg_methods.py --method_name=sttran --mode=sgdet --use_partial_rel_annotations --partial_percentage=70
+python train_sgg_methods.py --method_name=dsgdetr --mode=sgdet --use_partial_rel_annotations --partial_percentage=70
+python train_sgg_methods.py --method_name=tempura --mode=sgdet --use_partial_rel_annotations --partial_percentage=70
+
+
+# ------------------------------------------------------------------------------
+# ---------------- SGCLS (Scene Graph Classification) ----------
+# ------------------------------------------------------------------------------
+
+# Partial Annotations with percentage 10
+
+python train_sgg_methods.py --method_name=sttran --mode=sgcls --use_partial_rel_annotations --partial_percentage=10
+python train_sgg_methods.py --method_name=dsgdetr --mode=sgcls --use_partial_rel_annotations --partial_percentage=10
+python train_sgg_methods.py --method_name=tempura --mode=sgcls --use_partial_rel_annotations --partial_percentage=10
+
+# Partial Annotations with percentage 40
+
+python train_sgg_methods.py --method_name=sttran --mode=sgcls --use_partial_rel_annotations --partial_percentage=40
+python train_sgg_methods.py --method_name=dsgdetr --mode=sgcls --use_partial_rel_annotations --partial_percentage=40
+python train_sgg_methods.py --method_name=tempura --mode=sgcls --use_partial_rel_annotations --partial_percentage=40
+
+# Partial Annotations with percentage 70
+
+python train_sgg_methods.py --method_name=sttran --mode=sgcls --use_partial_rel_annotations --partial_percentage=70
+python train_sgg_methods.py --method_name=dsgdetr --mode=sgcls --use_partial_rel_annotations --partial_percentage=70
+python train_sgg_methods.py --method_name=tempura --mode=sgcls --use_partial_rel_annotations --partial_percentage=70
+
+# ------------------------------------------------------------------------------
+# ---------------- PREDCLS (Predicate Classification) ----------
+# ------------------------------------------------------------------------------
+
+# Partial Annotations with percentage 10
+
+python train_sgg_methods.py --method_name=sttran --mode=predcls --use_partial_rel_annotations --partial_percentage=10
+python train_sgg_methods.py --method_name=dsgdetr --mode=predcls --use_partial_rel_annotations --partial_percentage=10
+python train_sgg_methods.py --method_name=tempura --mode=predcls --use_partial_rel_annotations --partial_percentage=10
+
+# Partial Annotations with percentage 40
+
+python train_sgg_methods.py --method_name=sttran --mode=predcls --use_partial_rel_annotations --partial_percentage=40
+python train_sgg_methods.py --method_name=dsgdetr --mode=predcls --use_partial_rel_annotations --partial_percentage=40
+python train_sgg_methods.py --method_name=tempura --mode=predcls --use_partial_rel_annotations --partial_percentage=40
+
+# Partial Annotations with percentage 70
+
+python train_sgg_methods.py --method_name=sttran --mode=predcls --use_partial_rel_annotations --partial_percentage=70
+python train_sgg_methods.py --method_name=dsgdetr --mode=predcls --use_partial_rel_annotations --partial_percentage=70
+python train_sgg_methods.py --method_name=tempura --mode=predcls --use_partial_rel_annotations --partial_percentage=70

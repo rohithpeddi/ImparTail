@@ -114,6 +114,9 @@ class Constants:
     PARTIAL_OBJ = "partial_obj"
     PARTIAL_REL = "partial_rel"
 
+    SGG = "sgg"
+    SGA = "sga"
+
 class DetectorConstants:
     BOXES = "boxes"
     LABELS = "labels"

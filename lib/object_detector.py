@@ -155,9 +155,16 @@ class Detector(nn.Module):
                 if 'class' in GT_RELATIONS[frame_idx][m].keys():
                     im_idx.append(frame_idx)
                     pair.append([local_human, int(global_idx[FINAL_BBOXES_X[:, 0] == frame_idx][int(n)])])
-                    a_rel.append(GT_RELATIONS[frame_idx][m]['attention_relationship'].tolist())
-                    s_rel.append(GT_RELATIONS[frame_idx][m]['spatial_relationship'].tolist())
-                    c_rel.append(GT_RELATIONS[frame_idx][m]['contacting_relationship'].tolist())
+                    if type(GT_RELATIONS[frame_idx][m]['attention_relationship']) == torch.Tensor:
+                        a_rel.append(GT_RELATIONS[frame_idx][m]['attention_relationship'].tolist())
+                        s_rel.append(GT_RELATIONS[frame_idx][m]['spatial_relationship'].tolist())
+                        c_rel.append(GT_RELATIONS[frame_idx][m]['contacting_relationship'].tolist())
+                    else:
+                        # A raw list of relations is provided
+                        a_rel.append(GT_RELATIONS[frame_idx][m]['attention_relationship'])
+                        s_rel.append(GT_RELATIONS[frame_idx][m]['spatial_relationship'])
+                        c_rel.append(GT_RELATIONS[frame_idx][m]['contacting_relationship'])
+
         return im_idx, pair, a_rel, s_rel, c_rel
 
     def _compute_union_boxes(self, FINAL_BBOXES_X, pair, im_info, im_idx):

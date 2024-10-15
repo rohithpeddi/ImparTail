@@ -15,6 +15,7 @@ class BaseAG(Dataset):
     def __init__(
             self,
             phase,
+            mode,
             datasize,
             data_path=None,
             filter_nonperson_box_frame=True,
@@ -23,6 +24,7 @@ class BaseAG(Dataset):
 
         root_path = data_path
         self._phase = phase
+        self._mode = mode
         self._datasize = datasize
         self._data_path = data_path
         self._frames_path = os.path.join(root_path, const.FRAMES)

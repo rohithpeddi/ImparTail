@@ -22,6 +22,7 @@ class ImageCorruptedAG(BaseAG):
     def __init__(
             self,
             phase,
+            mode,
             datasize,
             data_path=None,
             filter_nonperson_box_frame=True,
@@ -31,7 +32,7 @@ class ImageCorruptedAG(BaseAG):
             dataset_corruption_type=None,  # Can be FIXED or MIXED
             corruption_severity_level=None
     ):
-        super().__init__(phase, datasize, data_path, filter_nonperson_box_frame, filter_small_box)
+        super().__init__(phase, mode, datasize, data_path, filter_nonperson_box_frame, filter_small_box)
         self._dataset_corruption_mode = dataset_corruption_mode
         self._dataset_corruption_type = dataset_corruption_type
         self._video_corruption_mode = video_corruption_mode

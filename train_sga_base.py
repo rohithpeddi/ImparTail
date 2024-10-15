@@ -151,6 +151,7 @@ class TrainSTSGBase(STSGBase):
             print("-----------------------------------------------------")
             self._train_dataset = PartialObjAG(
                 phase="train",
+                mode=self._conf.mode,
                 datasize=self._conf.datasize,
                 partial_percentage=self._conf.partial_percentage,
                 data_path=self._conf.data_path,
@@ -163,6 +164,7 @@ class TrainSTSGBase(STSGBase):
             print("-----------------------------------------------------")
             self._train_dataset = PartialRelAG(
                 phase="train",
+                mode=self._conf.mode,
                 datasize=self._conf.datasize,
                 partial_percentage=self._conf.partial_percentage,
                 data_path=self._conf.data_path,

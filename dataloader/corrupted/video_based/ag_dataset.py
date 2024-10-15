@@ -13,13 +13,14 @@ class VideoCorruptedAG(BaseAG):
     def __init__(
             self,
             phase,
+            mode,
             datasize,
             data_path=None,
             filter_nonperson_box_frame=True,
             filter_small_box=False,
             corruption_frames_directory=None,
     ):
-        super().__init__(phase, datasize, data_path, filter_nonperson_box_frame, filter_small_box)
+        super().__init__(phase, mode, datasize, data_path, filter_nonperson_box_frame, filter_small_box)
         self._corruption_frames_directory = corruption_frames_directory
 
     def __getitem__(self, index):

@@ -10,8 +10,9 @@ from fasterRCNN.lib.model.utils.blob import prep_im_for_blob, im_list_to_blob
 
 class StandardAG(BaseAG):
 
-    def __init__(self, phase, datasize, data_path=None, filter_nonperson_box_frame=True, filter_small_box=False):
-        super().__init__(phase, datasize, data_path, filter_nonperson_box_frame, filter_small_box)
+    def __init__(self, phase, mode, datasize, data_path=None, filter_nonperson_box_frame=True, filter_small_box=False):
+        super().__init__(phase, mode, datasize, data_path, filter_nonperson_box_frame, filter_small_box)
+        print("Total number of ground truth annotations: ", len(self._gt_annotations))
 
     def __getitem__(self, index):
         frame_names = self._video_list[index]

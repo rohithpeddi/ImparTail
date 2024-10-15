@@ -347,6 +347,7 @@ class TestSTSGBase(STSGBase):
             # Using the parameters set in the configuration file, initialize the corrupted dataset
             self._test_dataset = ImageCorruptedAG(
                 phase='test',
+                mode=self._conf.mode,
                 datasize=self._conf.datasize,
                 data_path=self._conf.data_path,
                 filter_nonperson_box_frame=True,
@@ -369,6 +370,7 @@ class TestSTSGBase(STSGBase):
         else:
             self._test_dataset = StandardAG(
                 phase="test",
+                mode=self._conf.mode,
                 datasize=self._conf.datasize,
                 data_path=self._conf.data_path,
                 filter_nonperson_box_frame=True,

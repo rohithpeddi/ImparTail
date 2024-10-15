@@ -18,13 +18,14 @@ class PartialRelAG(BaseAG):
     def __init__(
             self,
             phase,
+            mode,
             datasize,
             partial_percentage=10,
             data_path=None,
             filter_nonperson_box_frame=True,
             filter_small_box=False
     ):
-        super().__init__(phase, datasize, data_path, filter_nonperson_box_frame, filter_small_box)
+        super().__init__(phase, mode, datasize, data_path, filter_nonperson_box_frame, filter_small_box)
         # Filter out objects in the ground truth based on object observation ratio.
         # filtered_gt_annotations = self.filter_gt_annotations(partial_percentage)
         # self._gt_annotations_mask = filtered_gt_annotations
@@ -109,7 +110,7 @@ class PartialRelAG(BaseAG):
     def filter_gt_annotations(self, partial_percentage):
         # Load from cache if the partial file exists in the cache directory.
         annotations_path = os.path.join(self._data_path, const.ANNOTATIONS)
-        cache_file = os.path.join(annotations_path, const.PARTIAL_REL,  f'partial_{partial_percentage}.json')
+        cache_file = os.path.join(annotations_path, const.PARTIAL_REL,  f'{self._conf.mode}_partial_rel_{partial_percentage}.json')
 
         if os.path.exists(cache_file):
             print(f"Loading filtered ground truth annotations from {cache_file}")
@@ -210,6 +211,8 @@ class PartialRelAG(BaseAG):
                 if len(filtered_video_frame_annotation_dict) > 0:
                     filtered_video_frame_annotation_dict.insert(0, video_frame_annotation_dict[0])
                     filtered_video_annotation_dict.append(filtered_video_frame_annotation_dict)
+            # Don't change this logic as the ground truth annotations are loaded based on the video index
+            # Number of gt annotations should remain the same as the original annotations.
             filtered_gt_annotations.append(filtered_video_annotation_dict)
 
         # 4. Save the filtered ground truth annotations to the cache directory.

@@ -36,6 +36,7 @@ class TrainSGGBase(STSGBase):
 
         # Load checkpoint name
         self._checkpoint_name = None
+        self._checkpoint_save_dir_path = None
 
     def _init_loss_functions(self):
         self._bce_loss = nn.BCELoss()
@@ -234,7 +235,7 @@ class TrainSGGBase(STSGBase):
             self._save_model(
                 model=self._model,
                 epoch=epoch,
-                checkpoint_save_file_path=self._conf.save_path,
+                checkpoint_save_file_path=self._checkpoint_save_dir_path,
                 checkpoint_name=self._checkpoint_name,
                 method_name=self._conf.method_name
             )

@@ -110,7 +110,7 @@ class PartialRelAG(BaseAG):
     def filter_gt_annotations(self, partial_percentage):
         # Load from cache if the partial file exists in the cache directory.
         annotations_path = os.path.join(self._data_path, const.ANNOTATIONS)
-        cache_file = os.path.join(annotations_path, const.PARTIAL_REL,  f'{self._conf.mode}_partial_rel_{partial_percentage}.json')
+        cache_file = os.path.join(annotations_path, const.PARTIAL_REL,  f'{self._mode}_partial_rel_{partial_percentage}.json')
 
         if os.path.exists(cache_file):
             print(f"Loading filtered ground truth annotations from {cache_file}")

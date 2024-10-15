@@ -1,4 +1,6 @@
 import numpy as np
+import torch
+
 from lib.fpn.box_utils import bbox_overlaps
 import cv2
 
@@ -25,7 +27,13 @@ def assign_relations(prediction, gt_annotations, assign_IOU_threshold):
 		
 		gt_boxes = np.zeros([len(j), 4])
 		gt_labels = np.zeros(len(j))
-		gt_boxes[0] = j[0]['person_bbox']
+
+		if type(j[0]['person_bbox']) == list:
+			gt_boxes[0] = np.array(j[0]['person_bbox'])
+		elif type(j[0]['person_bbox']) == np.ndarray:
+			gt_boxes[0] = j[0]['person_bbox']
+		elif type(j[0]['person_bbox']) == torch.Tensor:
+			gt_boxes[0] = j[0]['person_bbox'].cpu().numpy()
 		gt_labels[0] = 1
 		for m, n in enumerate(j[1:]):
 			gt_boxes[m + 1, :] = n['bbox']

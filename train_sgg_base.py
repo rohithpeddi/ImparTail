@@ -266,6 +266,7 @@ class TrainSGGBase(STSGBase):
             self._train_dataset = PartialObjAG(
                 phase="train",
                 mode=self._conf.mode,
+                maintain_distribution=self._conf.maintain_distribution,
                 datasize=self._conf.datasize,
                 partial_percentage=self._conf.partial_percentage,
                 data_path=self._conf.data_path,
@@ -279,6 +280,7 @@ class TrainSGGBase(STSGBase):
             self._train_dataset = PartialRelAG(
                 phase="train",
                 mode=self._conf.mode,
+                maintain_distribution=self._conf.maintain_distribution,
                 datasize=self._conf.datasize,
                 partial_percentage=self._conf.partial_percentage,
                 data_path=self._conf.data_path,

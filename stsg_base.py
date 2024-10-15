@@ -64,6 +64,7 @@ class STSGBase:
                     self._checkpoint_name = f"{self._conf.method_name}_{self._conf.mode}_future_{self._conf.max_window}"
 
         self._checkpoint_save_dir_path = os.path.join(self._conf.save_path, self._conf.task_name, self._conf.method_name)
+        os.makedirs(self._checkpoint_save_dir_path, exist_ok=True)
 
         # --------------------------- W&B CONFIGURATION ---------------------------
         if self._enable_wandb:

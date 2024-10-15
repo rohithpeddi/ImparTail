@@ -2,23 +2,23 @@
 # ---------------------------- SGDET (Scene Graph Determination) --------------------
 # ------------------------------------------------------------------------------
 
-python train_sgg_methods.py --method_name=sttran --mode=sgdet
-python train_sgg_methods.py --method_name=dsgdetr --mode=sgdet
-python train_sgg_methods.py --method_name=tempura --mode=sgdet
+python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgdet
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgdet
+python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=sgdet
 
 
 # ------------------------------------------------------------------------------
 # ---------------- SGCLS (Scene Graph Classification) ----------
 # ------------------------------------------------------------------------------
 
-python train_sgg_methods.py --method_name=sttran --mode=sgcls
-python train_sgg_methods.py --method_name=dsgdetr --mode=sgcls
-python train_sgg_methods.py --method_name=tempura --mode=sgcls
+python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgcls
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgcls
+python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=sgcls
 
 # ------------------------------------------------------------------------------
 # ---------------- PREDCLS (Predicate Classification) ----------
 # ------------------------------------------------------------------------------
 
-python train_sgg_methods.py --method_name=sttran --mode=predcls
-python train_sgg_methods.py --method_name=dsgdetr --mode=predcls
-python train_sgg_methods.py --method_name=tempura --mode=predcls
+python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=predcls
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=predcls
+python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=predcls

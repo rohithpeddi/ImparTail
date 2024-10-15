@@ -5,9 +5,9 @@
 # 3. Train Future Frames
 # ------------------------------------------------------------------------------
 
-python test_sga_methods.py --method_name=sttran_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_ant/sttran_ant_sgcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=sttran_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_gen_ant/sttran_gen_ant_sgcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=dsgdetr_ant --ckpt=
-python test_sga_methods.py --method_name=dsgdetr_gen_ant --ckpt=
-python test_sga_methods.py --method_name=ode --ckpt=
-python test_sga_methods.py --method_name=sde --ckpt=/data/rohith/ag/checkpoints/sga/sde/sde_predcls_future_5_epoch_3.tar
+python test_sga_methods.py --task_name=sga --method_name=sttran_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_ant/sttran_ant_sgcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_gen_ant/sttran_gen_ant_sgcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --ckpt=
+python test_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --ckpt=
+python test_sga_methods.py --task_name=sga --method_name=ode --ckpt=
+python test_sga_methods.py --task_name=sga --method_name=sde --ckpt=/data/rohith/ag/checkpoints/sga/sde/sde_predcls_future_5_epoch_3.tar

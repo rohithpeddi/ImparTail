@@ -11,31 +11,31 @@
 
 # Partial Annotations with percentage 10%
 
-python test_sga_methods.py --method_name=sttran_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_ant/sttran_ant_partial_10_sgdet_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=sttran_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_gen_ant/sttran_gen_ant_partial_10_sgdet_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=dsgdetr_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_ant/dsgdetr_ant_partial_10_sgdet_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=dsgdetr_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_gen_ant/dsgdetr_gen_ant_partial_10_sgdet_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=ode --ckpt=/data/rohith/ag/checkpoints/sga/ode/ode_partial_10_sgdet_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=sde --ckpt=/data/rohith/ag/checkpoints/sga/sde/sde_partial_10_sgdet_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sttran_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_ant/sttran_ant_partial_10_sgdet_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_gen_ant/sttran_gen_ant_partial_10_sgdet_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_ant/dsgdetr_ant_partial_10_sgdet_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_gen_ant/dsgdetr_gen_ant_partial_10_sgdet_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=ode --ckpt=/data/rohith/ag/checkpoints/sga/ode/ode_partial_10_sgdet_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sde --ckpt=/data/rohith/ag/checkpoints/sga/sde/sde_partial_10_sgdet_future_3_epoch_1.tar
 
 # Partial Annotations with percentage 40%
 
-python test_sga_methods.py --method_name=sttran_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_ant/sttran_ant_partial_40_sgdet_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=sttran_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_gen_ant/sttran_gen_ant_partial_40_sgdet_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=dsgdetr_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_ant/dsgdetr_ant_partial_40_sgdet_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=dsgdetr_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_gen_ant/dsgdetr_gen_ant_partial_40_sgdet_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=ode --ckpt=/data/rohith/ag/checkpoints/sga/ode/ode_partial_40_sgdet_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=sde --ckpt=/data/rohith/ag/checkpoints/sga/sde/sde_partial_40_sgdet_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sttran_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_ant/sttran_ant_partial_40_sgdet_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_gen_ant/sttran_gen_ant_partial_40_sgdet_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_ant/dsgdetr_ant_partial_40_sgdet_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_gen_ant/dsgdetr_gen_ant_partial_40_sgdet_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=ode --ckpt=/data/rohith/ag/checkpoints/sga/ode/ode_partial_40_sgdet_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sde --ckpt=/data/rohith/ag/checkpoints/sga/sde/sde_partial_40_sgdet_future_3_epoch_1.tar
 
 
 # Partial Annotations with percentage 70%
 
-python test_sga_methods.py --method_name=sttran_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_ant/sttran_ant_partial_70_sgdet_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=sttran_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_gen_ant/sttran_gen_ant_partial_70_sgdet_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=dsgdetr_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_ant/dsgdetr_ant_partial_70_sgdet_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=dsgdetr_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_gen_ant/dsgdetr_gen_ant_partial_70_sgdet_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=ode --ckpt=/data/rohith/ag/checkpoints/sga/ode/ode_partial_70_sgdet_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=sde --ckpt=/data/rohith/ag/checkpoints/sga/sde/sde_partial_70_sgdet_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sttran_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_ant/sttran_ant_partial_70_sgdet_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_gen_ant/sttran_gen_ant_partial_70_sgdet_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_ant/dsgdetr_ant_partial_70_sgdet_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_gen_ant/dsgdetr_gen_ant_partial_70_sgdet_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=ode --ckpt=/data/rohith/ag/checkpoints/sga/ode/ode_partial_70_sgdet_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sde --ckpt=/data/rohith/ag/checkpoints/sga/sde/sde_partial_70_sgdet_future_3_epoch_1.tar
 
 # ------------------------------------------------------------------------------
 # ---------------- SGCLS (Partially Grounded Action Genome Scenes) ----------
@@ -44,31 +44,31 @@ python test_sga_methods.py --method_name=sde --ckpt=/data/rohith/ag/checkpoints/
 
 # Partial Annotations with percentage 10%
 
-python test_sga_methods.py --method_name=sttran_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_ant/sttran_ant_partial_10_sgcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=sttran_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_gen_ant/sttran_gen_ant_partial_10_sgcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=dsgdetr_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_ant/dsgdetr_ant_partial_10_sgcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=dsgdetr_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_gen_ant/dsgdetr_gen_ant_partial_10_sgcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=ode --ckpt=/data/rohith/ag/checkpoints/sga/ode/ode_partial_10_sgcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=sde --ckpt=/data/rohith/ag/checkpoints/sga/sde/sde_partial_10_sgcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sttran_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_ant/sttran_ant_partial_10_sgcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_gen_ant/sttran_gen_ant_partial_10_sgcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_ant/dsgdetr_ant_partial_10_sgcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_gen_ant/dsgdetr_gen_ant_partial_10_sgcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=ode --ckpt=/data/rohith/ag/checkpoints/sga/ode/ode_partial_10_sgcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sde --ckpt=/data/rohith/ag/checkpoints/sga/sde/sde_partial_10_sgcls_future_3_epoch_1.tar
 
 # Partial Annotations with percentage 40%
 
-python test_sga_methods.py --method_name=sttran_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_ant/sttran_ant_partial_40_sgcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=sttran_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_gen_ant/sttran_gen_ant_partial_40_sgcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=dsgdetr_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_ant/dsgdetr_ant_partial_40_sgcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=dsgdetr_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_gen_ant/dsgdetr_gen_ant_partial_40_sgcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=ode --ckpt=/data/rohith/ag/checkpoints/sga/ode/ode_partial_40_sgcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=sde --ckpt=/data/rohith/ag/checkpoints/sga/sde/sde_partial_40_sgcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sttran_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_ant/sttran_ant_partial_40_sgcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_gen_ant/sttran_gen_ant_partial_40_sgcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_ant/dsgdetr_ant_partial_40_sgcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_gen_ant/dsgdetr_gen_ant_partial_40_sgcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=ode --ckpt=/data/rohith/ag/checkpoints/sga/ode/ode_partial_40_sgcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sde --ckpt=/data/rohith/ag/checkpoints/sga/sde/sde_partial_40_sgcls_future_3_epoch_1.tar
 
 
 # Partial Annotations with percentage 70%
 
-python test_sga_methods.py --method_name=sttran_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_ant/sttran_ant_partial_70_sgcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=sttran_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_gen_ant/sttran_gen_ant_partial_70_sgcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=dsgdetr_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_ant/dsgdetr_ant_partial_70_sgcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=dsgdetr_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_gen_ant/dsgdetr_gen_ant_partial_70_sgcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=ode --ckpt=/data/rohith/ag/checkpoints/sga/ode/ode_partial_70_sgcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=sde --ckpt=/data/rohith/ag/checkpoints/sga/sde/sde_partial_70_sgcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sttran_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_ant/sttran_ant_partial_70_sgcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_gen_ant/sttran_gen_ant_partial_70_sgcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_ant/dsgdetr_ant_partial_70_sgcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_gen_ant/dsgdetr_gen_ant_partial_70_sgcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=ode --ckpt=/data/rohith/ag/checkpoints/sga/ode/ode_partial_70_sgcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sde --ckpt=/data/rohith/ag/checkpoints/sga/sde/sde_partial_70_sgcls_future_3_epoch_1.tar
 
 
 # ------------------------------------------------------------------------------
@@ -77,28 +77,28 @@ python test_sga_methods.py --method_name=sde --ckpt=/data/rohith/ag/checkpoints/
 
 # Partial Annotations with percentage 10%
 
-python test_sga_methods.py --method_name=sttran_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_ant/sttran_ant_partial_10_predcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=sttran_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_gen_ant/sttran_gen_ant_partial_10_predcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=dsgdetr_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_ant/dsgdetr_ant_partial_10_predcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=dsgdetr_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_gen_ant/dsgdetr_gen_ant_partial_10_predcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=ode --ckpt=/data/rohith/ag/checkpoints/sga/ode/ode_partial_10_predcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=sde --ckpt=/data/rohith/ag/checkpoints/sga/sde/sde_partial_10_predcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sttran_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_ant/sttran_ant_partial_10_predcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_gen_ant/sttran_gen_ant_partial_10_predcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_ant/dsgdetr_ant_partial_10_predcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_gen_ant/dsgdetr_gen_ant_partial_10_predcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=ode --ckpt=/data/rohith/ag/checkpoints/sga/ode/ode_partial_10_predcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sde --ckpt=/data/rohith/ag/checkpoints/sga/sde/sde_partial_10_predcls_future_3_epoch_1.tar
 
 # Partial Annotations with percentage 40%
 
-python test_sga_methods.py --method_name=sttran_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_ant/sttran_ant_partial_40_predcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=sttran_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_gen_ant/sttran_gen_ant_partial_40_predcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=dsgdetr_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_ant/dsgdetr_ant_partial_40_predcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=dsgdetr_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_gen_ant/dsgdetr_gen_ant_partial_40_predcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=ode --ckpt=/data/rohith/ag/checkpoints/sga/ode/ode_partial_40_predcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=sde --ckpt=/data/rohith/ag/checkpoints/sga/sde/sde_partial_40_predcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sttran_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_ant/sttran_ant_partial_40_predcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_gen_ant/sttran_gen_ant_partial_40_predcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_ant/dsgdetr_ant_partial_40_predcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_gen_ant/dsgdetr_gen_ant_partial_40_predcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=ode --ckpt=/data/rohith/ag/checkpoints/sga/ode/ode_partial_40_predcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sde --ckpt=/data/rohith/ag/checkpoints/sga/sde/sde_partial_40_predcls_future_3_epoch_1.tar
 
 
 # Partial Annotations with percentage 70%
 
-python test_sga_methods.py --method_name=sttran_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_ant/sttran_ant_partial_70_predcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=sttran_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_gen_ant/sttran_gen_ant_partial_70_predcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=dsgdetr_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_ant/dsgdetr_ant_partial_70_predcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=dsgdetr_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_gen_ant/dsgdetr_gen_ant_partial_70_predcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=ode --ckpt=/data/rohith/ag/checkpoints/sga/ode/ode_partial_70_predcls_future_3_epoch_1.tar
-python test_sga_methods.py --method_name=sde --ckpt=/data/rohith/ag/checkpoints/sga/sde/sde_partial_70_predcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sttran_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_ant/sttran_ant_partial_70_predcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/sttran_gen_ant/sttran_gen_ant_partial_70_predcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_ant/dsgdetr_ant_partial_70_predcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --ckpt=/data/rohith/ag/checkpoints/sga/dsgdetr_gen_ant/dsgdetr_gen_ant_partial_70_predcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=ode --ckpt=/data/rohith/ag/checkpoints/sga/ode/ode_partial_70_predcls_future_3_epoch_1.tar
+python test_sga_methods.py --task_name=sga --method_name=sde --ckpt=/data/rohith/ag/checkpoints/sga/sde/sde_partial_70_predcls_future_3_epoch_1.tar

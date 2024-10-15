@@ -10,23 +10,23 @@
 
 # Partial Annotations with percentage 10%
 
-python test_sgg_methods.py --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_obj_10_sgdet.tar
-python test_sgg_methods.py --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_obj_10_sgdet.tar
-python test_sgg_methods.py --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_obj_10_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_obj_10_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_obj_10_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_obj_10_sgdet.tar
 
 
 # Partial Annotations with percentage 40%
 
-python test_sgg_methods.py --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_obj_40_sgdet.tar
-python test_sgg_methods.py --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_obj_40_sgdet.tar
-python test_sgg_methods.py --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_obj_40_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_obj_40_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_obj_40_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_obj_40_sgdet.tar
 
 
 # Partial Annotations with percentage 70%
 
-python test_sgg_methods.py --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_obj_70_sgdet.tar
-python test_sgg_methods.py --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_obj_70_sgdet.tar
-python test_sgg_methods.py --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_obj_70_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_obj_70_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_obj_70_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_obj_70_sgdet.tar
 
 # ------------------------------------------------------------------------------
 # ---------------- SGCLS (Scene Graph Classification) ----------
@@ -34,23 +34,23 @@ python test_sgg_methods.py --method_name=tempura --ckpt=/data/rohith/ag/checkpoi
 
 # Partial Annotations with percentage 10%
 
-python test_sgg_methods.py --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_obj_10_sgcls.tar
-python test_sgg_methods.py --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_obj_10_sgcls.tar
-python test_sgg_methods.py --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_obj_10_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_obj_10_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_obj_10_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_obj_10_sgcls.tar
 
 
 # Partial Annotations with percentage 40%
 
-python test_sgg_methods.py --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_obj_40_sgcls.tar
-python test_sgg_methods.py --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_obj_40_sgcls.tar
-python test_sgg_methods.py --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_obj_40_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_obj_40_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_obj_40_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_obj_40_sgcls.tar
 
 
 # Partial Annotations with percentage 70%
 
-python test_sgg_methods.py --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_obj_70_sgcls.tar
-python test_sgg_methods.py --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_obj_70_sgcls.tar
-python test_sgg_methods.py --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_obj_70_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_obj_70_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_obj_70_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_obj_70_sgcls.tar
 
 
 # ------------------------------------------------------------------------------
@@ -59,20 +59,20 @@ python test_sgg_methods.py --method_name=tempura --ckpt=/data/rohith/ag/checkpoi
 
 # Partial Annotations with percentage 10%
 
-python test_sgg_methods.py --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_obj_10_predcls.tar
-python test_sgg_methods.py --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_obj_10_predcls.tar
-python test_sgg_methods.py --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_obj_10_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_obj_10_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_obj_10_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_obj_10_predcls.tar
 
 
 # Partial Annotations with percentage 40%
 
-python test_sgg_methods.py --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_obj_40_predcls.tar
-python test_sgg_methods.py --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_obj_40_predcls.tar
-python test_sgg_methods.py --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_obj_40_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_obj_40_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_obj_40_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_obj_40_predcls.tar
 
 
 # Partial Annotations with percentage 70%
 
-python test_sgg_methods.py --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_obj_70_predcls.tar
-python test_sgg_methods.py --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_obj_70_predcls.tar
-python test_sgg_methods.py --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_obj_70_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_obj_70_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_obj_70_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_obj_70_predcls.tar

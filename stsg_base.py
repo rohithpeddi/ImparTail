@@ -55,7 +55,7 @@ class STSGBase:
                     self._checkpoint_name = f"{self._conf.method_name}_partial_rel_{self._conf.partial_percentage}_{self._conf.mode}"
                 else:
                     self._checkpoint_name = f"{self._conf.method_name}_{self._conf.mode}"
-            else:
+            elif self._conf.task_name == const.SGA:
                 if self._conf.use_partial_obj_annotations:
                     self._checkpoint_name = f"{self._conf.method_name}_partial_obj_{self._conf.partial_percentage}_{self._conf.mode}_future_{self._conf.max_window}"
                 elif self._conf.use_partial_rel_annotations:

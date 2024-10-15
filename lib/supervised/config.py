@@ -12,7 +12,6 @@ class Config(object):
         """
         self.mode = None
         self.save_path = None
-        self.model_path = None
         self.data_path = None
         self.datasize = None
         self.ckpt = None
@@ -25,18 +24,15 @@ class Config(object):
         self.results_path = None
         self.method_name = None
         self.task_name = "sga"
-        
+
+        # ---------------- SGA ----------------
         self.max_window = 5
         self.brownian_size = 1
         self.ode_ratio = 1.0
         self.sde_ratio = 1.0
         self.bbox_ratio = 0.1
-        self.features_path = None
-        self.additional_data_path = None
-        
         self.baseline_context = 3
         self.max_future = 5
-        
         self.hp_recon_loss = 1.0
 
         # ---------------- Corruptions ----------------
@@ -60,19 +56,15 @@ class Config(object):
         :return:
         """
         parser = ArgumentParser(description='training code')
-        parser.add_argument('--vid_sgg_method', dest='method', help='Method dsg_detr/sttran/tempura', default='dsg_detr',
+        parser.add_argument('--vid_sgg_method', dest='method', help='Method dsgdetr/sttran/tempura', default='dsgdetr',
                             type=str)
         parser.add_argument('--mode', dest='mode', help='predcls/sgcls/sgdet', default='predcls', type=str)
         parser.add_argument('--save_path', default='/data/rohith/ag/checkpoints', type=str)
-        parser.add_argument('--model_path', default=None, type=str)
         parser.add_argument('--method_name', default='sttran', type=str)
         parser.add_argument('--results_path', default='results', type=str)
 
-        parser.add_argument('--features_path', default=None, type=str)
-        parser.add_argument('--additional_data_path', default=None, type=str)
         parser.add_argument('--baseline_context', default=3, type=int)
         parser.add_argument('--max_future', default=5, type=int)
-        parser.add_argument('--use_raw_data', action='store_true')
         parser.add_argument('--data_path', default='/data/rohith/ag', type=str)
         parser.add_argument('--datasize', dest='datasize', help='mini dataset or whole', default='large', type=str)
         parser.add_argument('--ckpt', dest='ckpt', help='checkpoint', default=None, type=str)

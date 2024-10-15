@@ -73,13 +73,19 @@ class TrainSTSGBase(STSGBase):
         for epoch in range(self._conf.nepoch):
             self._model.train()
             train_iter = iter(self._dataloader_train)
-
             start_time = time.time()
             self._object_detector.is_train = True
             for train_id in tqdm(range(len(self._dataloader_train))):
                 data = next(train_iter)
                 im_data, im_info, gt_boxes, num_boxes = [copy.deepcopy(d.cuda(0)) for d in data[:4]]
-                gt_annotation = self._train_dataset.gt_annotations[data[4]]
+
+                video_index = data[4]
+                gt_annotation = self._train_dataset.gt_annotations[video_index]
+
+                if len(gt_annotation) == 0:
+                    print(f'No annotations found in the video {video_index}. Skipping...')
+                    continue
+
                 frame_size = (im_info[0][:2] / im_info[0, 2]).cpu().data
                 with torch.no_grad():
                     entry = self._object_detector(im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all=None)
@@ -145,6 +151,7 @@ class TrainSTSGBase(STSGBase):
             self._scheduler.step(score)
 
     def init_dataset(self):
+
         if self._conf.use_partial_obj_annotations:
             print("-----------------------------------------------------")
             print("Loading the partial object dataset")
@@ -177,6 +184,7 @@ class TrainSTSGBase(STSGBase):
             print("-----------------------------------------------------")
             self._train_dataset = StandardAG(
                 phase="train",
+                mode=self._conf.mode,
                 datasize=self._conf.datasize,
                 data_path=self._conf.data_path,
                 filter_nonperson_box_frame=True,
@@ -185,6 +193,7 @@ class TrainSTSGBase(STSGBase):
 
         self._test_dataset = StandardAG(
             phase="test",
+            mode=self._conf.mode,
             datasize=self._conf.datasize,
             data_path=self._conf.data_path,
             filter_nonperson_box_frame=True,
@@ -216,10 +225,8 @@ class TrainSTSGBase(STSGBase):
             pred_anticipated = pred.copy()
             last = pred["last_" + str(i)]
             pred_anticipated["spatial_distribution"] = pred["anticipated_spatial_distribution"][i - 1, : last]
-            pred_anticipated["contacting_distribution"] = pred["anticipated_contacting_distribution"][i - 1,
-                                                          : last]
-            pred_anticipated["attention_distribution"] = pred["anticipated_attention_distribution"][i - 1,
-                                                         : last]
+            pred_anticipated["contacting_distribution"] = pred["anticipated_contacting_distribution"][i - 1, : last]
+            pred_anticipated["attention_distribution"] = pred["anticipated_attention_distribution"][i - 1, : last]
             pred_anticipated["im_idx"] = pred["im_idx_test_" + str(i)]
             pred_anticipated["pair_idx"] = pred["pair_idx_test_" + str(i)]
 
@@ -248,6 +255,10 @@ class TrainSTSGBase(STSGBase):
 
     def compute_gt_relationship_labels(self, pred):
         attention_label = torch.tensor(pred["attention_gt"], dtype=torch.long).to(device=self._device).squeeze()
+        # Change the shape of the attention label to the format [1] if it defaults to a singular value
+        if len(attention_label.shape) == 0:
+            attention_label = attention_label.unsqueeze(0)
+
         if not self._conf.bce_loss:
             spatial_label = -torch.ones([len(pred["spatial_gt"]), 6], dtype=torch.long).to(device=self._device)
             contact_label = -torch.ones([len(pred["contacting_gt"]), 17], dtype=torch.long).to(device=self._device)
@@ -396,11 +407,7 @@ class TrainSTSGBase(STSGBase):
             if len(mask_ant) == 0:
                 assert len(mask_gt) == 0
             else:
-                loss_count += 1
-                ant_attention_relation_loss = self._ce_loss(
-                    ant_attention_distribution[mask_ant],
-                    attention_label[mask_gt]
-                ).mean()
+                # 1. Reconstruction Loss
                 try:
                     ant_anticipated_latent_loss = self._conf.hp_recon_loss * self._abs_loss(
                         ant_global_output[mask_ant],
@@ -411,6 +418,18 @@ class TrainSTSGBase(STSGBase):
                     print(ant_global_output.shape, mask_ant.shape, global_output.shape, mask_gt.shape)
                     print(mask_ant)
 
+                # TODO: Filter out for missing ground truth annotations corresponding to each distribution!
+                # For partial annotations ground truth might not contain all the annotations!
+                # In such cases, we have to filter out the outputs of ...dist[mask_ant] and ...label[mask_gt] together.
+
+                # 2. Anticipated Attention Relationship Loss
+                loss_count += 1
+                ant_attention_relation_loss = self._ce_loss(
+                    ant_attention_distribution[mask_ant],
+                    attention_label[mask_gt]
+                ).mean()
+
+                # 3. Anticipated Spatial and Contact Relationship Loss
                 if not self._conf.bce_loss:
                     ant_spatial_relation_loss = self._mlm_loss(ant_spatial_distribution[mask_ant],
                                                                spatial_label[mask_gt]).mean()
@@ -439,26 +458,6 @@ class TrainSTSGBase(STSGBase):
 
         return losses
 
-    def compute_gen_loss(self, pred, losses, attention_label, spatial_label, contact_label):
-        attention_distribution = pred["gen_attention_distribution"]
-        spatial_distribution = pred["gen_spatial_distribution"]
-        contacting_distribution = pred["gen_contacting_distribution"]
-
-        try:
-            losses["gen_attention_relation_loss"] = self._ce_loss(attention_distribution, attention_label).mean()
-        except ValueError:
-            attention_label = attention_label.unsqueeze(0)
-            losses["gen_attention_relation_loss"] = self._ce_loss(attention_distribution, attention_label).mean()
-
-        if not self._conf.bce_loss:
-            losses["gen_spatial_relation_loss"] = self._mlm_loss(spatial_distribution, spatial_label).mean()
-            losses["gen_contact_relation_loss"] = self._mlm_loss(contacting_distribution, contact_label).mean()
-        else:
-            losses["gen_spatial_relation_loss"] = self._bce_loss(spatial_distribution, spatial_label).mean()
-            losses["gen_contact_relation_loss"] = self._bce_loss(contacting_distribution, contact_label).mean()
-
-        return losses
-
     def compute_baseline_ant_loss(self, pred):
         attention_label, spatial_label, contact_label = self.compute_gt_relationship_labels(pred)
 
@@ -480,8 +479,26 @@ class TrainSTSGBase(STSGBase):
 
         losses = self.compute_ff_ant_loss(pred, losses, attention_label, spatial_label, contact_label)
 
+        # TODO: Filter out for missing ground truth annotations corresponding to each distribution!
+        # For partial relationship annotations ground truth might not contain all the annotations!
+        # In such cases, we have to filter out the outputs of gen.....dist and ...label together.
         if self._enable_gen_pred_class_loss:
-            losses = self.compute_gen_loss(pred, losses, attention_label, spatial_label, contact_label)
+            attention_distribution = pred["gen_attention_distribution"]
+            spatial_distribution = pred["gen_spatial_distribution"]
+            contacting_distribution = pred["gen_contacting_distribution"]
+
+            try:
+                losses["gen_attention_relation_loss"] = self._ce_loss(attention_distribution, attention_label).mean()
+            except ValueError:
+                attention_label = attention_label.unsqueeze(0)
+                losses["gen_attention_relation_loss"] = self._ce_loss(attention_distribution, attention_label).mean()
+
+            if not self._conf.bce_loss:
+                losses["gen_spatial_relation_loss"] = self._mlm_loss(spatial_distribution, spatial_label).mean()
+                losses["gen_contact_relation_loss"] = self._mlm_loss(contacting_distribution, contact_label).mean()
+            else:
+                losses["gen_spatial_relation_loss"] = self._bce_loss(spatial_distribution, spatial_label).mean()
+                losses["gen_contact_relation_loss"] = self._bce_loss(contacting_distribution, contact_label).mean()
 
         return losses
 

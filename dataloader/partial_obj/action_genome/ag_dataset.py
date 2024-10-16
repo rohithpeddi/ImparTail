@@ -19,6 +19,7 @@ class PartialObjAG(BaseAG):
             self,
             phase,
             mode,
+            maintain_distribution,
             datasize,
             partial_percentage=10,
             data_path=None,
@@ -26,9 +27,13 @@ class PartialObjAG(BaseAG):
             filter_small_box=False
     ):
         super().__init__(phase, mode, datasize, data_path, filter_nonperson_box_frame, filter_small_box)
+
+        self._maintain_distribution = maintain_distribution
         # Filter out objects in the ground truth based on object observation ratio.
         filtered_gt_annotations = self.filter_gt_annotations(partial_percentage)
-        self._gt_annotations = filtered_gt_annotations
+        # self._gt_annotations = filtered_gt_annotations
+        self._gt_annotations_mask = filtered_gt_annotations
+
 
     @staticmethod
     def estimate_distribution(data):
@@ -48,9 +53,18 @@ class PartialObjAG(BaseAG):
         # First, estimate the distribution
         distribution, total_annotations, object_counts = self.estimate_distribution(data)
 
-        # Compute target counts for each object
-        target_total_annotations = int(round(total_annotations * partial_annotation_ratio))
-        target_counts = {obj: int(round(count * partial_annotation_ratio)) for obj, count in object_counts.items()}
+        if self._maintain_distribution:
+            target_counts = {obj: int(round(count * partial_annotation_ratio)) for obj, count in object_counts.items()}
+        else:
+            target_total_annotations = int(round(total_annotations * partial_annotation_ratio))
+            objects = list(object_counts.keys())
+            total_relations = len(objects)
+
+            # Generate random counts such that their sum equals target_total_annotations
+            counts = np.random.multinomial(target_total_annotations, np.ones(total_relations) / total_relations)
+
+            # Assign counts to corresponding objects
+            target_counts = {obj: count for obj, count in zip(objects, counts)}
 
         # Collect positions of each object
         obj_positions = collections.defaultdict(list)
@@ -158,10 +172,10 @@ class PartialObjAG(BaseAG):
                     obj_class_id = frame_obj_dict[const.CLASS]
                     if obj_class_id in filtered_data_obj_class_list[video_id][video_frame_id]:
                         filtered_video_frame_annotation_dict.append(frame_obj_dict)
-                # Add a person object frame only when an object is observed in the frame.
-                if len(filtered_video_frame_annotation_dict) > 0:
-                    filtered_video_frame_annotation_dict.insert(0, video_frame_annotation_dict[0])
-                    filtered_video_annotation_dict.append(filtered_video_frame_annotation_dict)
+                    else:
+                        filtered_video_frame_annotation_dict.append([])
+                filtered_video_frame_annotation_dict.insert(0, video_frame_annotation_dict[0])
+                filtered_video_annotation_dict.append(filtered_video_frame_annotation_dict)
             # Don't change this logic as the ground truth annotations are loaded based on the video index
             # Number of gt annotations should remain the same as the original annotations.
             filtered_gt_annotations.append(filtered_video_annotation_dict)

@@ -336,11 +336,14 @@ class Detector(nn.Module):
     # -------------------------- PREDCLS and SGCLS ENTRY ------------------------ #
     ################################################################################
 
-    def _forward_and_fetch_features(self, im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all):
+    def _forward_and_fetch_features(self, im_data, im_info, gt_annotation, gt_annotation_mask):
         bbox_num, bbox_idx, bbox_info = self._count_bbox(gt_annotation)
         FINAL_BBOXES, FINAL_LABELS, FINAL_SCORES, HUMAN_IDX = self._init_final_tensors(bbox_num, len(gt_annotation))
-        FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX, im_idx, pair, a_rel, s_rel, c_rel = self._populate_final_tensors(
-            FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX, gt_annotation
+
+        (FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX,
+         im_idx, pair, a_rel, s_rel, c_rel,
+         a_rel_mask, s_rel_mask, c_rel_mask) = self._populate_final_tensors(
+            FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX, gt_annotation, gt_annotation_mask
         )
         pair, im_idx = map(lambda x: torch.tensor(x).to(self.device), [pair, im_idx])
         FINAL_BASE_FEATURES = self._compute_base_features(im_data)
@@ -357,7 +360,7 @@ class Detector(nn.Module):
         attribute_dictionary = self._construct_attribute_dictionary(
             FINAL_BBOXES, FINAL_LABELS, FINAL_SCORES, im_idx, pair, HUMAN_IDX, FINAL_FEATURES,
             union_boxes, union_feat, spatial_masks, a_rel, s_rel, c_rel, FINAL_DISTRIBUTIONS, PRED_LABELS,
-            FINAL_BASE_FEATURES, im_info, FINAL_PRED_SCORES
+            FINAL_BASE_FEATURES, im_info, FINAL_PRED_SCORES, a_rel_mask, s_rel_mask, c_rel_mask
         )
         return attribute_dictionary
 
@@ -376,11 +379,54 @@ class Detector(nn.Module):
         HUMAN_IDX = torch.zeros([ann_len, 1], dtype=dtype_int).to(self.device)
         return FINAL_BBOXES, FINAL_LABELS, FINAL_SCORES, HUMAN_IDX
 
-    def _populate_final_tensors(self, FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX, gt_annotation):
+    # Function to handle relationship data conversion and masking
+    @staticmethod
+    def _process_relationships(frame_data, frame_mask, relation_key):
+        relation_data = frame_data[relation_key]
+        if isinstance(relation_data, torch.Tensor):
+            relation_data = relation_data.tolist()
+
+        relation_mask = frame_mask[relation_key]
+        if isinstance(relation_mask, torch.Tensor):
+            relation_mask = relation_mask.tolist()
+
+        # Generate mask for loss calculation based on the provided mask
+        loss_mask = [1 if rel in relation_mask else 0 for rel in relation_data]
+        return relation_data, loss_mask
+
+    def _populate_final_tensors(self, FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX, gt_annotation, gt_annotation_mask):
         bbox_idx = 0
         im_idx, pair, a_rel, s_rel, c_rel = [], [], [], [], []
+        a_rel_mask, s_rel_mask, c_rel_mask = [], [], []
+
+        # Note: Initial gt_annotation_mask creation happens this way.
+        # 1. gt_annotation_mask contains the sampled labels of attention, spatial and contacting relationships.
+        # 2. To create the masks for which are present and which are absent in ground truth annotations we have to perform this computation.
+
+        # gt_annotation_mask is None ==> No mask is provided ==> Not using partial annotations
+        # This would ensure none of the ground truth annotations are masked.
+        # gt_annotation_mask can be empty [] ==> All annotations are masked for this.
+        if gt_annotation_mask is None:
+            gt_annotation_mask = gt_annotation
+
         for frame_idx, gt_frame_bboxes in enumerate(gt_annotation):
-            for frame_bbox in gt_frame_bboxes:
+
+            # If gt_annotation_mask is empty, then all annotations are masked
+            # Initialize the gt_frame_bboxes_mask to an empty list
+            if len(gt_annotation_mask) == 0:
+                gt_frame_bboxes_mask = []
+            else:
+                gt_frame_bboxes_mask = gt_annotation_mask[frame_idx]
+
+            for frame_bbox_id, frame_bbox in enumerate(gt_frame_bboxes):
+
+                # If gt_frame_bboxes_mask is empty, then all annotations are masked
+                # Initialize the frame_bbox_mask to an empty list
+                if len(gt_frame_bboxes_mask) == 0:
+                    frame_bbox_mask = []
+                else:
+                    frame_bbox_mask = gt_frame_bboxes_mask[frame_bbox_id]
+
                 if const.PERSON_BBOX in frame_bbox.keys():
                     FINAL_BBOXES[bbox_idx, 1:] = torch.from_numpy(np.array(frame_bbox[const.PERSON_BBOX][0]))
                     FINAL_BBOXES[bbox_idx, 0] = frame_idx
@@ -393,17 +439,29 @@ class Detector(nn.Module):
                     FINAL_LABELS[bbox_idx] = frame_bbox[const.CLASS]
                     im_idx.append(frame_idx)
                     pair.append([int(HUMAN_IDX[frame_idx]), bbox_idx])
-                    if type(frame_bbox[const.ATTENTION_RELATIONSHIP]) == torch.Tensor:
-                        a_rel.append(frame_bbox[const.ATTENTION_RELATIONSHIP].tolist())
-                        s_rel.append(frame_bbox[const.SPATIAL_RELATIONSHIP].tolist())
-                        c_rel.append(frame_bbox[const.CONTACTING_RELATIONSHIP].tolist())
+
+                    if frame_bbox_mask:
+                        # Process relationships if mask is present ==> frame_bbox_mask is not empty
+                        frame_bbox_a_rels, a_mask = self._process_relationships(frame_bbox, frame_bbox_mask, const.ATTENTION_RELATIONSHIP)
+                        frame_bbox_s_rels, s_mask = self._process_relationships(frame_bbox, frame_bbox_mask, const.SPATIAL_RELATIONSHIP)
+                        frame_bbox_c_rels, c_mask = self._process_relationships(frame_bbox, frame_bbox_mask, const.CONTACTING_RELATIONSHIP)
                     else:
-                        # A raw list of relations is provided
-                        a_rel.append(frame_bbox[const.ATTENTION_RELATIONSHIP])
-                        s_rel.append(frame_bbox[const.SPATIAL_RELATIONSHIP])
-                        c_rel.append(frame_bbox[const.CONTACTING_RELATIONSHIP])
+                        # Default to no relationships if no mask is provided
+                        frame_bbox_a_rels, a_mask = frame_bbox[const.ATTENTION_RELATIONSHIP], [0] * len(
+                            frame_bbox[const.ATTENTION_RELATIONSHIP])
+                        frame_bbox_s_rels, s_mask = frame_bbox[const.SPATIAL_RELATIONSHIP], [0] * len(
+                            frame_bbox[const.SPATIAL_RELATIONSHIP])
+                        frame_bbox_c_rels, c_mask = frame_bbox[const.CONTACTING_RELATIONSHIP], [0] * len(
+                            frame_bbox[const.CONTACTING_RELATIONSHIP])
+
+                    a_rel.append(frame_bbox_a_rels)
+                    s_rel.append(frame_bbox_s_rels)
+                    c_rel.append(frame_bbox_c_rels)
+                    a_rel_mask.append(a_mask)
+                    s_rel_mask.append(s_mask)
+                    c_rel_mask.append(c_mask)
                     bbox_idx += 1
-        return FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX, im_idx, pair, a_rel, s_rel, c_rel
+        return FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX, im_idx, pair, a_rel, s_rel, c_rel, a_rel_mask, s_rel_mask, c_rel_mask
 
     def _compute_base_features(self, im_data):
         FINAL_BASE_FEATURES = torch.tensor([]).to(self.device)
@@ -448,7 +506,7 @@ class Detector(nn.Module):
     def _construct_attribute_dictionary(
             self, FINAL_BBOXES, FINAL_LABELS, FINAL_SCORES, im_idx, pair, HUMAN_IDX, FINAL_FEATURES,
             union_boxes, union_feat, spatial_masks, a_rel, s_rel, c_rel, FINAL_DISTRIBUTIONS, PRED_LABELS,
-            FINAL_BASE_FEATURES, im_info, FINAL_PRED_SCORES
+            FINAL_BASE_FEATURES, im_info, FINAL_PRED_SCORES, a_rel_mask, s_rel_mask, c_rel_mask
     ):
         attribute_dictionary = {
             const.FINAL_BBOXES: FINAL_BBOXES,
@@ -464,6 +522,9 @@ class Detector(nn.Module):
             const.ATTENTION_REL: a_rel,
             const.SPATIAL_REL: s_rel,
             const.CONTACTING_REL: c_rel,
+            const.ATTENTION_REL_MASK: a_rel_mask,
+            const.SPATIAL_REL_MASK: s_rel_mask,
+            const.CONTACTING_REL_MASK: c_rel_mask,
             const.FINAL_DISTRIBUTIONS: FINAL_DISTRIBUTIONS,
             const.PRED_LABELS: PRED_LABELS,
             const.FINAL_BASE_FEATURES: FINAL_BASE_FEATURES,
@@ -513,6 +574,9 @@ class Detector(nn.Module):
                 const.ATTENTION_GT: attribute_dictionary[const.ATTENTION_REL],
                 const.SPATIAL_GT: attribute_dictionary[const.SPATIAL_REL],
                 const.CONTACTING_GT: attribute_dictionary[const.CONTACTING_REL],
+                const.ATTENTION_GT_MASK: attribute_dictionary[const.ATTENTION_REL_MASK],
+                const.SPATIAL_GT_MASK: attribute_dictionary[const.SPATIAL_REL_MASK],
+                const.CONTACTING_GT_MASK: attribute_dictionary[const.CONTACTING_REL_MASK],
                 const.DISTRIBUTION: attribute_dictionary[const.FINAL_DISTRIBUTIONS],
                 const.PRED_LABELS: attribute_dictionary[const.PRED_LABELS]
             }
@@ -537,7 +601,10 @@ class Detector(nn.Module):
                 const.SPATIAL_MASKS: attribute_dictionary[const.SPATIAL_MASKS],
                 const.ATTENTION_GT: attribute_dictionary[const.ATTENTION_REL],
                 const.SPATIAL_GT: attribute_dictionary[const.SPATIAL_REL],
-                const.CONTACTING_GT: attribute_dictionary[const.CONTACTING_REL]
+                const.CONTACTING_GT: attribute_dictionary[const.CONTACTING_REL],
+                const.ATTENTION_GT_MASK: attribute_dictionary[const.ATTENTION_REL_MASK],
+                const.SPATIAL_GT_MASK: attribute_dictionary[const.SPATIAL_REL_MASK],
+                const.CONTACTING_GT_MASK: attribute_dictionary[const.CONTACTING_REL_MASK],
             }
         return entry
 
@@ -545,9 +612,7 @@ class Detector(nn.Module):
         if self.mode == 'sgdet':
             attribute_dictionary = self._forward_sgdet(im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all)
         else:
-            attribute_dictionary = self._forward_and_fetch_features(
-                im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all
-            )
+            attribute_dictionary = self._forward_and_fetch_features(im_data, im_info, gt_annotation, gt_annotation_mask)
 
         entry = self._construct_entry(attribute_dictionary)
 

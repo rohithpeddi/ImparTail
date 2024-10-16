@@ -55,51 +55,127 @@ class TrainSGGBase(STSGBase):
         ).to(device=self._device)
         self._object_detector.eval()
 
-    @staticmethod
-    def filter_predictions_for_missing_labels(pred):
-        # Attention, Spatial, Contacting distributions are of the format [bbox_num, 3], [bbox_num, 6], [bbox_num, 17] respectively
-        # Attention, Spatial, Contacting labels are lists each containing [bbox_num] items
-        # We need to filter out the predictions for which the labels are missing i,e labels have empty lists []
-        attention_dist = pred[const.ATTENTION_DISTRIBUTION]
-        spatial_dist = pred[const.SPATIAL_DISTRIBUTION]
-        contact_dist = pred[const.CONTACTING_DISTRIBUTION]
+    def _prepare_labels_and_distribution(self, pred, distribution_type, label_type, max_len):
+        total_labels = len(pred[label_type])
+        pred_distribution = pred[distribution_type]
 
-        attention_labels = pred[const.ATTENTION_GT]
-        spatial_labels = pred[const.SPATIAL_GT]
-        contact_labels = pred[const.CONTACTING_GT]
+        # Filter out both the distribution and labels if all the labels are masked
+        # Note: Loss should not include items if all the labels are masked
+        filtered_labels = []
+        filtered_distribution = []
+        if not self._conf.bce_loss:
+            # For Multi Label Margin Loss (MLM)
+            for i in range(total_labels):
+                gt = torch.tensor(pred[label_type][i], device=self._device)
+                mask = torch.tensor(pred[f'{label_type}_mask'][i], device=self._device)
+                gt_masked = gt[mask == 1]
+                pred_distribution_i = pred_distribution[i]
 
-        total_bbox_num = attention_dist.shape[0]
-
-        # Filtering non-empty label distributions using list comprehensions
-        filtered_attention = [(dist, lbl) for dist, lbl in zip(attention_dist, attention_labels) if lbl]
-        filtered_spatial = [(dist, lbl) for dist, lbl in zip(spatial_dist, spatial_labels) if lbl]
-        filtered_contact = [(dist, lbl) for dist, lbl in zip(contact_dist, contact_labels) if lbl]
-
-        # Updating predictions dictionary with filtered results
-        if filtered_attention:
-            pred[const.ATTENTION_DISTRIBUTION], pred[const.ATTENTION_GT] = zip(*filtered_attention)
-            pred[const.ATTENTION_DISTRIBUTION] = torch.stack(pred[const.ATTENTION_DISTRIBUTION])
+                if gt_masked.shape[0] == 0:
+                    continue
+                else:
+                    label = -torch.ones([max_len], dtype=torch.long, device=self._device)
+                    label[:gt_masked.size(0)] = gt_masked
+                    filtered_labels.append(label)
+                    filtered_distribution.append(pred_distribution_i)
         else:
-            pred[const.ATTENTION_DISTRIBUTION], pred[const.ATTENTION_GT] = torch.tensor([]), []
+            # For Binary Cross Entropy Loss (BCE)
+            for i in range(total_labels):
+                gt = torch.tensor(pred[label_type][i], device=self._device)
+                mask = torch.tensor(pred[f'{label_type}_mask'][i], device=self._device)
+                gt_masked = gt[mask == 1]
+                pred_distribution_i = pred_distribution[i]
 
-        if filtered_spatial:
-            pred[const.SPATIAL_DISTRIBUTION], pred[const.SPATIAL_GT] = zip(*filtered_spatial)
-            pred[const.SPATIAL_DISTRIBUTION] = torch.stack(pred[const.SPATIAL_DISTRIBUTION])
+                if gt_masked.shape[0] == 0:
+                    continue
+                else:
+                    label = torch.zeros([max_len], dtype=torch.float32, device=self._device)
+                    label[gt_masked] = 1
+                    filtered_labels.append(label)
+                    filtered_distribution.append(pred_distribution_i)
+
+        filtered_labels = torch.stack(filtered_labels)
+        filtered_distribution = torch.stack(filtered_distribution)
+
+        return filtered_distribution, filtered_labels
+
+    def _calculate_losses_for_partial_annotations(self, pred):
+        losses = {}
+
+        # 1. Object Loss
+        if self._conf.mode in [const.SGCLS, const.SGDET]:
+            losses[const.OBJECT_LOSS] = self._ce_loss(pred[const.DISTRIBUTION], pred[const.LABELS])
+
+        # 2. Attention Loss
+        attention_distribution = pred[const.ATTENTION_DISTRIBUTION]
+        attention_label = torch.tensor(pred[const.ATTENTION_GT], dtype=torch.long).to(device=self._device).squeeze()
+        attention_label_mask = torch.tensor(pred[const.ATTENTION_GT_MASK], dtype=torch.float32).to(
+            device=self._device).squeeze()
+        assert attention_label.shape == attention_label_mask.shape
+        # Change to shape [1] if the tensor defaults to a single value
+        if len(attention_label.shape) == 0:
+            attention_label = attention_label.unsqueeze(0)
+            attention_label_mask = attention_label_mask.unsqueeze(0)
+
+        # Filter attention distribution and attention label based on the attention label mask
+        filtered_attention_distribution = attention_distribution[attention_label_mask == 1]
+        filtered_attention_label = attention_label[attention_label_mask == 1]
+
+        assert filtered_attention_distribution.shape[0] == filtered_attention_label.shape[0]
+        losses[const.ATTENTION_RELATION_LOSS] = self._ce_loss(filtered_attention_distribution, filtered_attention_label)
+
+        # 3. Spatial Loss
+        spatial_distribution, spatial_labels = self._prepare_labels_and_distribution(pred, const.SPATIAL_GT, 6)
+        if not self._conf.bce_loss:
+            losses[const.SPATIAL_RELATION_LOSS] = self._mlm_loss(spatial_distribution, spatial_labels)
         else:
-            pred[const.SPATIAL_DISTRIBUTION], pred[const.SPATIAL_GT] = torch.tensor([]), []
+            losses[const.SPATIAL_RELATION_LOSS] = self._bce_loss(spatial_distribution, spatial_labels)
 
-        if filtered_contact:
-            pred[const.CONTACTING_DISTRIBUTION], pred[const.CONTACTING_GT] = zip(*filtered_contact)
-            pred[const.CONTACTING_DISTRIBUTION] = torch.stack(pred[const.CONTACTING_DISTRIBUTION])
+        # 4. Contacting Loss
+        contact_distribution, contact_labels = self._prepare_labels_and_distribution(pred, const.CONTACTING_GT, 17)
+        if not self._conf.bce_loss:
+            losses[const.CONTACTING_RELATION_LOSS] = self._mlm_loss(contact_distribution, contact_labels)
         else:
-            pred[const.CONTACTING_DISTRIBUTION], pred[const.CONTACTING_GT] = torch.tensor([]), []
+            losses[const.CONTACTING_RELATION_LOSS] = self._bce_loss(contact_distribution, contact_labels)
+        return losses
 
-        # print(f"Filtered dataset: "
-        #       f"Attention [{pred[const.ATTENTION_DISTRIBUTION].shape[0]}/{total_bbox_num}], "
-        #       f"Spatial [{pred[const.SPATIAL_DISTRIBUTION].shape[0]}/{total_bbox_num}], "
-        #       f"Contacting [{pred[const.CONTACTING_DISTRIBUTION].shape[0]}/{total_bbox_num}]")
+    def _calculate_losses_for_full_annotations(self, pred):
+        attention_distribution = pred[const.ATTENTION_DISTRIBUTION]
+        spatial_distribution = pred[const.SPATIAL_DISTRIBUTION]
+        contact_distribution = pred[const.CONTACTING_DISTRIBUTION]
 
-        return pred
+        attention_label = torch.tensor(pred[const.ATTENTION_GT], dtype=torch.long).to(device=self._device).squeeze()
+        if not self._conf.bce_loss:
+            # Adjust Labels for MLM Loss
+            spatial_label = -torch.ones([len(pred[const.SPATIAL_GT]), 6], dtype=torch.long).to(device=self._device)
+            contact_label = -torch.ones([len(pred[const.CONTACTING_GT]), 17], dtype=torch.long).to(device=self._device)
+            for i in range(len(pred[const.SPATIAL_GT])):
+                spatial_label[i, : len(pred[const.SPATIAL_GT][i])] = torch.tensor(pred[const.SPATIAL_GT][i])
+                contact_label[i, : len(pred[const.CONTACTING_GT][i])] = torch.tensor(pred[const.CONTACTING_GT][i])
+        else:
+            # Adjust Labels for BCE Loss
+            spatial_label = torch.zeros([len(pred[const.SPATIAL_GT]), 6], dtype=torch.float32).to(device=self._device)
+            contact_label = torch.zeros([len(pred[const.CONTACTING_GT]), 17], dtype=torch.float32).to(device=self._device)
+            for i in range(len(pred[const.SPATIAL_GT])):
+                spatial_label[i, pred[const.SPATIAL_GT][i]] = 1
+                contact_label[i, pred[const.CONTACTING_GT][i]] = 1
+
+        losses = {}
+        # 1. Object Loss
+        if self._conf.mode == const.SGCLS or self._conf.mode == const.SGDET:
+            losses[const.OBJECT_LOSS] = self._ce_loss(pred[const.DISTRIBUTION], pred[const.LABELS])
+
+        # 2. Attention Loss
+        losses[const.ATTENTION_RELATION_LOSS] = self._ce_loss(attention_distribution, attention_label)
+
+        # 3. Spatial Loss and Contacting Loss
+        if not self._conf.bce_loss:
+            losses[const.SPATIAL_RELATION_LOSS] = self._mlm_loss(spatial_distribution, spatial_label)
+            losses[const.CONTACTING_RELATION_LOSS] = self._mlm_loss(contact_distribution, contact_label)
+        else:
+            losses[const.SPATIAL_RELATION_LOSS] = self._bce_loss(spatial_distribution, spatial_label)
+            losses[const.CONTACTING_RELATION_LOSS] = self._bce_loss(contact_distribution, contact_label)
+        return losses
 
     def _train_model(self):
         tr = []
@@ -115,6 +191,7 @@ class TrainSGGBase(STSGBase):
 
                 video_index = data[4]
                 gt_annotation = self._train_dataset.gt_annotations[video_index]
+                gt_annotation_mask = self._train_dataset.gt_annotations_mask[video_index]
 
                 if len(gt_annotation) == 0:
                     print(f'No annotations found in the video {video_index}. Skipping...')
@@ -128,82 +205,19 @@ class TrainSGGBase(STSGBase):
                         gt_boxes,
                         num_boxes,
                         gt_annotation,
-                        im_all=None
+                        im_all=None,
+                        gt_annotation_mask=gt_annotation_mask
                     )
 
                 # ----------------- Process the video (Method Specific)-----------------
                 pred = self.process_train_video(entry, frame_size, gt_annotation)
                 # ----------------------------------------------------------------------
 
-                if self._conf.use_partial_rel_annotations:
-                    # Filter out distributions for which labels are missing
-                    pred = self.filter_predictions_for_missing_labels(pred)
+                if self._conf.use_partial_obj_annotations or self._conf.use_partial_rel_annotations:
+                    losses = self._calculate_losses_for_partial_annotations(pred)
+                else:
+                    losses = self._calculate_losses_for_full_annotations(pred)
 
-                losses = {}
-
-                # 1. Object Loss
-                if self._conf.mode == const.SGCLS or self._conf.mode == const.SGDET:
-                    losses[const.OBJECT_LOSS] = self._ce_loss(pred[const.DISTRIBUTION], pred[const.LABELS])
-
-                # 2. Attention Loss
-                attention_distribution = pred[const.ATTENTION_DISTRIBUTION]
-                if attention_distribution.shape[0] > 0:
-                    attention_label = torch.tensor(pred[const.ATTENTION_GT], dtype=torch.long).to(
-                        device=self._device).squeeze()
-                    # Change to shape [1] if the tensor defaults to a single value
-                    if len(attention_label.shape) == 0:
-                        attention_label = attention_label.unsqueeze(0)
-
-                    assert attention_distribution.shape[0] == attention_label.shape[0]
-                    losses[const.ATTENTION_RELATION_LOSS] = self._ce_loss(attention_distribution, attention_label)
-
-                # 2. Spatial Loss
-                spatial_distribution = pred[const.SPATIAL_DISTRIBUTION]
-                if spatial_distribution.shape[0] > 0:
-                    tot_obj_spatial_labels = len(pred[const.SPATIAL_GT])
-                    if not self._conf.bce_loss:
-                        # Adjust Labels for MLM Loss
-                        spatial_label = -torch.ones([tot_obj_spatial_labels, 6], dtype=torch.long).to(
-                            device=self._device)
-                        for i in range(tot_obj_spatial_labels):
-                            spatial_label[i, : len(pred[const.SPATIAL_GT][i])] = torch.tensor(pred[const.SPATIAL_GT][i])
-                    else:
-                        # Adjust Labels for BCE Loss
-                        spatial_label = torch.zeros([tot_obj_spatial_labels, 6], dtype=torch.float32).to(
-                            device=self._device)
-                        for i in range(tot_obj_spatial_labels):
-                            spatial_label[i, pred[const.SPATIAL_GT][i]] = 1
-
-                    assert spatial_distribution.shape == spatial_label.shape
-                    if not self._conf.bce_loss:
-                        losses[const.SPATIAL_RELATION_LOSS] = self._mlm_loss(spatial_distribution, spatial_label)
-                    else:
-                        losses[const.SPATIAL_RELATION_LOSS] = self._bce_loss(spatial_distribution, spatial_label)
-
-                # 3. Contacting Loss
-                contact_distribution = pred[const.CONTACTING_DISTRIBUTION]
-                if contact_distribution.shape[0] > 0:
-                    tot_obj_contact_labels = len(pred[const.CONTACTING_GT])
-                    if not self._conf.bce_loss:
-                        # Adjust Labels for MLM Loss
-                        contact_label = -torch.ones([tot_obj_contact_labels, 17], dtype=torch.long).to(
-                            device=self._device)
-                        for i in range(tot_obj_contact_labels):
-                            contact_label[i, : len(pred[const.CONTACTING_GT][i])] = torch.tensor(
-                                pred[const.CONTACTING_GT][i])
-                    else:
-                        # Adjust Labels for BCE Loss
-                        contact_label = torch.zeros([tot_obj_contact_labels, 17], dtype=torch.float32).to(
-                            device=self._device)
-                        for i in range(tot_obj_contact_labels):
-                            contact_label[i, pred[const.CONTACTING_GT][i]] = 1
-
-                    assert contact_distribution.shape == contact_label.shape
-
-                    if not self._conf.bce_loss:
-                        losses[const.CONTACTING_RELATION_LOSS] = self._mlm_loss(contact_distribution, contact_label)
-                    else:
-                        losses[const.CONTACTING_RELATION_LOSS] = self._bce_loss(contact_distribution, contact_label)
 
                 self._optimizer.zero_grad()
                 loss = sum(losses.values())
@@ -266,6 +280,7 @@ class TrainSGGBase(STSGBase):
             self._train_dataset = PartialObjAG(
                 phase="train",
                 mode=self._conf.mode,
+                maintain_distribution=self._conf.maintain_distribution,
                 datasize=self._conf.datasize,
                 partial_percentage=self._conf.partial_percentage,
                 data_path=self._conf.data_path,
@@ -279,6 +294,7 @@ class TrainSGGBase(STSGBase):
             self._train_dataset = PartialRelAG(
                 phase="train",
                 mode=self._conf.mode,
+                maintain_distribution=self._conf.maintain_distribution,
                 datasize=self._conf.datasize,
                 partial_percentage=self._conf.partial_percentage,
                 data_path=self._conf.data_path,

@@ -19,6 +19,7 @@ class PartialRelAG(BaseAG):
             self,
             phase,
             mode,
+            maintain_distribution,
             datasize,
             partial_percentage=10,
             data_path=None,
@@ -26,10 +27,12 @@ class PartialRelAG(BaseAG):
             filter_small_box=False
     ):
         super().__init__(phase, mode, datasize, data_path, filter_nonperson_box_frame, filter_small_box)
+
+        self._maintain_distribution = maintain_distribution
         # Filter out objects in the ground truth based on object observation ratio.
-        # filtered_gt_annotations = self.filter_gt_annotations(partial_percentage)
-        # self._gt_annotations_mask = filtered_gt_annotations
-        self._gt_annotations = self.filter_gt_annotations(partial_percentage)
+        filtered_gt_annotations = self.filter_gt_annotations(partial_percentage)
+        self._gt_annotations_mask = filtered_gt_annotations
+        # self._gt_annotations = self.filter_gt_annotations(partial_percentage)
 
     @staticmethod
     def estimate_rel_distribution(data):
@@ -49,9 +52,18 @@ class PartialRelAG(BaseAG):
         # First, estimate the distribution
         distribution, total_annotations, rel_counts = self.estimate_rel_distribution(data)
 
-        # Compute target counts for each object
-        target_total_annotations = int(round(total_annotations * partial_annotation_ratio))
-        target_counts = {obj: int(round(count * partial_annotation_ratio)) for obj, count in rel_counts.items()}
+        if self._maintain_distribution:
+            target_counts = {obj: int(round(count * partial_annotation_ratio)) for obj, count in rel_counts.items()}
+        else:
+            target_total_annotations = int(round(total_annotations * partial_annotation_ratio))
+            objects = list(rel_counts.keys())
+            total_relations = len(objects)
+
+            # Generate random counts such that their sum equals target_total_annotations
+            counts = np.random.multinomial(target_total_annotations, np.ones(total_relations) / total_relations)
+
+            # Assign counts to corresponding objects
+            target_counts = {obj: count for obj, count in zip(objects, counts)}
 
         # Collect positions of each object
         rel_positions = collections.defaultdict(list)
@@ -127,10 +139,6 @@ class PartialRelAG(BaseAG):
         print("--------------------------------------------------------------------------------")
 
         # 1. Estimate statistics of object class occurrences in the ground truth annotations.
-        attention_rel_class_list = []
-        spatial_rel_class_list = []
-        contacting_rel_class_list = []
-
         attention_rel_class_list = self.get_rel_class_list(self._gt_annotations, const.ATTENTION_RELATIONSHIP)
         spatial_rel_class_list = self.get_rel_class_list(self._gt_annotations, const.SPATIAL_RELATIONSHIP)
         contacting_rel_class_list = self.get_rel_class_list(self._gt_annotations, const.CONTACTING_RELATIONSHIP)
@@ -179,14 +187,12 @@ class PartialRelAG(BaseAG):
                     filtered_frame_obj_dict[const.SPATIAL_RELATIONSHIP] = []
                     filtered_frame_obj_dict[const.CONTACTING_RELATIONSHIP] = []
 
-                    rel_enabled = False
                     # Check the intersection of the attention_rel list with the filtered_attention_rel_class_list.
                     # Add all the intersection elements to the filtered_frame_obj_dict.
                     filtered_attention_rel = set(attention_rel).intersection(filtered_attention_rel_class_list[video_id][video_frame_id])
                     filtered_attention_rel = list(filtered_attention_rel)
                     if len(filtered_attention_rel) > 0:
                         filtered_frame_obj_dict[const.ATTENTION_RELATIONSHIP] = filtered_attention_rel
-                        rel_enabled = True
 
                     # Check the intersection of the spatial_rel list with the filtered_spatial_rel_class_list.
                     # Add all the intersection elements to the filtered_frame_obj_dict.
@@ -194,7 +200,6 @@ class PartialRelAG(BaseAG):
                     filtered_spatial_rel = list(filtered_spatial_rel)
                     if len(filtered_spatial_rel) > 0:
                         filtered_frame_obj_dict[const.SPATIAL_RELATIONSHIP] = filtered_spatial_rel
-                        rel_enabled = True
 
                     # Check the intersection of the contacting_rel list with the filtered_contacting_rel_class_list.
                     # Add all the intersection elements to the filtered_frame_obj_dict.
@@ -202,15 +207,15 @@ class PartialRelAG(BaseAG):
                     filtered_contacting_rel = list(filtered_contacting_rel)
                     if len(filtered_contacting_rel) > 0:
                         filtered_frame_obj_dict[const.CONTACTING_RELATIONSHIP] = filtered_contacting_rel
-                        rel_enabled = True
 
-                    if rel_enabled:
-                        filtered_video_frame_annotation_dict.append(filtered_frame_obj_dict)
+                    filtered_video_frame_annotation_dict.append(filtered_frame_obj_dict)
 
                 # Add a person object frame only when an object is observed in the frame.
                 if len(filtered_video_frame_annotation_dict) > 0:
                     filtered_video_frame_annotation_dict.insert(0, video_frame_annotation_dict[0])
-                    filtered_video_annotation_dict.append(filtered_video_frame_annotation_dict)
+
+                filtered_video_annotation_dict.append(filtered_video_frame_annotation_dict)
+
             # Don't change this logic as the ground truth annotations are loaded based on the video index
             # Number of gt annotations should remain the same as the original annotations.
             filtered_gt_annotations.append(filtered_video_annotation_dict)

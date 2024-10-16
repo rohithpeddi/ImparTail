@@ -63,6 +63,11 @@ class Constants:
     ATTENTION_GT = "attention_gt"
     SPATIAL_GT = "spatial_gt"
     CONTACTING_GT = "contacting_gt"
+
+    ATTENTION_GT_MASK = "attention_gt_mask"
+    SPATIAL_GT_MASK = "spatial_gt_mask"
+    CONTACTING_GT_MASK = "contacting_gt_mask"
+
     GLOBAL_OUTPUT = "global_output"
 
     ATTENTION_RELATION_LOSS = "attention_relation_loss"
@@ -133,6 +138,11 @@ class DetectorConstants:
     ATTENTION_GT = "attention_gt"
     SPATIAL_GT = "spatial_gt"
     CONTACTING_GT = "contacting_gt"
+
+    ATTENTION_GT_MASK = "attention_gt_mask"
+    SPATIAL_GT_MASK = "spatial_gt_mask"
+    CONTACTING_GT_MASK = "contacting_gt_mask"
+
     FMAPS = "fmaps"
     IM_INFO = "im_info"
     FINAL_PRED_SCORES = "FINAL_PRED_SCORES"
@@ -155,6 +165,11 @@ class DetectorConstants:
     ATTENTION_REL = "a_rel"
     SPATIAL_REL = "s_rel"
     CONTACTING_REL = "c_rel"
+
+    ATTENTION_REL_MASK = "a_rel_mask"
+    SPATIAL_REL_MASK = "s_rel_mask"
+    CONTACTING_REL_MASK = "c_rel_mask"
+
     FINAL_DISTRIBUTIONS = "FINAL_DISTRIBUTIONS"
     FINAL_BASE_FEATURES = "FINAL_BASE_FEATURES"
 

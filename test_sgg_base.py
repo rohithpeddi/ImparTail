@@ -156,9 +156,14 @@ class TestSGGBase(STSGBase):
         mode_results_dir = os.path.join(results_dir, self._conf.mode)
         os.makedirs(mode_results_dir, exist_ok=True)
 
-        # Create the results file
-        results_file_path = os.path.join(mode_results_dir,
+        if self._conf.use_input_corruptions:
+            # Create the results file
+            results_file_path = os.path.join(mode_results_dir,
                                          f'{self._conf.method_name}_{self._conf.mode}_{self._corruption_name}.csv')
+        else:
+            # Create the results file
+            results_file_path = os.path.join(mode_results_dir, f'{self._conf.method_name}_{self._conf.mode}.csv')
+
 
         with open(results_file_path, "a", newline='') as activity_idx_step_idx_annotation_csv_file:
             writer = csv.writer(activity_idx_step_idx_annotation_csv_file, quoting=csv.QUOTE_NONNUMERIC)

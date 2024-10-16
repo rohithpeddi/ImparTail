@@ -343,7 +343,7 @@ class TestSTSGBase(STSGBase):
 
     def _init_dataset(self):
 
-        if self._conf.use_corruptions:
+        if self._conf.use_input_corruptions:
             # Using the parameters set in the configuration file, initialize the corrupted dataset
             self._test_dataset = ImageCorruptedAG(
                 phase='test',

@@ -43,9 +43,15 @@ class STSGBase:
         self._device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
         if self._conf.ckpt is not None:
-            self._checkpoint_name = os.path.basename(self._conf.ckpt).split('.')[0]
-            self._conf.max_window = int(self._checkpoint_name.split('_')[-3])
-            self._conf.mode = self._checkpoint_name.split('_')[-5]
+            if self._conf.task_name == const.SGG:
+                # Checkpoint name is of the format for model trained with full annotations: sttran_sgdet.tar, dsgdetr_sgdet.tar
+                # Checkpoint name is of the format for model trained with partial annotations: sttran_partial_rel_10_sgdet.tar
+                self._checkpoint_name = os.path.basename(self._conf.ckpt).split('.')[0]
+                self._conf.mode = self._checkpoint_name.split('_')[-1]
+            elif self._conf.task_name == const.SGA:
+                self._checkpoint_name = os.path.basename(self._conf.ckpt).split('.')[0]
+                self._conf.max_window = int(self._checkpoint_name.split('_')[-3])
+                self._conf.mode = self._checkpoint_name.split('_')[-5]
         else:
             # Set the checkpoint name and save path details
             if self._conf.task_name == const.SGG:
@@ -68,10 +74,7 @@ class STSGBase:
 
         # --------------------------- W&B CONFIGURATION ---------------------------
         if self._enable_wandb:
-            wandb.init(
-                project=self._checkpoint_name,
-                config=self._conf,
-            )
+            wandb.init(project=self._checkpoint_name, config=self._conf)
 
     def _init_optimizer(self):
         if self._conf.optimizer == const.ADAMW:
@@ -95,15 +98,27 @@ class STSGBase:
         if self._model is None:
             raise ValueError("Model is not initialized")
 
-        if self._conf.ckpt:
-            ckpt = torch.load(self._conf.ckpt, map_location=self._device)
+        if os.path.exists(self._conf.ckpt) is False:
+            raise ValueError(f"Checkpoint file {self._conf.ckpt} does not exist")
 
-            if 'state_dict' in ckpt:
-                self._model.load_state_dict(ckpt['state_dict'], strict=False)
+        if self._conf.ckpt:
+            try:
+                # Load checkpoint to the specified device
+                ckpt = torch.load(self._conf.ckpt, map_location=self._device)
+
+                # Determine the key for the state_dict based on availability
+                state_dict_key = 'state_dict' if 'state_dict' in ckpt else f'{self._conf.method_name}_state_dict'
+
+                # Load the state dictionary
+                self._model.load_state_dict(ckpt[state_dict_key], strict=False)
                 print(f"Loaded model from checkpoint {self._conf.ckpt}")
-            else:
-                self._model.load_state_dict(ckpt[f'{self._conf.method_name}_state_dict'], strict=False)
-                print(f"Loaded model from checkpoint {self._conf.ckpt}")
+
+            except FileNotFoundError:
+                print(f"Error: Checkpoint file {self._conf.ckpt} not found.")
+            except KeyError:
+                print(f"Error: Appropriate state_dict not found in the checkpoint.")
+            except Exception as e:
+                print(f"An error occurred: {str(e)}")
 
     @staticmethod
     def _save_model(model, epoch, checkpoint_save_file_path, checkpoint_name, method_name):

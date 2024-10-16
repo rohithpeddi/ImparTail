@@ -336,13 +336,39 @@ class Detector(nn.Module):
     # -------------------------- PREDCLS and SGCLS ENTRY ------------------------ #
     ################################################################################
 
-    def _forward_and_fetch_features(self, im_data, im_info, gt_annotation, gt_annotation_mask):
+    def _forward_and_fetch_features(self, im_data, im_info, gt_annotation):
+        bbox_num, bbox_idx, bbox_info = self._count_bbox(gt_annotation)
+        FINAL_BBOXES, FINAL_LABELS, FINAL_SCORES, HUMAN_IDX = self._init_final_tensors(bbox_num, len(gt_annotation))
+        FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX, im_idx, pair, a_rel, s_rel, c_rel = self._populate_final_tensors(
+            FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX, gt_annotation
+        )
+        pair, im_idx = map(lambda x: torch.tensor(x).to(self.device), [pair, im_idx])
+        FINAL_BASE_FEATURES = self._compute_base_features(im_data)
+        FINAL_BBOXES[:, 1:] *= im_info[0, 2]
+        FINAL_FEATURES = self._compute_final_features(FINAL_BASE_FEATURES, FINAL_BBOXES)
+        union_boxes, spatial_masks = self._compute_union_boxes_and_masks(FINAL_BBOXES, pair, im_idx)
+        union_feat = self.fasterRCNN.RCNN_roi_align(FINAL_BASE_FEATURES, union_boxes)
+
+        FINAL_BBOXES[:, 1:] = FINAL_BBOXES[:, 1:] / im_info[0, 2]
+        pair_rois = torch.cat((FINAL_BBOXES[pair[:, 0], 1:], FINAL_BBOXES[pair[:, 1], 1:]), 1).data.cpu().numpy()
+        spatial_masks = torch.tensor(draw_union_boxes(pair_rois, 27) - 0.5).to(FINAL_FEATURES.device)
+
+        FINAL_DISTRIBUTIONS, FINAL_PRED_SCORES, PRED_LABELS = self._compute_final_distributions_and_labels(
+            FINAL_FEATURES)
+        attribute_dictionary = self._construct_attribute_dictionary(
+            FINAL_BBOXES, FINAL_LABELS, FINAL_SCORES, im_idx, pair, HUMAN_IDX, FINAL_FEATURES,
+            union_boxes, union_feat, spatial_masks, a_rel, s_rel, c_rel, FINAL_DISTRIBUTIONS, PRED_LABELS,
+            FINAL_BASE_FEATURES, im_info, FINAL_PRED_SCORES, None, None, None
+        )
+        return attribute_dictionary
+
+    def _forward_and_fetch_features_with_mask(self, im_data, im_info, gt_annotation, gt_annotation_mask):
         bbox_num, bbox_idx, bbox_info = self._count_bbox(gt_annotation)
         FINAL_BBOXES, FINAL_LABELS, FINAL_SCORES, HUMAN_IDX = self._init_final_tensors(bbox_num, len(gt_annotation))
 
         (FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX,
          im_idx, pair, a_rel, s_rel, c_rel,
-         a_rel_mask, s_rel_mask, c_rel_mask) = self._populate_final_tensors(
+         a_rel_mask, s_rel_mask, c_rel_mask) = self._populate_final_tensors_with_mask(
             FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX, gt_annotation, gt_annotation_mask
         )
         pair, im_idx = map(lambda x: torch.tensor(x).to(self.device), [pair, im_idx])
@@ -394,7 +420,38 @@ class Detector(nn.Module):
         loss_mask = [1 if rel in relation_mask else 0 for rel in relation_data]
         return relation_data, loss_mask
 
-    def _populate_final_tensors(self, FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX, gt_annotation, gt_annotation_mask):
+    def _populate_final_tensors(self, FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX, gt_annotation):
+        bbox_idx = 0
+        im_idx, pair, a_rel, s_rel, c_rel = [], [], [], [], []
+        for frame_idx, gt_frame_bboxes in enumerate(gt_annotation):
+            for frame_bbox in gt_frame_bboxes:
+                if const.PERSON_BBOX in frame_bbox.keys():
+                    FINAL_BBOXES[bbox_idx, 1:] = torch.from_numpy(np.array(frame_bbox[const.PERSON_BBOX][0]))
+                    FINAL_BBOXES[bbox_idx, 0] = frame_idx
+                    FINAL_LABELS[bbox_idx] = 1
+                    HUMAN_IDX[frame_idx] = bbox_idx
+                    bbox_idx += 1
+                else:
+                    FINAL_BBOXES[bbox_idx, 1:] = torch.from_numpy(np.array(frame_bbox[const.BBOX]))
+                    FINAL_BBOXES[bbox_idx, 0] = frame_idx
+                    FINAL_LABELS[bbox_idx] = frame_bbox[const.CLASS]
+                    im_idx.append(frame_idx)
+                    pair.append([int(HUMAN_IDX[frame_idx]), bbox_idx])
+
+                    if type(frame_bbox[const.ATTENTION_RELATIONSHIP]) == torch.Tensor:
+                        a_rel.append(frame_bbox[const.ATTENTION_RELATIONSHIP].tolist())
+                        s_rel.append(frame_bbox[const.SPATIAL_RELATIONSHIP].tolist())
+                        c_rel.append(frame_bbox[const.CONTACTING_RELATIONSHIP].tolist())
+                    else:
+                        # A raw list of relations is provided
+                        a_rel.append(frame_bbox[const.ATTENTION_RELATIONSHIP])
+                        s_rel.append(frame_bbox[const.SPATIAL_RELATIONSHIP])
+                        c_rel.append(frame_bbox[const.CONTACTING_RELATIONSHIP])
+
+                    bbox_idx += 1
+        return FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX, im_idx, pair, a_rel, s_rel, c_rel
+
+    def _populate_final_tensors_with_mask(self, FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX, gt_annotation, gt_annotation_mask):
         bbox_idx = 0
         im_idx, pair, a_rel, s_rel, c_rel = [], [], [], [], []
         a_rel_mask, s_rel_mask, c_rel_mask = [], [], []
@@ -522,18 +579,27 @@ class Detector(nn.Module):
             const.ATTENTION_REL: a_rel,
             const.SPATIAL_REL: s_rel,
             const.CONTACTING_REL: c_rel,
-            const.ATTENTION_REL_MASK: a_rel_mask,
-            const.SPATIAL_REL_MASK: s_rel_mask,
-            const.CONTACTING_REL_MASK: c_rel_mask,
             const.FINAL_DISTRIBUTIONS: FINAL_DISTRIBUTIONS,
             const.PRED_LABELS: PRED_LABELS,
             const.FINAL_BASE_FEATURES: FINAL_BASE_FEATURES,
             const.IM_INFO: im_info[0, 2],
             const.FINAL_PRED_SCORES: FINAL_PRED_SCORES
         }
+
+        if a_rel_mask is not None:
+            attribute_dictionary[const.ATTENTION_REL_MASK] = a_rel_mask
+
+        if s_rel_mask is not None:
+            attribute_dictionary[const.SPATIAL_REL_MASK] = s_rel_mask
+
+        if c_rel_mask is not None:
+            attribute_dictionary[const.CONTACTING_REL_MASK] = c_rel_mask
+
         return attribute_dictionary
 
     def _construct_entry(self, attribute_dictionary):
+        # Add the entries corresponding to the ground truth masks to the prediction dictionary
+        # only if they are present in the attribute dictionary
         entry = {}
         if self.mode == 'sgdet':
             if self.is_train:
@@ -551,6 +617,15 @@ class Detector(nn.Module):
                     const.SPATIAL_GT: attribute_dictionary[const.SPATIAL_REL],
                     const.CONTACTING_GT: attribute_dictionary[const.CONTACTING_REL]
                 }
+
+                if const.ATTENTION_REL_MASK in attribute_dictionary:
+                    entry[const.ATTENTION_GT_MASK] = attribute_dictionary[const.ATTENTION_REL_MASK]
+
+                if const.SPATIAL_REL_MASK in attribute_dictionary:
+                    entry[const.SPATIAL_GT_MASK] = attribute_dictionary[const.SPATIAL_REL_MASK]
+
+                if const.CONTACTING_REL_MASK in attribute_dictionary:
+                    entry[const.CONTACTING_GT_MASK] = attribute_dictionary[const.CONTACTING_REL_MASK]
             else:
                 entry = {
                     const.BOXES: attribute_dictionary[const.FINAL_BBOXES],
@@ -574,12 +649,19 @@ class Detector(nn.Module):
                 const.ATTENTION_GT: attribute_dictionary[const.ATTENTION_REL],
                 const.SPATIAL_GT: attribute_dictionary[const.SPATIAL_REL],
                 const.CONTACTING_GT: attribute_dictionary[const.CONTACTING_REL],
-                const.ATTENTION_GT_MASK: attribute_dictionary[const.ATTENTION_REL_MASK],
-                const.SPATIAL_GT_MASK: attribute_dictionary[const.SPATIAL_REL_MASK],
-                const.CONTACTING_GT_MASK: attribute_dictionary[const.CONTACTING_REL_MASK],
                 const.DISTRIBUTION: attribute_dictionary[const.FINAL_DISTRIBUTIONS],
                 const.PRED_LABELS: attribute_dictionary[const.PRED_LABELS]
             }
+
+            if const.ATTENTION_REL_MASK in attribute_dictionary:
+                entry[const.ATTENTION_GT_MASK] = attribute_dictionary[const.ATTENTION_REL_MASK]
+
+            if const.SPATIAL_REL_MASK in attribute_dictionary:
+                entry[const.SPATIAL_GT_MASK] = attribute_dictionary[const.SPATIAL_REL_MASK]
+
+            if const.CONTACTING_REL_MASK in attribute_dictionary:
+                entry[const.CONTACTING_GT_MASK] = attribute_dictionary[const.CONTACTING_REL_MASK]
+
             if self.is_train:
                 entry[const.UNION_FEAT] = attribute_dictionary[const.UNION_FEAT]
                 entry[const.UNION_BOX] = attribute_dictionary[const.UNION_BOX]
@@ -601,18 +683,29 @@ class Detector(nn.Module):
                 const.SPATIAL_MASKS: attribute_dictionary[const.SPATIAL_MASKS],
                 const.ATTENTION_GT: attribute_dictionary[const.ATTENTION_REL],
                 const.SPATIAL_GT: attribute_dictionary[const.SPATIAL_REL],
-                const.CONTACTING_GT: attribute_dictionary[const.CONTACTING_REL],
-                const.ATTENTION_GT_MASK: attribute_dictionary[const.ATTENTION_REL_MASK],
-                const.SPATIAL_GT_MASK: attribute_dictionary[const.SPATIAL_REL_MASK],
-                const.CONTACTING_GT_MASK: attribute_dictionary[const.CONTACTING_REL_MASK],
+                const.CONTACTING_GT: attribute_dictionary[const.CONTACTING_REL]
             }
+
+            if const.ATTENTION_REL_MASK in attribute_dictionary:
+                entry[const.ATTENTION_GT_MASK] = attribute_dictionary[const.ATTENTION_REL_MASK]
+
+            if const.SPATIAL_REL_MASK in attribute_dictionary:
+                entry[const.SPATIAL_GT_MASK] = attribute_dictionary[const.SPATIAL_REL_MASK]
+
+            if const.CONTACTING_REL_MASK in attribute_dictionary:
+                entry[const.CONTACTING_GT_MASK] = attribute_dictionary[const.CONTACTING_REL_MASK]
+
         return entry
 
     def forward(self, im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all, gt_annotation_mask=None):
         if self.mode == 'sgdet':
             attribute_dictionary = self._forward_sgdet(im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all)
         else:
-            attribute_dictionary = self._forward_and_fetch_features(im_data, im_info, gt_annotation, gt_annotation_mask)
+            # Partial annotations are used and the above pipeline also works only for
+            if gt_annotation_mask is not None:
+                attribute_dictionary = self._forward_and_fetch_features_with_mask(im_data, im_info, gt_annotation, gt_annotation_mask)
+            else:
+                attribute_dictionary = self._forward_and_fetch_features(im_data, im_info, gt_annotation)
 
         entry = self._construct_entry(attribute_dictionary)
 

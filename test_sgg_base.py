@@ -10,6 +10,7 @@ from analysis.results.FirebaseService import FirebaseService
 from analysis.results.Result import Result, ResultDetails, Metrics
 from dataloader.corrupted.image_based.ag_dataset import ImageCorruptedAG
 from dataloader.corrupted.image_based.ag_dataset import cuda_collate_fn as ag_data_cuda_collate_fn
+from dataloader.standard.action_genome.ag_dataset import StandardAG
 from lib.object_detector import Detector
 from lib.supervised.evaluation_recall import BasicSceneGraphEvaluator
 from stsg_base import STSGBase
@@ -87,7 +88,10 @@ class TestSGGBase(STSGBase):
             use_SUPPLY=True,
             mode=self._conf.mode
         ).to(device=self._device)
+
+        # Set the object detector to eval mode to avoid backpropagation
         self._object_detector.eval()
+        self._object_detector.is_train = False
 
     def _collate_evaluation_stats(self):
         with_constraint_evaluator_stats = self._with_constraint_evaluator.fetch_stats_json()
@@ -144,7 +148,7 @@ class TestSGGBase(STSGBase):
         # 2. Write to the CSV File
         self._write_evaluation_statistics()
         # 3. Publish the results to Firebase
-        self._publish_results_to_firebase()
+        # self._publish_results_to_firebase()
 
     def _write_evaluation_statistics(self):
         # Create the results directory
@@ -163,7 +167,7 @@ class TestSGGBase(STSGBase):
                 writer.writerow([
                     "Method Name",
                     "R@10", "R@20", "R@50", "R@100", "mR@10", "mR@20", "mR@50", "mR@100", "hR@10", "hR@20", "hR@50",
-                    "hR@100"
+                    "hR@100",
                     "R@10", "R@20", "R@50", "R@100", "mR@10", "mR@20", "mR@50", "mR@100", "hR@10", "hR@20", "hR@50",
                     "hR@100",
                     "R@10", "R@20", "R@50", "R@100", "mR@10", "mR@20", "mR@50", "mR@100", "hR@10", "hR@20", "hR@50",
@@ -230,7 +234,15 @@ class TestSGGBase(STSGBase):
                 gt_annotation = self._test_dataset.gt_annotations[data[4]]
                 frame_size = (im_info[0][:2] / im_info[0, 2]).cpu().data
 
-                entry = self._object_detector(im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all=None)
+                entry = self._object_detector(
+                    im_data,
+                    im_info,
+                    gt_boxes,
+                    num_boxes,
+                    gt_annotation,
+                    im_all=None,
+                    gt_annotation_mask=None,
+                )
 
                 # ----------------- Process the video (Method Specific) -----------------
                 prediction = self.process_test_video(entry, frame_size, gt_annotation)
@@ -240,19 +252,33 @@ class TestSGGBase(STSGBase):
             print('-----------------------------------------------------------------------------------', flush=True)
 
     def _init_dataset(self):
-        # Using the parameters set in the configuration file, initialize the corrupted dataset
-        self._test_dataset = ImageCorruptedAG(
-            phase='test',
-            mode=self._conf.mode,
-            datasize=self._conf.datasize,
-            data_path=self._conf.data_path,
-            filter_nonperson_box_frame=True,
-            filter_small_box=False if self._conf.mode == 'predcls' else True,
-            dataset_corruption_mode=self._conf.dataset_corruption_mode,
-            video_corruption_mode=self._conf.video_corruption_mode,
-            dataset_corruption_type=self._conf.dataset_corruption_type,
-            corruption_severity_level=self._conf.corruption_severity_level
-        )
+        if self._conf.use_input_corruptions:
+            # Using the parameters set in the configuration file, initialize the corrupted dataset
+            self._test_dataset = ImageCorruptedAG(
+                phase='test',
+                mode=self._conf.mode,
+                datasize=self._conf.datasize,
+                data_path=self._conf.data_path,
+                filter_nonperson_box_frame=True,
+                filter_small_box=False if self._conf.mode == 'predcls' else True,
+                dataset_corruption_mode=self._conf.dataset_corruption_mode,
+                video_corruption_mode=self._conf.video_corruption_mode,
+                dataset_corruption_type=self._conf.dataset_corruption_type,
+                corruption_severity_level=self._conf.corruption_severity_level
+            )
+
+            self._corruption_name = (f"{self._conf.dataset_corruption_mode}_{self._conf.video_corruption_mode}_"
+                                     f"{self._conf.dataset_corruption_type}_{self._conf.corruption_severity_level}")
+        else:
+            # Use Standard AG test dataset if no corruptions are used
+            self._test_dataset = StandardAG(
+                phase='test',
+                mode=self._conf.mode,
+                datasize=self._conf.datasize,
+                data_path=self._conf.data_path,
+                filter_nonperson_box_frame=True,
+                filter_small_box=False if self._conf.mode == 'predcls' else True
+            )
 
         self._object_classes = self._test_dataset.object_classes
 
@@ -263,8 +289,6 @@ class TestSGGBase(STSGBase):
             pin_memory=False
         )
 
-        self._corruption_name = (f"{self._conf.dataset_corruption_mode}_{self._conf.video_corruption_mode}_"
-                                 f"{self._conf.dataset_corruption_type}_{self._conf.corruption_severity_level}")
 
     def init_method_evaluation(self):
         # 0. Init config

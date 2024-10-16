@@ -1,6 +1,6 @@
 import ctypes
 
-import arcade
+# import arcade
 import cv2
 import numpy as np
 from scipy.ndimage import zoom as scizoom
@@ -105,16 +105,16 @@ def clipped_zoom(img, zoom_factor):
     return img[trim_top:trim_top + h, trim_left:trim_left + w]
 
 
-def to_texture(img, ctx):
-    channels = img.shape[2]
-    img_shape = img.shape[:2]
-    img_shape = img_shape[::-1]
-    tex = arcade.gl.Texture(
-        ctx,
-        img_shape,
-        components=channels,
-        dtype="f1",
-        data=img.tobytes(order="C"),
-        samples=0
-    )
-    return tex
+# def to_texture(img, ctx):
+#     channels = img.shape[2]
+#     img_shape = img.shape[:2]
+#     img_shape = img_shape[::-1]
+#     tex = arcade.gl.Texture(
+#         ctx,
+#         img_shape,
+#         components=channels,
+#         dtype="f1",
+#         data=img.tobytes(order="C"),
+#         samples=0
+#     )
+#     return tex

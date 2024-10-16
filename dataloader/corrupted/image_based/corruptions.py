@@ -3,13 +3,13 @@ import os
 from abc import abstractmethod
 from io import BytesIO
 
-import arcade
+# import arcade
 import cv2
 import numpy as np
 import skimage as sk
 from PIL import Image as PILImage
 from PIL import ImageEnhance, ImageOps
-from dataloader.corrupted.image_based.PythonShaders.ShaderToy import Shadertoy
+# from dataloader.corrupted.image_based.PythonShaders.ShaderToy import Shadertoy
 from scipy.ndimage.interpolation import map_coordinates
 from skimage.color.colorconv import rgb2hsv, hsv2rgb
 from skimage.filters import gaussian
@@ -17,7 +17,7 @@ import numpy as np
 from scipy.ndimage import gaussian_filter
 
 from constants import CorruptionConstants as const
-from dataloader.corrupted.corruption_utils import disk, MotionImage, clipped_zoom, plasma_fractal, to_texture
+from dataloader.corrupted.corruption_utils import disk, MotionImage, clipped_zoom, plasma_fractal
 
 
 def gaussian_noise(x, severity=1):
@@ -329,43 +329,43 @@ def sun_glare(x, severity=1):
     return np.array(x)
 
 
-def waterdrop(x, severity=1):
-    c = ["rain1.glsl", "rain2.glsl", "rain3.glsl", "rain4.glsl", "rain5.glsl"][severity - 1]
-    # Setup Window
-    IMAGE_SIZE = x.size
-    window = arcade.open_window(*IMAGE_SIZE, window_title="Waterdrop")
-
-    root_path = os.path.dirname(__file__)
-    noise_image_path = os.path.join(root_path, "PythonShaders/noise.png")
-    noise = PILImage.open(noise_image_path)
-    noise = noise.resize(IMAGE_SIZE)
-    noise = noise.rotate(180)
-    noise = ImageOps.mirror(noise)
-    noise = np.asarray(noise, dtype=np.uint8)
-
-    # Setup Shader:
-    shader = Shadertoy.create_from_file(window.get_size(), "PythonShaders/shaders/" + c)
-    shader.channel_1 = to_texture(noise, window.ctx)
-
-    # Load Images
-    x = x.rotate(180)
-    x = ImageOps.mirror(x)
-    x = np.asarray(x, dtype=np.uint8)
-
-    # Set shader data
-    shader.channel_0 = to_texture(x, window.ctx)
-
-    # Render image
-    random_time = 1 * 10
-    shader.render(time=random_time)
-
-    # Save image
-    result = arcade.get_image(0, 0, IMAGE_SIZE[0], IMAGE_SIZE[1])
-    result = np.array(result)
-
-    arcade.close_window()
-
-    return result[:, :, :3]
+# def waterdrop(x, severity=1):
+#     c = ["rain1.glsl", "rain2.glsl", "rain3.glsl", "rain4.glsl", "rain5.glsl"][severity - 1]
+#     # Setup Window
+#     IMAGE_SIZE = x.size
+#     window = arcade.open_window(*IMAGE_SIZE, window_title="Waterdrop")
+#
+#     root_path = os.path.dirname(__file__)
+#     noise_image_path = os.path.join(root_path, "PythonShaders/noise.png")
+#     noise = PILImage.open(noise_image_path)
+#     noise = noise.resize(IMAGE_SIZE)
+#     noise = noise.rotate(180)
+#     noise = ImageOps.mirror(noise)
+#     noise = np.asarray(noise, dtype=np.uint8)
+#
+#     # Setup Shader:
+#     shader = Shadertoy.create_from_file(window.get_size(), "PythonShaders/shaders/" + c)
+#     shader.channel_1 = to_texture(noise, window.ctx)
+#
+#     # Load Images
+#     x = x.rotate(180)
+#     x = ImageOps.mirror(x)
+#     x = np.asarray(x, dtype=np.uint8)
+#
+#     # Set shader data
+#     shader.channel_0 = to_texture(x, window.ctx)
+#
+#     # Render image
+#     random_time = 1 * 10
+#     shader.render(time=random_time)
+#
+#     # Save image
+#     result = arcade.get_image(0, 0, IMAGE_SIZE[0], IMAGE_SIZE[1])
+#     result = np.array(result)
+#
+#     arcade.close_window()
+#
+#     return result[:, :, :3]
 
 
 def wildfire_smoke(x, severity=1):

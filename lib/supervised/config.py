@@ -36,7 +36,8 @@ class Config(object):
         self.hp_recon_loss = 1.0
 
         # ---------------- Corruptions ----------------
-        self.use_corruptions = False
+        self.use_input_corruptions = False
+        self.use_label_corruptions = False
 
         # ---------------- Partial Annotations ----------------
         self.use_partial_obj_annotations = False
@@ -86,7 +87,8 @@ class Config(object):
         parser.add_argument('--bbox_ratio', default=0.1, type=float)
 
         # ---------------- Corruptions ----------------
-        parser.add_argument("--use_corruptions", action="store_true")
+        parser.add_argument("--use_label_corruptions", action="store_true")
+        parser.add_argument("--use_input_corruptions", action="store_true")
 
         # ---------------- Partial Annotations ----------------
         parser.add_argument("--use_partial_obj_annotations", action="store_true")

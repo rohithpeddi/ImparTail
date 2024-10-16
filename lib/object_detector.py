@@ -379,14 +379,54 @@ class Detector(nn.Module):
         HUMAN_IDX = torch.zeros([ann_len, 1], dtype=dtype_int).to(self.device)
         return FINAL_BBOXES, FINAL_LABELS, FINAL_SCORES, HUMAN_IDX
 
+    # Function to handle relationship data conversion and masking
+    @staticmethod
+    def _process_relationships(frame_data, frame_mask, relation_key):
+        relation_data = frame_data[relation_key]
+        if isinstance(relation_data, torch.Tensor):
+            relation_data = relation_data.tolist()
+
+        relation_mask = frame_mask[relation_key]
+        if isinstance(relation_mask, torch.Tensor):
+            relation_mask = relation_mask.tolist()
+
+        # Generate mask for loss calculation based on the provided mask
+        loss_mask = [1 if rel in relation_mask else 0 for rel in relation_data]
+        return relation_data, loss_mask
+
     def _populate_final_tensors(self, FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX, gt_annotation, gt_annotation_mask):
         bbox_idx = 0
         im_idx, pair, a_rel, s_rel, c_rel = [], [], [], [], []
         a_rel_mask, s_rel_mask, c_rel_mask = [], [], []
+
+        # Note: Initial gt_annotation_mask creation happens this way.
+        # 1. gt_annotation_mask contains the sampled labels of attention, spatial and contacting relationships.
+        # 2. To create the masks for which are present and which are absent in ground truth annotations we have to perform this computation.
+
+        # gt_annotation_mask is None ==> No mask is provided ==> Not using partial annotations
+        # This would ensure none of the ground truth annotations are masked.
+        # gt_annotation_mask can be empty [] ==> All annotations are masked for this.
+        if gt_annotation_mask is None:
+            gt_annotation_mask = gt_annotation
+
         for frame_idx, gt_frame_bboxes in enumerate(gt_annotation):
-            gt_frame_bboxes_mask = gt_annotation_mask[frame_idx] if gt_annotation_mask else []
+
+            # If gt_annotation_mask is empty, then all annotations are masked
+            # Initialize the gt_frame_bboxes_mask to an empty list
+            if len(gt_annotation_mask) == 0:
+                gt_frame_bboxes_mask = []
+            else:
+                gt_frame_bboxes_mask = gt_annotation_mask[frame_idx]
+
             for frame_bbox_id, frame_bbox in enumerate(gt_frame_bboxes):
-                frame_bbox_mask = gt_frame_bboxes_mask[frame_bbox_id] if gt_frame_bboxes_mask else []
+
+                # If gt_frame_bboxes_mask is empty, then all annotations are masked
+                # Initialize the frame_bbox_mask to an empty list
+                if len(gt_frame_bboxes_mask) == 0:
+                    frame_bbox_mask = []
+                else:
+                    frame_bbox_mask = gt_frame_bboxes_mask[frame_bbox_id]
+
                 if const.PERSON_BBOX in frame_bbox.keys():
                     FINAL_BBOXES[bbox_idx, 1:] = torch.from_numpy(np.array(frame_bbox[const.PERSON_BBOX][0]))
                     FINAL_BBOXES[bbox_idx, 0] = frame_idx
@@ -399,56 +439,27 @@ class Detector(nn.Module):
                     FINAL_LABELS[bbox_idx] = frame_bbox[const.CLASS]
                     im_idx.append(frame_idx)
                     pair.append([int(HUMAN_IDX[frame_idx]), bbox_idx])
-                    if type(frame_bbox[const.ATTENTION_RELATIONSHIP]) == torch.Tensor:
-                        frame_bbox_a_rels = frame_bbox[const.ATTENTION_RELATIONSHIP].tolist()
-                        frame_bbox_s_rels = frame_bbox[const.SPATIAL_RELATIONSHIP].tolist()
-                        frame_bbox_c_rels = frame_bbox[const.CONTACTING_RELATIONSHIP].tolist()
+
+                    if frame_bbox_mask:
+                        # Process relationships if mask is present ==> frame_bbox_mask is not empty
+                        frame_bbox_a_rels, a_mask = self._process_relationships(frame_bbox, frame_bbox_mask, const.ATTENTION_RELATIONSHIP)
+                        frame_bbox_s_rels, s_mask = self._process_relationships(frame_bbox, frame_bbox_mask, const.SPATIAL_RELATIONSHIP)
+                        frame_bbox_c_rels, c_mask = self._process_relationships(frame_bbox, frame_bbox_mask, const.CONTACTING_RELATIONSHIP)
                     else:
-                        # A raw list of relations is provided
-                        frame_bbox_a_rels = frame_bbox[const.ATTENTION_RELATIONSHIP]
-                        frame_bbox_s_rels = frame_bbox[const.SPATIAL_RELATIONSHIP]
-                        frame_bbox_c_rels = frame_bbox[const.CONTACTING_RELATIONSHIP]
+                        # Default to no relationships if no mask is provided
+                        frame_bbox_a_rels, a_mask = frame_bbox[const.ATTENTION_RELATIONSHIP], [0] * len(
+                            frame_bbox[const.ATTENTION_RELATIONSHIP])
+                        frame_bbox_s_rels, s_mask = frame_bbox[const.SPATIAL_RELATIONSHIP], [0] * len(
+                            frame_bbox[const.SPATIAL_RELATIONSHIP])
+                        frame_bbox_c_rels, c_mask = frame_bbox[const.CONTACTING_RELATIONSHIP], [0] * len(
+                            frame_bbox[const.CONTACTING_RELATIONSHIP])
+
                     a_rel.append(frame_bbox_a_rels)
                     s_rel.append(frame_bbox_s_rels)
                     c_rel.append(frame_bbox_c_rels)
-                    if frame_bbox_mask:
-                        if type(frame_bbox_mask[const.ATTENTION_RELATIONSHIP]) == torch.Tensor:
-                            frame_bbox_mask_a_rels = frame_bbox_mask[const.ATTENTION_RELATIONSHIP].tolist()
-                            frame_bbox_mask_s_rels = frame_bbox_mask[const.SPATIAL_RELATIONSHIP].tolist()
-                            frame_bbox_mask_c_rels = frame_bbox_mask[const.CONTACTING_RELATIONSHIP].tolist()
-                        else:
-                            # A raw list of relations is provided
-                            frame_bbox_mask_a_rels = frame_bbox_mask[const.ATTENTION_RELATIONSHIP]
-                            frame_bbox_mask_s_rels = frame_bbox_mask[const.SPATIAL_RELATIONSHIP]
-                            frame_bbox_mask_c_rels = frame_bbox_mask[const.CONTACTING_RELATIONSHIP]
-                        # Attention Relationship Mask
-                        frame_bbox_loss_mask_a_rels = []
-                        for i in range(len(frame_bbox_a_rels)):
-                            if frame_bbox_a_rels[i] in frame_bbox_mask_a_rels:
-                                frame_bbox_loss_mask_a_rels.append(1)
-                            else:
-                                frame_bbox_loss_mask_a_rels.append(0)
-                        a_rel_mask.append(frame_bbox_loss_mask_a_rels)
-                        # Spatial Relationship Mask
-                        frame_bbox_loss_mask_s_rels = []
-                        for i in range(len(frame_bbox_s_rels)):
-                            if frame_bbox_s_rels[i] in frame_bbox_mask_s_rels:
-                                frame_bbox_loss_mask_s_rels.append(1)
-                            else:
-                                frame_bbox_loss_mask_s_rels.append(0)
-                        s_rel_mask.append(frame_bbox_loss_mask_s_rels)
-                        # Contacting Relationship Mask
-                        frame_bbox_loss_mask_c_rels = []
-                        for i in range(len(frame_bbox_c_rels)):
-                            if frame_bbox_c_rels[i] in frame_bbox_mask_c_rels:
-                                frame_bbox_loss_mask_c_rels.append(1)
-                            else:
-                                frame_bbox_loss_mask_c_rels.append(0)
-                    else:
-                        a_rel_mask.append([0] * len(frame_bbox_a_rels))
-                        s_rel_mask.append([0] * len(frame_bbox_s_rels))
-                        c_rel_mask.append([0] * len(frame_bbox_c_rels))
-
+                    a_rel_mask.append(a_mask)
+                    s_rel_mask.append(s_mask)
+                    c_rel_mask.append(c_mask)
                     bbox_idx += 1
         return FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX, im_idx, pair, a_rel, s_rel, c_rel, a_rel_mask, s_rel_mask, c_rel_mask
 

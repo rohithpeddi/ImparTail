@@ -99,6 +99,7 @@ class TestSGGBase(STSGBase):
         semi_constraint_evaluator_stats = self._semi_constraint_evaluator.fetch_stats_json()
 
         collated_stats = [
+            self._conf.method_name,
             with_constraint_evaluator_stats["recall"][10],
             with_constraint_evaluator_stats["recall"][20],
             with_constraint_evaluator_stats["recall"][50],
@@ -167,7 +168,7 @@ class TestSGGBase(STSGBase):
 
         with open(results_file_path, "a", newline='') as activity_idx_step_idx_annotation_csv_file:
             writer = csv.writer(activity_idx_step_idx_annotation_csv_file, quoting=csv.QUOTE_NONNUMERIC)
-            # Write the header if the file is empty
+            # Write the header
             if not os.path.isfile(results_file_path):
                 writer.writerow([
                     "Method Name",

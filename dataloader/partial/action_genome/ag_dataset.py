@@ -121,7 +121,11 @@ class PartialAG(BaseAG):
     def get_gt_annotation_masks(self, partial_percentage):
         # Load from cache if the partial file exists in the cache directory.
         annotations_path = os.path.join(self._data_path, const.ANNOTATIONS)
-        cache_file = os.path.join(annotations_path, const.PARTIAL,  f'{self._mode}_partial_{partial_percentage}.json')
+        cache_file = os.path.join(
+            annotations_path,
+            const.PARTIAL,
+            f'{self._mode}_partial_{partial_percentage}_mdist_{self._maintain_distribution}.json'
+        )
 
         if os.path.exists(cache_file):
             print(f"Loading filtered ground truth annotations from {cache_file}")

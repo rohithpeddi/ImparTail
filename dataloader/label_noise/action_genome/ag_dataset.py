@@ -21,7 +21,7 @@ class LabelNoiseAG(BaseAG):
             mode,
             maintain_distribution,
             datasize,
-            noise_percentage=10,
+            noise_percentage=30,
             data_path=None,
             filter_nonperson_box_frame=True,
             filter_small_box=False
@@ -44,19 +44,21 @@ class LabelNoiseAG(BaseAG):
         distribution = {obj: count / total_annotations for obj, count in rel_counts.items()}
         return distribution, total_annotations, rel_counts
 
-    def filter_annotations_preserve_distribution(self, data, partial_annotation_ratio):
-        # First, estimate the distribution
+    def filter_annotations_preserve_distribution(self, data, label_noise_percentage):
         distribution, total_annotations, rel_counts = self.estimate_rel_distribution(data)
 
-        target_total_annotations = int(round(total_annotations * partial_annotation_ratio))
-        objects = list(rel_counts.keys())
-        total_relations = len(objects)
+        if self._maintain_distribution:
+            target_counts = {obj: int(round(count * label_noise_percentage)) for obj, count in rel_counts.items()}
+        else:
+            target_total_annotations = int(round(total_annotations * label_noise_percentage))
+            objects = list(rel_counts.keys())
+            total_relations = len(objects)
 
-        # Generate random counts such that their sum equals target_total_annotations
-        counts = np.random.multinomial(target_total_annotations, np.ones(total_relations) / total_relations)
+            # Generate random counts such that their sum equals target_total_annotations
+            counts = np.random.multinomial(target_total_annotations, np.ones(total_relations) / total_relations)
 
-        # Assign counts to corresponding objects
-        target_counts = {obj: count for obj, count in zip(objects, counts)}
+            # Assign counts to corresponding objects
+            target_counts = {obj: count for obj, count in zip(objects, counts)}
 
         # Collect positions of each object
         rel_positions = collections.defaultdict(list)
@@ -112,27 +114,27 @@ class LabelNoiseAG(BaseAG):
 
         return data_rel_class_list
 
-    def corrupt_gt_annotations(self, corruption_percentage):
+    def corrupt_gt_annotations(self, label_noise):
         # Load from cache if the partial file exists in the cache directory.
         annotations_path = os.path.join(self._data_path, const.ANNOTATIONS)
         cache_file = os.path.join(
             annotations_path,
             const.LABEL_NOISE,
-            f'{self._mode}_label_corrupted_{corruption_percentage}.json'
+            f'{self._mode}_label_noise_{label_noise}_mdist_{self._maintain_distribution}.json'
         )
 
         if os.path.exists(cache_file):
-            print(f"Loading filtered ground truth annotations from {cache_file}")
+            print(f"Loading corrupted ground truth annotations from {cache_file}")
             with open(cache_file, 'r') as file:
-                filtered_gt_annotations = json.loads(file.read())
-            return filtered_gt_annotations
+                corrupted_gt_annotations = json.loads(file.read())
+            return corrupted_gt_annotations
 
         #--------------------------------------------------------------------------------------------
-        # Filter out objects in the ground truth based on partial observation ratio.
+        # Generate corrupted ground truth annotations based on the label noise percentage.
         #--------------------------------------------------------------------------------------------
         print("--------------------------------------------------------------------------------")
         print("No file found in the cache directory.")
-        print(f"Filtering ground truth annotations based on partial observation ratio: {corruption_percentage}%")
+        print(f"Corrupting ground truth annotations based on label annotation ratio: {label_noise}%")
         print("--------------------------------------------------------------------------------")
 
         # 1. Estimate statistics of object class occurrences in the ground truth annotations.
@@ -140,29 +142,28 @@ class LabelNoiseAG(BaseAG):
         spatial_rel_class_list = self.get_rel_class_list(self._gt_annotations, const.SPATIAL_RELATIONSHIP)
         contacting_rel_class_list = self.get_rel_class_list(self._gt_annotations, const.CONTACTING_RELATIONSHIP)
 
-
         # 2. Construct filter based on the probability distribution of the obj class occurrences.
         filtered_attention_rel_class_list = self.filter_annotations_preserve_distribution(
             data=attention_rel_class_list,
-            partial_annotation_ratio=(100 - corruption_percentage) * 0.01
+            label_noise_percentage=label_noise
         )
 
         filtered_spatial_rel_class_list = self.filter_annotations_preserve_distribution(
             data=spatial_rel_class_list,
-            partial_annotation_ratio=(100 - corruption_percentage) * 0.01
+            label_noise_percentage=label_noise
         )
 
         filtered_contacting_rel_class_list = self.filter_annotations_preserve_distribution(
             data=contacting_rel_class_list,
-            partial_annotation_ratio=(100 - corruption_percentage) * 0.01
+            label_noise_percentage=label_noise
         )
 
         # 3. Construct filtered ground truth annotations based on filtered obj class occurrences.
-        filtered_gt_annotations = []
+        corrupted_gt_annotations = []
         for video_id, video_annotation_dict in enumerate(self._gt_annotations):
-            filtered_video_annotation_dict = []
+            corrupted_video_annotation_dict = []
             for video_frame_id, video_frame_annotation_dict in enumerate(video_annotation_dict):
-                filtered_video_frame_annotation_dict = []
+                corrupted_video_frame_annotation_dict = []
                 for frame_obj_id, frame_obj_dict in enumerate(video_frame_annotation_dict):
                     if frame_obj_id == 0:
                         continue
@@ -179,53 +180,62 @@ class LabelNoiseAG(BaseAG):
                     if isinstance(contacting_rel, torch.Tensor):
                         contacting_rel = contacting_rel.detach().cpu().numpy().tolist()
 
-                    filtered_frame_obj_dict = frame_obj_dict.copy()
-                    filtered_frame_obj_dict[const.ATTENTION_RELATIONSHIP] = []
-                    filtered_frame_obj_dict[const.SPATIAL_RELATIONSHIP] = []
-                    filtered_frame_obj_dict[const.CONTACTING_RELATIONSHIP] = []
+                    corrupted_frame_obj_dict = frame_obj_dict.copy()
+                    corrupted_frame_obj_dict[const.ATTENTION_RELATIONSHIP] = []
+                    corrupted_frame_obj_dict[const.SPATIAL_RELATIONSHIP] = []
+                    corrupted_frame_obj_dict[const.CONTACTING_RELATIONSHIP] = []
 
-                    # For the chosen partial annotation files
+                    filtered_attention = filtered_attention_rel_class_list[video_id][video_frame_id]
+                    filtered_spatial = filtered_spatial_rel_class_list[video_id][video_frame_id]
+                    filtered_contacting = filtered_contacting_rel_class_list[video_id][video_frame_id]
 
-                    # # Check the intersection of the attention_rel list with the filtered_attention_rel_class_list.
-                    # # Add all the intersection elements to the filtered_frame_obj_dict.
-                    # filtered_attention_rel = set(attention_rel).intersection(filtered_attention_rel_class_list[video_id][video_frame_id])
-                    # filtered_attention_rel = list(filtered_attention_rel)
-                    # if len(filtered_attention_rel) > 0:
-                    #     filtered_frame_obj_dict[const.ATTENTION_RELATIONSHIP] = filtered_attention_rel
-                    #
-                    # # Check the intersection of the spatial_rel list with the filtered_spatial_rel_class_list.
-                    # # Add all the intersection elements to the filtered_frame_obj_dict.
-                    # filtered_spatial_rel = set(spatial_rel).intersection(filtered_spatial_rel_class_list[video_id][video_frame_id])
-                    # filtered_spatial_rel = list(filtered_spatial_rel)
-                    # if len(filtered_spatial_rel) > 0:
-                    #     filtered_frame_obj_dict[const.SPATIAL_RELATIONSHIP] = filtered_spatial_rel
-                    #
-                    # # Check the intersection of the contacting_rel list with the filtered_contacting_rel_class_list.
-                    # # Add all the intersection elements to the filtered_frame_obj_dict.
-                    # filtered_contacting_rel = set(contacting_rel).intersection(filtered_contacting_rel_class_list[video_id][video_frame_id])
-                    # filtered_contacting_rel = list(filtered_contacting_rel)
-                    # if len(filtered_contacting_rel) > 0:
-                    #     filtered_frame_obj_dict[const.CONTACTING_RELATIONSHIP] = filtered_contacting_rel
+                    for rel in attention_rel:
+                        if rel in filtered_attention:
+                            # Pick a random relationship from self.attention_relationships and add it to the list.
+                            c_a_relationship = random.choice(self.attention_relationships)
+                            corrupted_a_rel_id = self.attention_relationships.index(c_a_relationship)
+                            corrupted_frame_obj_dict[const.ATTENTION_RELATIONSHIP].append(corrupted_a_rel_id)
+                        else:
+                            corrupted_frame_obj_dict[const.ATTENTION_RELATIONSHIP].append(rel)
 
-                    filtered_video_frame_annotation_dict.append(filtered_frame_obj_dict)
+                    for rel in spatial_rel:
+                        if rel in filtered_spatial:
+                            # Pick a random relationship from self.spatial_relationships and add it to the list.
+                            c_s_relationship = random.choice(self.spatial_relationships)
+                            corrupted_s_rel_id = self.spatial_relationships.index(c_s_relationship)
+                            corrupted_frame_obj_dict[const.SPATIAL_RELATIONSHIP].append(corrupted_s_rel_id)
+                        else:
+                            corrupted_frame_obj_dict[const.SPATIAL_RELATIONSHIP].append(rel)
 
-                # Add a person object frame only when an object is observed in the frame.
-                if len(filtered_video_frame_annotation_dict) > 0:
-                    filtered_video_frame_annotation_dict.insert(0, video_frame_annotation_dict[0])
+                    for rel in contacting_rel:
+                        if rel in filtered_contacting:
+                            # Pick a random relationship from self.contacting_relationships and add it to the list.
+                            c_c_relationship = random.choice(self.contacting_relationships)
+                            corrupted_c_rel_id = self.contacting_relationships.index(c_c_relationship)
+                            corrupted_frame_obj_dict[const.CONTACTING_RELATIONSHIP].append(corrupted_c_rel_id)
+                        else:
+                            corrupted_frame_obj_dict[const.CONTACTING_RELATIONSHIP].append(rel)
 
-                filtered_video_annotation_dict.append(filtered_video_frame_annotation_dict)
+                    assert len(corrupted_frame_obj_dict[const.ATTENTION_RELATIONSHIP]) == len(attention_rel)
+                    assert len(corrupted_frame_obj_dict[const.SPATIAL_RELATIONSHIP]) == len(spatial_rel)
+                    assert len(corrupted_frame_obj_dict[const.CONTACTING_RELATIONSHIP]) == len(contacting_rel)
+
+                    corrupted_video_frame_annotation_dict.append(corrupted_frame_obj_dict)
+
+                corrupted_video_frame_annotation_dict.insert(0, video_frame_annotation_dict[0])
+                corrupted_video_annotation_dict.append(corrupted_video_frame_annotation_dict)
 
             # Don't change this logic as the ground truth annotations are loaded based on the video index
             # Number of gt annotations should remain the same as the original annotations.
-            filtered_gt_annotations.append(filtered_video_annotation_dict)
+            corrupted_gt_annotations.append(corrupted_video_annotation_dict)
 
         # 4. Save the filtered ground truth annotations to the cache directory.
-        os.makedirs(os.path.join(annotations_path, const.PARTIAL_REL), exist_ok=True)
-        filtered_gt_annotations_json = json.dumps(filtered_gt_annotations, cls=NumpyEncoder)
+        os.makedirs(os.path.join(annotations_path, const.LABEL_NOISE), exist_ok=True)
+        filtered_gt_annotations_json = json.dumps(corrupted_gt_annotations, cls=NumpyEncoder)
         with open(cache_file, 'w') as f:
             f.write(filtered_gt_annotations_json)
 
-        return filtered_gt_annotations
+        return corrupted_gt_annotations
 
 
     def __getitem__(self, index):

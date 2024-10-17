@@ -72,7 +72,7 @@ class Config(object):
         parser.add_argument('--ckpt', dest='ckpt', help='checkpoint', default=None, type=str)
         parser.add_argument('--optimizer', help='adamw/adam/sgd', default='adamw', type=str)
         parser.add_argument('--lr', dest='lr', help='learning rate', default=1e-5, type=float)
-        parser.add_argument('--nepoch', help='epoch number', default=10, type=float)
+        parser.add_argument('--nepoch', help='epoch number', default=4, type=int)
         parser.add_argument('--enc_layer', dest='enc_layer', help='spatial encoder layer', default=1, type=int)
         parser.add_argument('--dec_layer', dest='dec_layer', help='temporal decoder layer', default=3, type=int)
         parser.add_argument('--bce_loss', action='store_true')

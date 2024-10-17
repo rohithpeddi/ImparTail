@@ -123,7 +123,7 @@ conda develop fpn/box_intersections_cpu/
 Remove any previous builds
 
 ``` 
-cd fastRCNN/lib
+cd fasterRCNN/lib
 rm -rf build/
 ```
 

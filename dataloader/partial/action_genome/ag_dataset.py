@@ -191,6 +191,10 @@ class PartialAG(BaseAG):
                     frame_obj_rel_mask_dict[const.CONTACTING_RELATIONSHIP] = [1 if rel in filtered_contacting else 0 for
                                                                               rel in contacting_rel]
 
+                    assert len(frame_obj_rel_mask_dict[const.ATTENTION_RELATIONSHIP]) == len(attention_rel)
+                    assert len(frame_obj_rel_mask_dict[const.SPATIAL_RELATIONSHIP]) == len(spatial_rel)
+                    assert len(frame_obj_rel_mask_dict[const.CONTACTING_RELATIONSHIP]) == len(contacting_rel)
+
                     video_frame_annotation_mask_dict.append(frame_obj_rel_mask_dict)
                 video_annotation_mask_dict.append(video_frame_annotation_mask_dict)
 

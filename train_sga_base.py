@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 import wandb
 
-from dataloader.partial_obj.action_genome.ag_dataset import PartialObjAG
+from dataloader.label_noise.action_genome.ag_dataset import LabelNoiseAG
 from dataloader.partial.action_genome.ag_dataset import PartialAG
 from dataloader.standard.action_genome.ag_dataset import StandardAG
 from dataloader.standard.action_genome.ag_dataset import cuda_collate_fn as ag_data_cuda_collate_fn
@@ -150,30 +150,38 @@ class TrainSTSGBase(STSGBase):
             self._evaluator.reset_result()
             self._scheduler.step(score)
 
+    # ----------------- Load the dataset -------------------------
+    # Three main settings:
+    # (a) Standard Dataset: Where full annotations are used
+    # (b) Partial Annotations: Where partial object and relationship annotations are used
+    # (c) Label Noise: Where label noise is added to the dataset
+    # -------------------------------------------------------------
     def init_dataset(self):
 
-        if self._conf.use_partial_obj_annotations:
+        if self._conf.use_partial_annotations:
             print("-----------------------------------------------------")
-            print("Loading the partial object dataset")
+            print("Loading the partial annotations dataset with percentage:", self._conf.partial_percentage)
             print("-----------------------------------------------------")
-            self._train_dataset = PartialObjAG(
+            self._train_dataset = PartialAG(
                 phase="train",
                 mode=self._conf.mode,
+                maintain_distribution=self._conf.maintain_distribution,
                 datasize=self._conf.datasize,
                 partial_percentage=self._conf.partial_percentage,
                 data_path=self._conf.data_path,
                 filter_nonperson_box_frame=True,
                 filter_small_box=False if self._conf.mode == 'predcls' else True,
             )
-        elif self._conf.use_partial_rel_annotations:
+        elif self._conf.use_label_noise:
             print("-----------------------------------------------------")
-            print("Loading the partial relation dataset")
+            print("Loading the dataset with label noise percentage:", self._conf.label_noise_percentage)
             print("-----------------------------------------------------")
-            self._train_dataset = PartialAG(
+            self._train_dataset = LabelNoiseAG(
                 phase="train",
                 mode=self._conf.mode,
+                maintain_distribution=self._conf.maintain_distribution,
                 datasize=self._conf.datasize,
-                partial_percentage=self._conf.partial_percentage,
+                noise_percentage=self._conf.label_noise_percentage,
                 data_path=self._conf.data_path,
                 filter_nonperson_box_frame=True,
                 filter_small_box=False if self._conf.mode == 'predcls' else True,

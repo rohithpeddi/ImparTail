@@ -10,7 +10,6 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from constants import Constants as const
-from dataloader.partial_obj.action_genome.ag_dataset import PartialObjAG
 
 from dataloader.label_noise.action_genome.ag_dataset import LabelNoiseAG
 from dataloader.partial.action_genome.ag_dataset import PartialAG
@@ -96,6 +95,9 @@ class TrainSGGBase(STSGBase):
                     filtered_labels.append(label)
                     filtered_distribution.append(pred_distribution_i)
 
+        if len(filtered_labels) == 0 and len(filtered_distribution) == 0:
+            return None, None
+
         filtered_labels = torch.stack(filtered_labels)
         filtered_distribution = torch.stack(filtered_distribution)
 
@@ -126,19 +128,37 @@ class TrainSGGBase(STSGBase):
         assert filtered_attention_distribution.shape[0] == filtered_attention_label.shape[0]
         losses[const.ATTENTION_RELATION_LOSS] = self._ce_loss(filtered_attention_distribution, filtered_attention_label)
 
+        # --------------------------------------------------------------------------------------------
+        # For both spatial and contacting relations, if all the annotations are masked then the loss is not calculated
+
         # 3. Spatial Loss
-        filtered_spatial_distribution, filtered_spatial_labels = self._prepare_labels_and_distribution(pred, const.SPATIAL_GT, 6)
-        if not self._conf.bce_loss:
-            losses[const.SPATIAL_RELATION_LOSS] = self._mlm_loss(filtered_spatial_distribution, filtered_spatial_labels)
-        else:
-            losses[const.SPATIAL_RELATION_LOSS] = self._bce_loss(filtered_spatial_distribution, filtered_spatial_labels)
+        filtered_spatial_distribution, filtered_spatial_labels = self._prepare_labels_and_distribution(
+            pred=pred,
+            distribution_type=const.SPATIAL_DISTRIBUTION,
+            label_type=const.SPATIAL_GT,
+            max_len=6
+        )
+
+        if filtered_spatial_distribution is not None and filtered_spatial_labels is not None:
+            if not self._conf.bce_loss:
+                losses[const.SPATIAL_RELATION_LOSS] = self._mlm_loss(filtered_spatial_distribution, filtered_spatial_labels)
+            else:
+                losses[const.SPATIAL_RELATION_LOSS] = self._bce_loss(filtered_spatial_distribution, filtered_spatial_labels)
 
         # 4. Contacting Loss
-        filtered_contact_distribution, filtered_contact_labels = self._prepare_labels_and_distribution(pred, const.CONTACTING_GT, 17)
-        if not self._conf.bce_loss:
-            losses[const.CONTACTING_RELATION_LOSS] = self._mlm_loss(filtered_contact_distribution, filtered_contact_labels)
-        else:
-            losses[const.CONTACTING_RELATION_LOSS] = self._bce_loss(filtered_contact_distribution, filtered_contact_labels)
+        filtered_contact_distribution, filtered_contact_labels = self._prepare_labels_and_distribution(
+            pred=pred,
+            distribution_type=const.CONTACTING_DISTRIBUTION,
+            label_type=const.CONTACTING_GT,
+            max_len=17
+        )
+
+        if filtered_contact_distribution is not None and filtered_contact_labels is not None:
+            if not self._conf.bce_loss:
+                losses[const.CONTACTING_RELATION_LOSS] = self._mlm_loss(filtered_contact_distribution, filtered_contact_labels)
+            else:
+                losses[const.CONTACTING_RELATION_LOSS] = self._bce_loss(filtered_contact_distribution, filtered_contact_labels)
+
         return losses
 
     def _calculate_losses_for_full_annotations(self, pred):

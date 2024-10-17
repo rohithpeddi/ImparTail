@@ -60,8 +60,6 @@ class Config(object):
         :return:
         """
         parser = ArgumentParser(description='training code')
-        parser.add_argument('--vid_sgg_method', dest='method', help='Method dsgdetr/sttran/tempura', default='dsgdetr',
-                            type=str)
         parser.add_argument('--mode', dest='mode', help='predcls/sgcls/sgdet', default='predcls', type=str)
         parser.add_argument('--save_path', default='/data/rohith/ag/checkpoints', type=str)
         parser.add_argument('--method_name', default='sttran', type=str)
@@ -88,8 +86,11 @@ class Config(object):
         parser.add_argument('--sde_ratio', default=1.0, type=float)
         parser.add_argument('--bbox_ratio', default=0.1, type=float)
 
+        # =============================================================================
+        # Settings where the input is modified by introducing corruptions like noise, blur, etc.
+        # =============================================================================
+
         # ---------------- Corruptions ----------------
-        parser.add_argument("--use_label_corruptions", action="store_true")
         parser.add_argument("--use_input_corruptions", action="store_true")
 
         # =============================================================================

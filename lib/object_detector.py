@@ -461,9 +461,9 @@ class Detector(nn.Module):
             # Initialize the gt_frame_bboxes_mask to an empty list
             gt_frame_bboxes_mask = gt_annotation_mask[frame_idx]
             for frame_bbox_id, frame_bbox in enumerate(gt_frame_bboxes):
-                # If gt_frame_bboxes_mask is empty, then all annotations are masked
-                # Initialize the frame_bbox_mask to an empty list
-                frame_bbox_mask = gt_frame_bboxes_mask[frame_bbox_id]
+                # gt_frame_bboxes contains all the bounding boxes including the person bounding box
+                # But gt_frame_bboxes_mask contains the mask for the bounding boxes excluding the person bounding box
+                # The person bounding box is always the first bounding box in the list
                 if const.PERSON_BBOX in frame_bbox.keys():
                     FINAL_BBOXES[bbox_idx, 1:] = torch.from_numpy(np.array(frame_bbox[const.PERSON_BBOX][0]))
                     FINAL_BBOXES[bbox_idx, 0] = frame_idx
@@ -471,6 +471,7 @@ class Detector(nn.Module):
                     HUMAN_IDX[frame_idx] = bbox_idx
                     bbox_idx += 1
                 else:
+                    frame_bbox_mask = gt_frame_bboxes_mask[frame_bbox_id - 1]
                     FINAL_BBOXES[bbox_idx, 1:] = torch.from_numpy(np.array(frame_bbox[const.BBOX]))
                     FINAL_BBOXES[bbox_idx, 0] = frame_idx
                     FINAL_LABELS[bbox_idx] = frame_bbox[const.CLASS]
@@ -480,6 +481,10 @@ class Detector(nn.Module):
                     frame_bbox_a_rels, a_mask = self._process_relationships(frame_bbox, frame_bbox_mask, const.ATTENTION_RELATIONSHIP)
                     frame_bbox_s_rels, s_mask = self._process_relationships(frame_bbox, frame_bbox_mask, const.SPATIAL_RELATIONSHIP)
                     frame_bbox_c_rels, c_mask = self._process_relationships(frame_bbox, frame_bbox_mask, const.CONTACTING_RELATIONSHIP)
+
+                    assert len(frame_bbox_a_rels) == len(a_mask)
+                    assert len(frame_bbox_s_rels) == len(s_mask)
+                    assert len(frame_bbox_c_rels) == len(c_mask)
 
                     a_rel.append(frame_bbox_a_rels)
                     s_rel.append(frame_bbox_s_rels)

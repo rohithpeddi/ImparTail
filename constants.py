@@ -7,7 +7,7 @@ class Constants:
     CLASS = "class"
     BACKGROUND = "__background__"
     ANNOTATIONS = "annotations"
-    PARTIAL = "partial"
+
     MINI = "mini"
     METADATA = "metadata"
     SET = "set"
@@ -116,8 +116,7 @@ class Constants:
     OBJECT = "object"
 
     PARTIAL_PERCENTAGE = "partial_percentage"
-    PARTIAL_OBJ = "partial_obj"
-    PARTIAL_REL = "partial_rel"
+    PARTIAL = "partial"
     LABEL_NOISE = "label_noise"
 
     SGG = "sgg"

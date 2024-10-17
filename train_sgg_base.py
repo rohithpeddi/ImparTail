@@ -11,7 +11,9 @@ from tqdm import tqdm
 
 from constants import Constants as const
 from dataloader.partial_obj.action_genome.ag_dataset import PartialObjAG
-from dataloader.partial_rel.action_genome.ag_dataset import PartialRelAG
+
+from dataloader.label_noise.action_genome.ag_dataset import LabelNoiseAG
+from dataloader.partial.action_genome.ag_dataset import PartialAG
 from dataloader.standard.action_genome.ag_dataset import StandardAG
 from dataloader.standard.action_genome.ag_dataset import cuda_collate_fn as ag_data_cuda_collate_fn
 from lib.object_detector import Detector
@@ -125,18 +127,18 @@ class TrainSGGBase(STSGBase):
         losses[const.ATTENTION_RELATION_LOSS] = self._ce_loss(filtered_attention_distribution, filtered_attention_label)
 
         # 3. Spatial Loss
-        spatial_distribution, spatial_labels = self._prepare_labels_and_distribution(pred, const.SPATIAL_GT, 6)
+        filtered_spatial_distribution, filtered_spatial_labels = self._prepare_labels_and_distribution(pred, const.SPATIAL_GT, 6)
         if not self._conf.bce_loss:
-            losses[const.SPATIAL_RELATION_LOSS] = self._mlm_loss(spatial_distribution, spatial_labels)
+            losses[const.SPATIAL_RELATION_LOSS] = self._mlm_loss(filtered_spatial_distribution, filtered_spatial_labels)
         else:
-            losses[const.SPATIAL_RELATION_LOSS] = self._bce_loss(spatial_distribution, spatial_labels)
+            losses[const.SPATIAL_RELATION_LOSS] = self._bce_loss(filtered_spatial_distribution, filtered_spatial_labels)
 
         # 4. Contacting Loss
-        contact_distribution, contact_labels = self._prepare_labels_and_distribution(pred, const.CONTACTING_GT, 17)
+        filtered_contact_distribution, filtered_contact_labels = self._prepare_labels_and_distribution(pred, const.CONTACTING_GT, 17)
         if not self._conf.bce_loss:
-            losses[const.CONTACTING_RELATION_LOSS] = self._mlm_loss(contact_distribution, contact_labels)
+            losses[const.CONTACTING_RELATION_LOSS] = self._mlm_loss(filtered_contact_distribution, filtered_contact_labels)
         else:
-            losses[const.CONTACTING_RELATION_LOSS] = self._bce_loss(contact_distribution, contact_labels)
+            losses[const.CONTACTING_RELATION_LOSS] = self._bce_loss(filtered_contact_distribution, filtered_contact_labels)
         return losses
 
     def _calculate_losses_for_full_annotations(self, pred):
@@ -188,14 +190,12 @@ class TrainSGGBase(STSGBase):
             for train_idx in tqdm(range(len(self._dataloader_train))):
                 data = next(train_iter)
                 im_data, im_info, gt_boxes, num_boxes = [copy.deepcopy(d.cuda(0)) for d in data[:4]]
-
                 video_index = data[4]
-                gt_annotation = self._train_dataset.gt_annotations[video_index]
 
-                if self._conf.use_partial_obj_annotations or self._conf.use_partial_rel_annotations:
+                gt_annotation = self._train_dataset.gt_annotations[video_index]
+                gt_annotation_mask = None
+                if self._conf.use_partial_annotations:
                     gt_annotation_mask = self._train_dataset.gt_annotations_mask[video_index]
-                else:
-                    gt_annotation_mask = None
 
                 if len(gt_annotation) == 0:
                     print(f'No annotations found in the video {video_index}. Skipping...')
@@ -217,7 +217,7 @@ class TrainSGGBase(STSGBase):
                 pred = self.process_train_video(entry, frame_size, gt_annotation)
                 # ----------------------------------------------------------------------
 
-                if self._conf.use_partial_obj_annotations or self._conf.use_partial_rel_annotations:
+                if self._conf.use_partial_annotations:
                     losses = self._calculate_losses_for_partial_annotations(pred)
                 else:
                     losses = self._calculate_losses_for_full_annotations(pred)
@@ -275,13 +275,19 @@ class TrainSGGBase(STSGBase):
             self._evaluator.reset_result()
             self._scheduler.step(score)
 
+    # ----------------- Load the dataset -------------------------
+    # Three main settings:
+    # (a) Standard Dataset: Where full annotations are used
+    # (b) Partial Annotations: Where partial object and relationship annotations are used
+    # (c) Label Noise: Where label noise is added to the dataset
+    # -------------------------------------------------------------
     def init_dataset(self):
 
-        if self._conf.use_partial_obj_annotations:
+        if self._conf.use_partial_annotations:
             print("-----------------------------------------------------")
-            print("Loading the partial object dataset")
+            print("Loading the partial annotations dataset with percentage:", self._conf.partial_percentage)
             print("-----------------------------------------------------")
-            self._train_dataset = PartialObjAG(
+            self._train_dataset = PartialAG(
                 phase="train",
                 mode=self._conf.mode,
                 maintain_distribution=self._conf.maintain_distribution,
@@ -291,16 +297,16 @@ class TrainSGGBase(STSGBase):
                 filter_nonperson_box_frame=True,
                 filter_small_box=False if self._conf.mode == 'predcls' else True,
             )
-        elif self._conf.use_partial_rel_annotations:
+        elif self._conf.use_label_noise:
             print("-----------------------------------------------------")
-            print("Loading the partial relation dataset")
+            print("Loading the dataset with label noise percentage:", self._conf.label_noise_percentage)
             print("-----------------------------------------------------")
-            self._train_dataset = PartialRelAG(
+            self._train_dataset = LabelNoiseAG(
                 phase="train",
                 mode=self._conf.mode,
                 maintain_distribution=self._conf.maintain_distribution,
                 datasize=self._conf.datasize,
-                partial_percentage=self._conf.partial_percentage,
+                noise_percentage=self._conf.label_noise_percentage,
                 data_path=self._conf.data_path,
                 filter_nonperson_box_frame=True,
                 filter_small_box=False if self._conf.mode == 'predcls' else True,

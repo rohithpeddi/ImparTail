@@ -10,3 +10,9 @@ class NumpyEncoder(json.JSONEncoder):
         elif isinstance(obj, torch.Tensor):
             return obj.cpu().numpy().tolist()
         return super().default(obj)
+
+
+def tensor_to_list(tensor):
+    if isinstance(tensor, torch.Tensor):
+        return tensor.detach().cpu().numpy().tolist()
+    return tensor

@@ -11,7 +11,7 @@ from tqdm import tqdm
 import wandb
 
 from dataloader.partial_obj.action_genome.ag_dataset import PartialObjAG
-from dataloader.partial_rel.action_genome.ag_dataset import PartialRelAG
+from dataloader.partial.action_genome.ag_dataset import PartialAG
 from dataloader.standard.action_genome.ag_dataset import StandardAG
 from dataloader.standard.action_genome.ag_dataset import cuda_collate_fn as ag_data_cuda_collate_fn
 from lib.object_detector import Detector
@@ -169,7 +169,7 @@ class TrainSTSGBase(STSGBase):
             print("-----------------------------------------------------")
             print("Loading the partial relation dataset")
             print("-----------------------------------------------------")
-            self._train_dataset = PartialRelAG(
+            self._train_dataset = PartialAG(
                 phase="train",
                 mode=self._conf.mode,
                 datasize=self._conf.datasize,

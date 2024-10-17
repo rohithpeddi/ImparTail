@@ -37,13 +37,15 @@ class Config(object):
 
         # ---------------- Corruptions ----------------
         self.use_input_corruptions = False
-        self.use_label_corruptions = False
 
-        # ---------------- Partial Annotations ----------------
-        self.use_partial_obj_annotations = False
-        self.use_partial_rel_annotations = False
-        self.maintain_distribution = False
+        # ---------------- Partial Annotations --------------------
+        self.use_partial_annotations = False
         self.partial_percentage = 100
+        self.maintain_distribution = False
+
+        # ---------------- Label Noise ----------------
+        self.use_label_noise = False
+        self.label_noise_percentage = 20
 
         # ---------------- Use wandb ----------------
         self.use_wandb = False
@@ -90,11 +92,18 @@ class Config(object):
         parser.add_argument("--use_label_corruptions", action="store_true")
         parser.add_argument("--use_input_corruptions", action="store_true")
 
+        # =============================================================================
+        # Settings where the ground truth is modified either in the form of missing labels or noisy labels
+        # =============================================================================
+
         # ---------------- Partial Annotations ----------------
-        parser.add_argument("--use_partial_obj_annotations", action="store_true")
-        parser.add_argument("--use_partial_rel_annotations", action="store_true")
-        parser.add_argument("--maintain_distribution", action="store_true")
+        parser.add_argument("--use_partial_annotations", action="store_true")
         parser.add_argument("--partial_percentage", default=100, type=int)
+
+        parser.add_argument("--maintain_distribution", action="store_true")
+        # ---------------- Label Noise ----------------
+        parser.add_argument("--use_label_noise", action="store_true")
+        parser.add_argument("--label_noise_percentage", default=20, type=int)
 
         # ---------------- Use wandb ----------------
         parser.add_argument("--use_wandb", action="store_true")

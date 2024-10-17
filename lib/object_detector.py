@@ -416,9 +416,7 @@ class Detector(nn.Module):
         if isinstance(relation_mask, torch.Tensor):
             relation_mask = relation_mask.tolist()
 
-        # Generate mask for loss calculation based on the provided mask
-        loss_mask = [1 if rel in relation_mask else 0 for rel in relation_data]
-        return relation_data, loss_mask
+        return relation_data, relation_mask
 
     def _populate_final_tensors(self, FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX, gt_annotation):
         bbox_idx = 0
@@ -456,34 +454,16 @@ class Detector(nn.Module):
         im_idx, pair, a_rel, s_rel, c_rel = [], [], [], [], []
         a_rel_mask, s_rel_mask, c_rel_mask = [], [], []
 
-        # Note: Initial gt_annotation_mask creation happens this way.
-        # 1. gt_annotation_mask contains the sampled labels of attention, spatial and contacting relationships.
-        # 2. To create the masks for which are present and which are absent in ground truth annotations we have to perform this computation.
-
-        # gt_annotation_mask is None ==> No mask is provided ==> Not using partial annotations
         # This would ensure none of the ground truth annotations are masked.
         # gt_annotation_mask can be empty [] ==> All annotations are masked for this.
-        if gt_annotation_mask is None:
-            gt_annotation_mask = gt_annotation
-
         for frame_idx, gt_frame_bboxes in enumerate(gt_annotation):
-
             # If gt_annotation_mask is empty, then all annotations are masked
             # Initialize the gt_frame_bboxes_mask to an empty list
-            if len(gt_annotation_mask) == 0:
-                gt_frame_bboxes_mask = []
-            else:
-                gt_frame_bboxes_mask = gt_annotation_mask[frame_idx]
-
+            gt_frame_bboxes_mask = gt_annotation_mask[frame_idx]
             for frame_bbox_id, frame_bbox in enumerate(gt_frame_bboxes):
-
                 # If gt_frame_bboxes_mask is empty, then all annotations are masked
                 # Initialize the frame_bbox_mask to an empty list
-                if len(gt_frame_bboxes_mask) == 0:
-                    frame_bbox_mask = []
-                else:
-                    frame_bbox_mask = gt_frame_bboxes_mask[frame_bbox_id]
-
+                frame_bbox_mask = gt_frame_bboxes_mask[frame_bbox_id]
                 if const.PERSON_BBOX in frame_bbox.keys():
                     FINAL_BBOXES[bbox_idx, 1:] = torch.from_numpy(np.array(frame_bbox[const.PERSON_BBOX][0]))
                     FINAL_BBOXES[bbox_idx, 0] = frame_idx
@@ -497,23 +477,14 @@ class Detector(nn.Module):
                     im_idx.append(frame_idx)
                     pair.append([int(HUMAN_IDX[frame_idx]), bbox_idx])
 
-                    if frame_bbox_mask:
-                        # Process relationships if mask is present ==> frame_bbox_mask is not empty
-                        frame_bbox_a_rels, a_mask = self._process_relationships(frame_bbox, frame_bbox_mask, const.ATTENTION_RELATIONSHIP)
-                        frame_bbox_s_rels, s_mask = self._process_relationships(frame_bbox, frame_bbox_mask, const.SPATIAL_RELATIONSHIP)
-                        frame_bbox_c_rels, c_mask = self._process_relationships(frame_bbox, frame_bbox_mask, const.CONTACTING_RELATIONSHIP)
-                    else:
-                        # Default to no relationships if no mask is provided
-                        frame_bbox_a_rels, a_mask = frame_bbox[const.ATTENTION_RELATIONSHIP], [0] * len(
-                            frame_bbox[const.ATTENTION_RELATIONSHIP])
-                        frame_bbox_s_rels, s_mask = frame_bbox[const.SPATIAL_RELATIONSHIP], [0] * len(
-                            frame_bbox[const.SPATIAL_RELATIONSHIP])
-                        frame_bbox_c_rels, c_mask = frame_bbox[const.CONTACTING_RELATIONSHIP], [0] * len(
-                            frame_bbox[const.CONTACTING_RELATIONSHIP])
+                    frame_bbox_a_rels, a_mask = self._process_relationships(frame_bbox, frame_bbox_mask, const.ATTENTION_RELATIONSHIP)
+                    frame_bbox_s_rels, s_mask = self._process_relationships(frame_bbox, frame_bbox_mask, const.SPATIAL_RELATIONSHIP)
+                    frame_bbox_c_rels, c_mask = self._process_relationships(frame_bbox, frame_bbox_mask, const.CONTACTING_RELATIONSHIP)
 
                     a_rel.append(frame_bbox_a_rels)
                     s_rel.append(frame_bbox_s_rels)
                     c_rel.append(frame_bbox_c_rels)
+
                     a_rel_mask.append(a_mask)
                     s_rel_mask.append(s_mask)
                     c_rel_mask.append(c_mask)
@@ -701,7 +672,8 @@ class Detector(nn.Module):
         if self.mode == 'sgdet':
             attribute_dictionary = self._forward_sgdet(im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all)
         else:
-            # Partial annotations are used and the above pipeline also works only for
+            # Partial annotations are used and the entry dictionary should include details corresponding to the masks!
+            # These masks are used selectively apply loss during training!
             if gt_annotation_mask is not None:
                 attribute_dictionary = self._forward_and_fetch_features_with_mask(im_data, im_info, gt_annotation, gt_annotation_mask)
             else:

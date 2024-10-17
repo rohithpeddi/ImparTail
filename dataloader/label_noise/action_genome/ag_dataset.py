@@ -13,21 +13,22 @@ from fasterRCNN.lib.model.utils.blob import prep_im_for_blob, im_list_to_blob
 from utils import NumpyEncoder
 
 
-class LabelCorruptedAG(BaseAG):
+class LabelNoiseAG(BaseAG):
 
     def __init__(
             self,
             phase,
             mode,
+            maintain_distribution,
             datasize,
-            corruption_percentage=10,
+            noise_percentage=10,
             data_path=None,
             filter_nonperson_box_frame=True,
             filter_small_box=False
     ):
         super().__init__(phase, mode, datasize, data_path, filter_nonperson_box_frame, filter_small_box)
-
-        self._gt_annotations = self.corrupt_gt_annotations(corruption_percentage)
+        self._maintain_distribution = maintain_distribution
+        self._gt_annotations = self.corrupt_gt_annotations(noise_percentage)
 
     @staticmethod
     def estimate_rel_distribution(data):

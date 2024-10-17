@@ -32,12 +32,7 @@ class STSGBase:
 
     def _init_config(self):
         print('The CKPT saved here:', self._conf.save_path)
-        if not os.path.exists(self._conf.save_path):
-            os.mkdir(self._conf.save_path)
-        print('spatial encoder layer num: {} / temporal decoder layer num: {}'.format(self._conf.enc_layer,
-                                                                                      self._conf.dec_layer))
-        for i in self._conf.args:
-            print(i, ':', self._conf.args[i])
+        os.makedirs(self._conf.save_path, exist_ok=True)
 
         # Set the preferred device
         self._device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -64,21 +59,20 @@ class STSGBase:
         else:
             # Set the checkpoint name and save path details
             if self._conf.task_name == const.SGG:
-                if self._conf.use_partial_obj_annotations:
-                    self._checkpoint_name = f"{self._conf.method_name}_partial_obj_{self._conf.partial_percentage}_{self._conf.mode}"
-                elif self._conf.use_partial_rel_annotations:
-                    self._checkpoint_name = f"{self._conf.method_name}_partial_rel_{self._conf.partial_percentage}_{self._conf.mode}"
+                if self._conf.use_partial_annotations:
+                    self._checkpoint_name = f"{self._conf.method_name}_partial_{self._conf.partial_percentage}_{self._conf.mode}"
+                elif self._conf.use_label_noise:
+                    self._checkpoint_name = f"{self._conf.method_name}_label_noise_{self._conf.label_noise_percentage}_{self._conf.mode}"
                 else:
                     self._checkpoint_name = f"{self._conf.method_name}_{self._conf.mode}"
-
                 print("--------------------------------------------------------")
                 print(f"Training model with name: {self._checkpoint_name}")
                 print("--------------------------------------------------------")
             elif self._conf.task_name == const.SGA:
-                if self._conf.use_partial_obj_annotations:
-                    self._checkpoint_name = f"{self._conf.method_name}_partial_obj_{self._conf.partial_percentage}_{self._conf.mode}_future_{self._conf.max_window}"
-                elif self._conf.use_partial_rel_annotations:
-                    self._checkpoint_name = f"{self._conf.method_name}_partial_rel_{self._conf.partial_percentage}_{self._conf.mode}_future_{self._conf.max_window}"
+                if self._conf.use_partial_annotations:
+                    self._checkpoint_name = f"{self._conf.method_name}_partial_{self._conf.partial_percentage}_{self._conf.mode}_future_{self._conf.max_window}"
+                elif self._conf.use_label_noise:
+                    self._checkpoint_name = f"{self._conf.method_name}_label_noise_{self._conf.partial_percentage}_{self._conf.mode}_future_{self._conf.max_window}"
                 else:
                     self._checkpoint_name = f"{self._conf.method_name}_{self._conf.mode}_future_{self._conf.max_window}"
                 print("--------------------------------------------------------")
@@ -91,6 +85,11 @@ class STSGBase:
         # --------------------------- W&B CONFIGURATION ---------------------------
         if self._enable_wandb:
             wandb.init(project=self._checkpoint_name, config=self._conf)
+
+        print("-------------------- CONFIGURATION DETAILS ------------------------")
+        for i in self._conf.args:
+            print(i, ':', self._conf.args[i])
+        print("-------------------------------------------------------------------")
 
     def _init_optimizer(self):
         if self._conf.optimizer == const.ADAMW:

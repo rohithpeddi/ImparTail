@@ -118,6 +118,7 @@ class Constants:
     PARTIAL_PERCENTAGE = "partial_percentage"
     PARTIAL_OBJ = "partial_obj"
     PARTIAL_REL = "partial_rel"
+    LABEL_NOISE = "label_noise"
 
     SGG = "sgg"
     SGA = "sga"

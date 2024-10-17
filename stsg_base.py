@@ -48,10 +48,19 @@ class STSGBase:
                 # Checkpoint name is of the format for model trained with partial annotations: sttran_partial_rel_10_sgdet.tar
                 self._checkpoint_name = os.path.basename(self._conf.ckpt).split('.')[0]
                 self._conf.mode = self._checkpoint_name.split('_')[-1]
+                print("--------------------------------------------------------")
+                print(f"Evaluating checkpoint with name: {self._checkpoint_name}")
+                print(f"Mode: {self._conf.mode}")
+                print("--------------------------------------------------------")
             elif self._conf.task_name == const.SGA:
                 self._checkpoint_name = os.path.basename(self._conf.ckpt).split('.')[0]
                 self._conf.max_window = int(self._checkpoint_name.split('_')[-3])
                 self._conf.mode = self._checkpoint_name.split('_')[-5]
+                print("--------------------------------------------------------")
+                print(f"Evaluating checkpoint with name: {self._checkpoint_name}")
+                print(f"Mode: {self._conf.mode}")
+                print(f"Max Window: {self._conf.max_window}")
+                print("--------------------------------------------------------")
         else:
             # Set the checkpoint name and save path details
             if self._conf.task_name == const.SGG:
@@ -61,6 +70,10 @@ class STSGBase:
                     self._checkpoint_name = f"{self._conf.method_name}_partial_rel_{self._conf.partial_percentage}_{self._conf.mode}"
                 else:
                     self._checkpoint_name = f"{self._conf.method_name}_{self._conf.mode}"
+
+                print("--------------------------------------------------------")
+                print(f"Training model with name: {self._checkpoint_name}")
+                print("--------------------------------------------------------")
             elif self._conf.task_name == const.SGA:
                 if self._conf.use_partial_obj_annotations:
                     self._checkpoint_name = f"{self._conf.method_name}_partial_obj_{self._conf.partial_percentage}_{self._conf.mode}_future_{self._conf.max_window}"
@@ -68,6 +81,9 @@ class STSGBase:
                     self._checkpoint_name = f"{self._conf.method_name}_partial_rel_{self._conf.partial_percentage}_{self._conf.mode}_future_{self._conf.max_window}"
                 else:
                     self._checkpoint_name = f"{self._conf.method_name}_{self._conf.mode}_future_{self._conf.max_window}"
+                print("--------------------------------------------------------")
+                print(f"Training model with name: {self._checkpoint_name}")
+                print("--------------------------------------------------------")
 
         self._checkpoint_save_dir_path = os.path.join(self._conf.save_path, self._conf.task_name, self._conf.method_name)
         os.makedirs(self._checkpoint_save_dir_path, exist_ok=True)

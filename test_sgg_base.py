@@ -8,9 +8,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from analysis.results.FirebaseService import FirebaseService
 from analysis.results.Result import Result, ResultDetails, Metrics
-from dataloader.corrupted.image_based.ag_dataset import ImageCorruptedAG
-from dataloader.corrupted.image_based.ag_dataset import cuda_collate_fn as ag_data_cuda_collate_fn
-from dataloader.standard.action_genome.ag_dataset import StandardAG
+
 from lib.object_detector import Detector
 from lib.supervised.evaluation_recall import BasicSceneGraphEvaluator
 from stsg_base import STSGBase
@@ -259,6 +257,8 @@ class TestSGGBase(STSGBase):
 
     def _init_dataset(self):
         if self._conf.use_input_corruptions:
+            from dataloader.corrupted.image_based.ag_dataset import ImageCorruptedAG
+            from dataloader.corrupted.image_based.ag_dataset import cuda_collate_fn as ag_data_cuda_collate_fn
             # Using the parameters set in the configuration file, initialize the corrupted dataset
             self._test_dataset = ImageCorruptedAG(
                 phase='test',
@@ -276,6 +276,9 @@ class TestSGGBase(STSGBase):
             self._corruption_name = (f"{self._conf.dataset_corruption_mode}_{self._conf.video_corruption_mode}_"
                                      f"{self._conf.dataset_corruption_type}_{self._conf.corruption_severity_level}")
         else:
+            from dataloader.standard.action_genome.ag_dataset import StandardAG
+            from dataloader.standard.action_genome.ag_dataset import cuda_collate_fn as ag_data_cuda_collate_fn
+
             # Use Standard AG test dataset if no corruptions are used
             self._test_dataset = StandardAG(
                 phase='test',

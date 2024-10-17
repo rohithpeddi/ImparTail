@@ -191,7 +191,11 @@ class TrainSGGBase(STSGBase):
 
                 video_index = data[4]
                 gt_annotation = self._train_dataset.gt_annotations[video_index]
-                gt_annotation_mask = self._train_dataset.gt_annotations_mask[video_index]
+
+                if self._conf.use_partial_obj_annotations or self._conf.use_partial_rel_annotations:
+                    gt_annotation_mask = self._train_dataset.gt_annotations_mask[video_index]
+                else:
+                    gt_annotation_mask = None
 
                 if len(gt_annotation) == 0:
                     print(f'No annotations found in the video {video_index}. Skipping...')

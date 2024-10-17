@@ -114,10 +114,10 @@ class STSGBase:
         if self._model is None:
             raise ValueError("Model is not initialized")
 
-        if os.path.exists(self._conf.ckpt) is False:
-            raise ValueError(f"Checkpoint file {self._conf.ckpt} does not exist")
-
         if self._conf.ckpt:
+            if os.path.exists(self._conf.ckpt) is False:
+                raise ValueError(f"Checkpoint file {self._conf.ckpt} does not exist")
+
             try:
                 # Load checkpoint to the specified device
                 ckpt = torch.load(self._conf.ckpt, map_location=self._device)

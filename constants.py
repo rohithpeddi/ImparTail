@@ -148,6 +148,9 @@ class DetectorConstants:
     FINAL_PRED_SCORES = "FINAL_PRED_SCORES"
 
     FRAME = "frame"
+    METADATA = "metadata"
+    TAG = "tag"
+
     FRAME_IDX = "frame_idx"
     PERSON_BBOX = "person_bbox"
     BBOX = "bbox"
@@ -177,6 +180,8 @@ class DetectorConstants:
 
     DETECTOR_FOUND_IDX = "DETECTOR_FOUND_IDX"
     GT_RELATIONS = "GT_RELATIONS"
+    GT_RELATION_MASKS = "GT_RELATION_MASKS"
+    SUPPLY_RELATION_MASKS = "SUPPLY_RELATION_MASKS"
     SUPPLY_RELATIONS = "SUPPLY_RELATIONS"
     ASSIGNED_LABELS = "ASSIGNED_LABELS"
 

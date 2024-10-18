@@ -9,7 +9,7 @@ from constants import DetectorConstants as const
 from fasterRCNN.lib.model.faster_rcnn.resnet import resnet
 from fasterRCNN.lib.model.roi_layers import nms
 from fasterRCNN.lib.model.rpn.bbox_transform import bbox_transform_inv, clip_boxes
-from lib.supervised.funcs import assign_relations
+from lib.supervised.funcs import assign_relations, assign_relations_with_mask
 
 
 class Detector(nn.Module):
@@ -140,11 +140,8 @@ class Detector(nn.Module):
         return self.fasterRCNN._head_to_tail(pooled_feat)
 
     def _construct_relations(self, DETECTOR_FOUND_IDX, GT_RELATIONS, FINAL_BBOXES_X, global_idx):
-        im_idx = []
-        pair = []
-        a_rel = []
-        s_rel = []
-        c_rel = []
+        im_idx, pair = [], []
+        a_rel, s_rel, c_rel = [], [], []
         for frame_idx, detector_bboxes_idx in enumerate(DETECTOR_FOUND_IDX):
             for frame_bbox_idx, frame_bbox_info in enumerate(GT_RELATIONS[frame_idx]):
                 if 'person_bbox' in frame_bbox_info.keys():
@@ -164,8 +161,77 @@ class Detector(nn.Module):
                         a_rel.append(GT_RELATIONS[frame_idx][m]['attention_relationship'])
                         s_rel.append(GT_RELATIONS[frame_idx][m]['spatial_relationship'])
                         c_rel.append(GT_RELATIONS[frame_idx][m]['contacting_relationship'])
-
         return im_idx, pair, a_rel, s_rel, c_rel
+
+    # Function to handle relationship data conversion and masking
+    @staticmethod
+    def _process_sgdet_relationships(frame_data, frame_mask, relation_key):
+        relation_data = frame_data[relation_key]
+        if isinstance(relation_data, torch.Tensor):
+            relation_data = relation_data.tolist()
+
+        relation_mask = frame_mask[relation_key]
+        if isinstance(relation_mask, torch.Tensor):
+            relation_mask = relation_mask.tolist()
+
+        return relation_data, relation_mask
+
+    def _construct_relations_with_mask(self, DETECTOR_FOUND_IDX, GT_RELATIONS, FINAL_BBOXES_X, global_idx, GT_RELATION_MASKS):
+        im_idx, pair = [], []
+        a_rel, s_rel, c_rel = [], [], []
+        a_rel_mask, s_rel_mask, c_rel_mask = [], [], []
+
+        video_frame_id_to_gt_relation_mask = {}
+        for num_frame, video_frame_info in enumerate(GT_RELATION_MASKS):
+            video_frame_id = video_frame_info[0][const.FRAME]
+            video_frame_info_dict = {}
+            for frame_bbox_idx, frame_bbox_info in enumerate(video_frame_info):
+                bbox_object_id = frame_bbox_info[const.METADATA][const.TAG]
+                video_frame_info_dict[bbox_object_id] = frame_bbox_info
+            video_frame_id_to_gt_relation_mask[video_frame_id] = video_frame_info_dict
+
+        # TODO: GT_RELATIONS and GT_RELATION_MASKS are in different order.
+        # We have to include frames to match them here for correct order generation.
+        for frame_idx, detector_bboxes_idx in enumerate(DETECTOR_FOUND_IDX):
+            video_frame_id = None
+            for frame_bbox_idx, frame_bbox_info in enumerate(GT_RELATIONS[frame_idx]):
+                if 'person_bbox' in frame_bbox_info.keys():
+                    frame_human_bbox_idx = frame_bbox_idx
+                    video_frame_id = frame_bbox_info[const.FRAME]
+                    break
+
+            assert video_frame_id is not None # Ensure that a human bbox is found in the frame
+
+            local_human = int(global_idx[FINAL_BBOXES_X[:, 0] == frame_idx][frame_human_bbox_idx])
+            for m, n in enumerate(detector_bboxes_idx):
+                if 'class' in GT_RELATIONS[frame_idx][m].keys():
+                    im_idx.append(frame_idx)
+                    pair.append([local_human, int(global_idx[FINAL_BBOXES_X[:, 0] == frame_idx][int(n)])])
+
+                    frame_bbox = GT_RELATIONS[frame_idx][m]
+                    bbox_object_id = frame_bbox[const.METADATA][const.TAG]
+                    frame_bbox_mask = video_frame_id_to_gt_relation_mask[video_frame_id][bbox_object_id]
+
+                    frame_bbox_a_rels, a_mask = self._process_relationships(frame_bbox, frame_bbox_mask,
+                                                                            const.ATTENTION_RELATIONSHIP)
+                    frame_bbox_s_rels, s_mask = self._process_relationships(frame_bbox, frame_bbox_mask,
+                                                                            const.SPATIAL_RELATIONSHIP)
+                    frame_bbox_c_rels, c_mask = self._process_relationships(frame_bbox, frame_bbox_mask,
+                                                                            const.CONTACTING_RELATIONSHIP)
+
+                    assert len(frame_bbox_a_rels) == len(a_mask), f"GT Relation Mask and GT Relation Data mismatch: {len(frame_bbox_a_rels)} vs {len(a_mask)}"
+                    assert len(frame_bbox_s_rels) == len(s_mask), f"GT Relation Mask and GT Relation Data mismatch: {len(frame_bbox_s_rels)} vs {len(s_mask)}"
+                    assert len(frame_bbox_c_rels) == len(c_mask), f"GT Relation Mask and GT Relation Data mismatch: {len(frame_bbox_c_rels)} vs {len(c_mask)}"
+
+                    a_rel.append(frame_bbox_a_rels)
+                    s_rel.append(frame_bbox_s_rels)
+                    c_rel.append(frame_bbox_c_rels)
+
+                    a_rel_mask.append(a_mask)
+                    s_rel_mask.append(s_mask)
+                    c_rel_mask.append(c_mask)
+
+        return im_idx, pair, a_rel, s_rel, c_rel, a_rel_mask, s_rel_mask, c_rel_mask
 
     def _compute_union_boxes(self, FINAL_BBOXES_X, pair, im_info, im_idx):
         im_idx = torch.tensor(im_idx, dtype=torch.float).to(self.device)
@@ -177,7 +243,99 @@ class Detector(nn.Module):
         union_boxes[:, 1:] = union_boxes[:, 1:] * im_info[0, 2]
         return union_boxes
 
-    def _augment_gt_annotation(self, prediction, gt_annotation, im_info):
+    def _augment_gt_annotation_with_mask(self, prediction, im_info):
+        # Extract values from prediction
+        DETECTOR_FOUND_IDX = prediction[const.DETECTOR_FOUND_IDX]
+        GT_RELATIONS = prediction[const.GT_RELATIONS]
+        SUPPLY_RELATIONS = prediction[const.SUPPLY_RELATIONS]
+        assigned_labels = prediction[const.ASSIGNED_LABELS]
+        FINAL_BASE_FEATURES = prediction[const.FINAL_BASE_FEATURES]
+        FINAL_BBOXES = prediction[const.FINAL_BBOXES]
+        FINAL_SCORES = prediction[const.FINAL_SCORES]
+        FINAL_FEATURES = prediction[const.FINAL_FEATURES]
+
+
+        GT_RELATION_MASKS = prediction[const.GT_RELATION_MASKS]
+        SUPPLY_RELATION_MASKS = prediction[const.SUPPLY_RELATION_MASKS]
+
+        # Initialize variables
+        FINAL_BBOXES_X = torch.tensor([]).to(self.device)
+        FINAL_LABELS_X = torch.tensor([], dtype=torch.int64).to(self.device)
+        FINAL_SCORES_X = torch.tensor([]).to(self.device)
+        FINAL_FEATURES_X = torch.tensor([]).to(self.device)
+        assigned_labels = torch.tensor(assigned_labels, dtype=torch.long).to(self.device)
+
+        for i, supply_relations in enumerate(SUPPLY_RELATIONS):
+            if len(supply_relations) > 0 and self.use_SUPPLY:
+                supply_relation_masks = SUPPLY_RELATION_MASKS[i]
+
+                unfound_gt_bboxes, unfound_gt_classes, one_scores = self._get_unfound_gt_boxes(
+                    supply_relations, im_info, i
+                )
+                DETECTOR_FOUND_IDX[i] = list(
+                    np.concatenate(
+                        (
+                            DETECTOR_FOUND_IDX[i],
+                            np.arange(
+                                start=int(sum(FINAL_BBOXES[:, 0] == i)),
+                                stop=int(sum(FINAL_BBOXES[:, 0] == i)) + len(supply_relations)
+                            )
+                        ), axis=0).astype('int64')
+                )
+                GT_RELATIONS[i].extend(supply_relations)
+                GT_RELATION_MASKS[i].extend(supply_relation_masks)
+
+                pooled_feat = self._compute_pooled_feat(FINAL_BASE_FEATURES[i], unfound_gt_bboxes)
+                unfound_gt_bboxes[:, 0] = i
+                unfound_gt_bboxes[:, 1:] = unfound_gt_bboxes[:, 1:] / im_info[i, 2]
+                FINAL_BBOXES_X = torch.cat(
+                    (FINAL_BBOXES_X, FINAL_BBOXES[FINAL_BBOXES[:, 0] == i], unfound_gt_bboxes))
+                FINAL_LABELS_X = torch.cat(
+                    (FINAL_LABELS_X, assigned_labels[FINAL_BBOXES[:, 0] == i], unfound_gt_classes))
+                FINAL_SCORES_X = torch.cat((FINAL_SCORES_X, FINAL_SCORES[FINAL_BBOXES[:, 0] == i], one_scores))
+                FINAL_FEATURES_X = torch.cat(
+                    (FINAL_FEATURES_X, FINAL_FEATURES[FINAL_BBOXES[:, 0] == i], pooled_feat))
+            else:
+                FINAL_BBOXES_X = torch.cat((FINAL_BBOXES_X, FINAL_BBOXES[FINAL_BBOXES[:, 0] == i]))
+                FINAL_LABELS_X = torch.cat((FINAL_LABELS_X, assigned_labels[FINAL_BBOXES[:, 0] == i]))
+                FINAL_SCORES_X = torch.cat((FINAL_SCORES_X, FINAL_SCORES[FINAL_BBOXES[:, 0] == i]))
+                FINAL_FEATURES_X = torch.cat((FINAL_FEATURES_X, FINAL_FEATURES[FINAL_BBOXES[:, 0] == i]))
+
+        FINAL_DISTRIBUTIONS = torch.softmax(self.fasterRCNN.RCNN_cls_score(FINAL_FEATURES_X)[:, 1:], dim=1)
+        global_idx = torch.arange(start=0, end=FINAL_BBOXES_X.shape[0])  # all bbox indices
+
+        im_idx, pair, a_rel, s_rel, c_rel, a_rel_mask, s_rel_mask, c_rel_mask = self._construct_relations_with_mask(
+            DETECTOR_FOUND_IDX, GT_RELATIONS, FINAL_BBOXES_X, global_idx, GT_RELATION_MASKS
+        )
+        pair = torch.tensor(pair).to(self.device)
+        im_idx = torch.tensor(im_idx, dtype=torch.float).to(self.device)
+
+        # Compute union boxes
+        union_boxes = self._compute_union_boxes(FINAL_BBOXES_X, pair, im_info, im_idx)
+        union_feat = self.fasterRCNN.RCNN_roi_align(FINAL_BASE_FEATURES, union_boxes)
+
+        pair_rois = torch.cat((FINAL_BBOXES_X[pair[:, 0], 1:], FINAL_BBOXES_X[pair[:, 1], 1:]),
+                              1).data.cpu().numpy()
+        spatial_masks = torch.tensor(draw_union_boxes(pair_rois, 27) - 0.5).to(FINAL_FEATURES.device)
+
+        prediction[const.FINAL_BBOXES_X] = FINAL_BBOXES_X
+        prediction[const.FINAL_LABELS_X] = FINAL_LABELS_X
+        prediction[const.FINAL_SCORES_X] = FINAL_SCORES_X
+        prediction[const.FINAL_FEATURES_X] = FINAL_FEATURES_X
+        prediction[const.FINAL_DISTRIBUTIONS] = FINAL_DISTRIBUTIONS
+        prediction[const.PAIR] = pair
+        prediction[const.IM_IDX] = im_idx
+        prediction[const.UNION_FEAT] = union_feat  # Overriding with supplied ground truth data
+        prediction[const.SPATIAL_MASKS] = spatial_masks  # Overriding with supplied ground truth data
+        prediction[const.ATTENTION_REL] = a_rel
+        prediction[const.SPATIAL_REL] = s_rel
+        prediction[const.CONTACTING_REL] = c_rel
+        prediction[const.ATTENTION_REL_MASK] = a_rel_mask
+        prediction[const.SPATIAL_REL_MASK] = s_rel_mask
+        prediction[const.CONTACTING_REL_MASK] = c_rel_mask
+        return prediction
+
+    def _augment_gt_annotation(self, prediction, im_info):
         # Extract values from prediction
         DETECTOR_FOUND_IDX = prediction[const.DETECTOR_FOUND_IDX]
         GT_RELATIONS = prediction[const.GT_RELATIONS]
@@ -233,6 +391,7 @@ class Detector(nn.Module):
         im_idx, pair, a_rel, s_rel, c_rel = self._construct_relations(
             DETECTOR_FOUND_IDX, GT_RELATIONS, FINAL_BBOXES_X, global_idx
         )
+
         pair = torch.tensor(pair).to(self.device)
         im_idx = torch.tensor(im_idx, dtype=torch.float).to(self.device)
 
@@ -276,7 +435,7 @@ class Detector(nn.Module):
         }
         return attribute_dictionary
 
-    def _forward_sgdet(self, im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all):
+    def _forward_sgdet(self, im_data, im_info, gt_boxes, num_boxes, gt_annotation, gt_annotation_mask):
         counter = 0
         counter_image = 0
         FINAL_BBOXES, FINAL_LABELS, FINAL_SCORES, FINAL_FEATURES, FINAL_BASE_FEATURES = self._init_sgdet_tensors()
@@ -304,14 +463,31 @@ class Detector(nn.Module):
         prediction = self._pack_attribute_dictionary(FINAL_BBOXES, FINAL_LABELS, FINAL_SCORES, FINAL_FEATURES,
                                                      FINAL_BASE_FEATURES)
         if self.is_train:
-            DETECTOR_FOUND_IDX, GT_RELATIONS, SUPPLY_RELATIONS, assigned_labels = assign_relations(prediction,
-                                                                                                   gt_annotation,
-                                                                                                   assign_IOU_threshold=0.5)
+
+            if gt_annotation_mask is not None:
+                (DETECTOR_FOUND_IDX, GT_RELATIONS, SUPPLY_RELATIONS,
+                 assigned_labels, GT_RELATION_MASKS, SUPPLY_RELATION_MASKS) = assign_relations_with_mask(prediction,
+                                                                                 gt_annotation,
+                                                                                 gt_annotation_mask,
+                                                                                 assign_IOU_threshold=0.5)
+            else:
+                (DETECTOR_FOUND_IDX, GT_RELATIONS,
+                 SUPPLY_RELATIONS, assigned_labels) = assign_relations(prediction,
+                                                                       gt_annotation,
+                                                                       assign_IOU_threshold=0.5)
+
             prediction[const.DETECTOR_FOUND_IDX] = DETECTOR_FOUND_IDX
             prediction[const.GT_RELATIONS] = GT_RELATIONS
             prediction[const.SUPPLY_RELATIONS] = SUPPLY_RELATIONS
             prediction[const.ASSIGNED_LABELS] = assigned_labels
-            return self._augment_gt_annotation(prediction, gt_annotation, im_info)
+
+            if gt_annotation_mask is not None:
+                assert GT_RELATION_MASKS is not None and SUPPLY_RELATION_MASKS is not None
+                prediction[const.GT_RELATION_MASKS] = GT_RELATION_MASKS
+                prediction[const.SUPPLY_RELATION_MASKS] = SUPPLY_RELATION_MASKS
+                return self._augment_gt_annotation_with_mask(prediction, im_info)
+            else:
+                return self._augment_gt_annotation(prediction, im_info)
         else:
             DETECTOR_FOUND_IDX, GT_RELATIONS, SUPPLY_RELATIONS, assigned_labels = assign_relations(prediction,
                                                                                                    gt_annotation,
@@ -435,7 +611,6 @@ class Detector(nn.Module):
                     FINAL_LABELS[bbox_idx] = frame_bbox[const.CLASS]
                     im_idx.append(frame_idx)
                     pair.append([int(HUMAN_IDX[frame_idx]), bbox_idx])
-
                     if type(frame_bbox[const.ATTENTION_RELATIONSHIP]) == torch.Tensor:
                         a_rel.append(frame_bbox[const.ATTENTION_RELATIONSHIP].tolist())
                         s_rel.append(frame_bbox[const.SPATIAL_RELATIONSHIP].tolist())
@@ -445,7 +620,6 @@ class Detector(nn.Module):
                         a_rel.append(frame_bbox[const.ATTENTION_RELATIONSHIP])
                         s_rel.append(frame_bbox[const.SPATIAL_RELATIONSHIP])
                         c_rel.append(frame_bbox[const.CONTACTING_RELATIONSHIP])
-
                     bbox_idx += 1
         return FINAL_BBOXES, FINAL_LABELS, HUMAN_IDX, im_idx, pair, a_rel, s_rel, c_rel
 
@@ -675,7 +849,7 @@ class Detector(nn.Module):
 
     def forward(self, im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all, gt_annotation_mask=None):
         if self.mode == 'sgdet':
-            attribute_dictionary = self._forward_sgdet(im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all)
+            attribute_dictionary = self._forward_sgdet(im_data, im_info, gt_boxes, num_boxes, gt_annotation, gt_annotation_mask)
         else:
             # Partial annotations are used and the entry dictionary should include details corresponding to the masks!
             # These masks are used selectively apply loss during training!

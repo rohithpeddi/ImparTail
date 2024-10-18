@@ -168,6 +168,8 @@ class PartialAG(BaseAG):
             video_annotation_mask_dict = []
             for video_frame_id, video_frame_annotation_dict in enumerate(video_annotation_dict):
                 video_frame_annotation_mask_dict = []
+                # Get frame_id from the first frame corresponding the video which has person bounding box information
+                frame_id = video_frame_annotation_dict[0][const.FRAME]
                 for frame_obj_id, frame_obj_dict in enumerate(video_frame_annotation_dict):
                     # This consists of information about the person bounding box
                     if frame_obj_id == 0:
@@ -188,6 +190,8 @@ class PartialAG(BaseAG):
                     filtered_spatial = filtered_spatial_rel_class_list[video_id][video_frame_id]
                     filtered_contacting = filtered_contacting_rel_class_list[video_id][video_frame_id]
 
+                    frame_obj_rel_mask_dict[const.FRAME] = frame_id
+                    frame_obj_rel_mask_dict[const.METADATA] = frame_obj_dict[const.METADATA]
                     frame_obj_rel_mask_dict[const.ATTENTION_RELATIONSHIP] = [1 if rel in filtered_attention else 0 for
                                                                              rel in attention_rel]
                     frame_obj_rel_mask_dict[const.SPATIAL_RELATIONSHIP] = [1 if rel in filtered_spatial else 0 for rel

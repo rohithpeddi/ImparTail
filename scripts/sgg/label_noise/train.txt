@@ -2,65 +2,65 @@
 # ---------------------------- SGDET (Scene Graph Determination) --------------------
 # ------------------------------------------------------------------------------
 
-# Partial Annotations with percentage 10
+# Label Noise with percentage 2
 
-python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgdet --use_label_noise --noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgdet --use_label_noise --noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=sgdet --use_label_noise --noise_percentage=10
+python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgdet --use_label_noise --label_noise_percentage=2
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgdet --use_label_noise --label_noise_percentage=2
+python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=sgdet --use_label_noise --label_noise_percentage=2
 
-# Partial Annotations with percentage 40
+# Label Noise with percentage 5
 
-python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgdet --use_label_noise --noise_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgdet --use_label_noise --noise_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=sgdet --use_label_noise --noise_percentage=40
+python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgdet --use_label_noise --label_noise_percentage=5
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgdet --use_label_noise --label_noise_percentage=5
+python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=sgdet --use_label_noise --label_noise_percentage=5
 
-# Partial Annotations with percentage 70
+# Label Noise with percentage 10
 
-python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgdet --use_label_noise --noise_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgdet --use_label_noise --noise_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=sgdet --use_label_noise --noise_percentage=70
+python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgdet --use_label_noise --label_noise_percentage=10
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgdet --use_label_noise --label_noise_percentage=10
+python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=sgdet --use_label_noise --label_noise_percentage=10
 
 
 # ------------------------------------------------------------------------------
 # ---------------- SGCLS (Scene Graph Classification) ----------
 # ------------------------------------------------------------------------------
 
-# Partial Annotations with percentage 10
+# Label Noise with percentage 2
 
-python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgcls --use_label_noise --noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgcls --use_label_noise --noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=sgcls --use_label_noise --noise_percentage=10
+python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgcls --use_label_noise --label_noise_percentage=2
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgcls --use_label_noise --label_noise_percentage=2
+python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=sgcls --use_label_noise --label_noise_percentage=2
 
-# Partial Annotations with percentage 40
+# Label Noise with percentage 5
 
-python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgcls --use_label_noise --noise_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgcls --use_label_noise --noise_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=sgcls --use_label_noise --noise_percentage=40
+python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgcls --use_label_noise --label_noise_percentage=5
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgcls --use_label_noise --label_noise_percentage=5
+python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=sgcls --use_label_noise --label_noise_percentage=5
 
-# Partial Annotations with percentage 70
+# Label Noise with percentage 10
 
-python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgcls --use_label_noise --noise_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgcls --use_label_noise --noise_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=sgcls --use_label_noise --noise_percentage=70
+python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgcls --use_label_noise --label_noise_percentage=10
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgcls --use_label_noise --label_noise_percentage=10
+python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=sgcls --use_label_noise --label_noise_percentage=10
 
 # ------------------------------------------------------------------------------
 # ---------------- PREDCLS (Predicate Classification) ----------
 # ------------------------------------------------------------------------------
 
-# Partial Annotations with percentage 10
+# Label Noise with percentage 2
 
-python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=predcls --use_label_noise --noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=predcls --use_label_noise --noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=predcls --use_label_noise --noise_percentage=10
+python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=predcls --use_label_noise --label_noise_percentage=2
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=predcls --use_label_noise --label_noise_percentage=2
+python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=predcls --use_label_noise --label_noise_percentage=2
 
-# Partial Annotations with percentage 40
+# Label Noise with percentage 5
 
-python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=predcls --use_label_noise --noise_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=predcls --use_label_noise --noise_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=predcls --use_label_noise --noise_percentage=40
+python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=predcls --use_label_noise --label_noise_percentage=5
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=predcls --use_label_noise --label_noise_percentage=5
+python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=predcls --use_label_noise --label_noise_percentage=5
 
-# Partial Annotations with percentage 70
+# Label Noise with percentage 10
 
-python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=predcls --use_label_noise --noise_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=predcls --use_label_noise --noise_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=predcls --use_label_noise --noise_percentage=70
+python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=predcls --use_label_noise --label_noise_percentage=10
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=predcls --use_label_noise --label_noise_percentage=10
+python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=predcls --use_label_noise --label_noise_percentage=10

@@ -12,23 +12,23 @@
 
 # Partial Annotations with percentage 10%
 
-python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_10_sgdet.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_10_sgdet.tar
-python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_label_noise_10_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_2_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_2_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_label_noise_2_sgdet.tar
 
 
 # Partial Annotations with percentage 40%
 
-python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_40_sgdet.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_40_sgdet.tar
-python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_label_noise_40_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_5_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_5_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_label_noise_5_sgdet.tar
 
 
 # Partial Annotations with percentage 70%
 
-python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_70_sgdet.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_70_sgdet.tar
-python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_label_noise_70_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_10_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_10_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_label_noise_10_sgdet.tar
 
 # ------------------------------------------------------------------------------
 # ---------------- SGCLS (Scene Graph Classification) ----------
@@ -36,23 +36,23 @@ python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/ro
 
 # Partial Annotations with percentage 10%
 
-python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_10_sgcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_10_sgcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_label_noise_10_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_2_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_2_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_label_noise_2_sgcls.tar
 
 
 # Partial Annotations with percentage 40%
 
-python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_40_sgcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_40_sgcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_label_noise_40_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_5_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_5_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_label_noise_5_sgcls.tar
 
 
 # Partial Annotations with percentage 70%
 
-python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_70_sgcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_70_sgcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_label_noise_70_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_10_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_10_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_label_noise_10_sgcls.tar
 
 
 # ------------------------------------------------------------------------------
@@ -61,20 +61,20 @@ python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/ro
 
 # Partial Annotations with percentage 10%
 
-python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_10_predcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_10_predcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_label_noise_10_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_2_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_2_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_label_noise_2_predcls.tar
 
 
 # Partial Annotations with percentage 40%
 
-python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_40_predcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_40_predcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_label_noise_40_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_5_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_5_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_label_noise_5_predcls.tar
 
 
 # Partial Annotations with percentage 70%
 
-python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_70_predcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_70_predcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_label_noise_70_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_10_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_10_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_label_noise_10_predcls.tar

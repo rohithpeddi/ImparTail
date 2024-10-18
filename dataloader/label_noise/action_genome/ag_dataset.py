@@ -145,17 +145,17 @@ class LabelNoiseAG(BaseAG):
         # 2. Construct filter based on the probability distribution of the obj class occurrences.
         filtered_attention_rel_class_list = self.filter_annotations_preserve_distribution(
             data=attention_rel_class_list,
-            label_noise_percentage=label_noise
+            label_noise_percentage=label_noise*0.01
         )
 
         filtered_spatial_rel_class_list = self.filter_annotations_preserve_distribution(
             data=spatial_rel_class_list,
-            label_noise_percentage=label_noise
+            label_noise_percentage=label_noise*0.01
         )
 
         filtered_contacting_rel_class_list = self.filter_annotations_preserve_distribution(
             data=contacting_rel_class_list,
-            label_noise_percentage=label_noise
+            label_noise_percentage=label_noise*0.01
         )
 
         # 3. Construct filtered ground truth annotations based on filtered obj class occurrences.

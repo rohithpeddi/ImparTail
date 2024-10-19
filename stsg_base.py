@@ -55,8 +55,8 @@ class STSGBase:
                 # Checkpoint name format for label noise: sttran_ant_label_noise_10_sgdet_future_3_epoch_1.tar
                 self._checkpoint_name_with_epoch = os.path.basename(self._conf.ckpt).split('.')[0]
                 self._checkpoint_name = "_".join(self._checkpoint_name_with_epoch.split('_')[:-2])
-                self._conf.max_window = int(self._checkpoint_name.split('_')[-3])
-                self._conf.mode = self._checkpoint_name.split('_')[-5]
+                self._conf.max_window = int(self._checkpoint_name.split('_')[-1])
+                self._conf.mode = self._checkpoint_name.split('_')[-3]
                 print("--------------------------------------------------------")
                 print(f"Loading checkpoint with name: {self._checkpoint_name}")
                 print(f"Mode: {self._conf.mode}")

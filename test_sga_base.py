@@ -202,7 +202,7 @@ class TestSTSGBase(STSGBase):
 
     def _publish_evaluation_results(self, is_future_frame=True):
         # 1. Collate the evaluation statistics
-        # self._collated_stats = self._collate_evaluation_stats()
+        self._collated_stats = self._collate_evaluation_stats()
         # 2. Write to the CSV File
         self._write_evaluation_statistics(is_future_frame=is_future_frame)
         # 3. Publish the results to Firebase
@@ -367,6 +367,11 @@ class TestSTSGBase(STSGBase):
 
             self._corruption_name = (f"{self._conf.dataset_corruption_mode}_{self._conf.video_corruption_mode}_"
                                      f"{self._conf.dataset_corruption_type}_{self._conf.corruption_severity_level}")
+
+            print("-----------------------------------------------------------------------------------")
+            print(f"Loaded Image Corruption AG dataset with the following corruptions: {self._corruption_name}")
+            print("-----------------------------------------------------------------------------------")
+
         else:
             self._test_dataset = StandardAG(
                 phase="test",
@@ -383,6 +388,10 @@ class TestSTSGBase(STSGBase):
                 collate_fn=ag_data_cuda_collate_fn,
                 pin_memory=False
             )
+
+            print("-----------------------------------------------------------------------------------")
+            print(f"Loaded Standard AG dataset")
+            print("-----------------------------------------------------------------------------------")
 
         self._object_classes = self._test_dataset.object_classes
 
@@ -474,6 +483,10 @@ class TestSTSGBase(STSGBase):
         self._model.eval()
         self._object_detector.is_train = False
         with torch.no_grad():
+            print("--------------------------------------------------------")
+            print("Evaluating the model for future frames predictions")
+            print("--------------------------------------------------------")
+
             for num_video_id in tqdm(range(len(self._dataloader_test)), desc="Testing Progress (Future Frames)",
                                      ascii=True):
                 data = next(test_iter)
@@ -483,15 +496,6 @@ class TestSTSGBase(STSGBase):
 
                 entry = self._object_detector(im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all=None)
                 entry["gt_annotation"] = gt_annotation
-
-                # Load corresponding extracted feature file for comparison
-                # video_id = gt_annotation[0][0]["frame"].split("/")[0]
-                # video_feature_file_path = os.path.join("/data/rohith/ag/features/supervised/test",
-                #                                        f"{video_id}_{self._conf.mode}.pkl")
-                # with open(os.path.join(video_feature_file_path), 'rb') as pkl_file:
-                #     data_dictionary = pickle.load(pkl_file)
-                #
-                # assert torch.equal(entry["features"], data_dictionary["FINAL_FEATURES"])
 
                 # ----------------- Process the video (Method Specific) ---------------------
                 pred = self.process_test_video_future_frame(entry, frame_size, gt_annotation)
@@ -507,6 +511,9 @@ class TestSTSGBase(STSGBase):
             self._publish_evaluation_results(is_future_frame=True)
 
             for i, context_fraction in enumerate(self._context_fractions):
+                print("--------------------------------------------------------")
+                print(f"Evaluating the model for context fraction predictions: {context_fraction}")
+                print("--------------------------------------------------------")
                 test_iter = iter(self._dataloader_test)
                 for num_video_id in tqdm(range(len(self._dataloader_test)),
                                          desc=f"Testing Progress (Context Fraction: {context_fraction})",

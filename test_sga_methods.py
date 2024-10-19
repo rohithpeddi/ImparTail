@@ -156,11 +156,9 @@ class TestSTTranAnt(TestSTSGBase):
         return self.compute_transformer_context_score(result, gt_annotation, context_fraction)
 
     def process_test_video_future_frame(self, entry, frame_size, gt_annotation) -> dict:
-        from lib.supervised.sgg.dsgdetr.track import get_sequence_with_tracking
-
         num_cf = self._conf.baseline_context
         num_ff = self._conf.max_future
-        get_sequence_with_tracking(entry, gt_annotation, self._matcher, frame_size, self._conf.mode)
+        self.get_sequence_no_tracking(entry, self._conf.mode)
         pred = self._model(entry, num_cf, num_ff)
 
         return pred
@@ -239,7 +237,7 @@ class TestDsgDetrAnt(TestSTSGBase):
         self._matcher.eval()
 
     def process_test_video_context(self, video_entry, frame_size, gt_annotation, context_fraction) -> dict:
-        get_sequence_with_tracking(video_entry, gt_annotation, self._matcher, frame_size, self._conf.mode)
+        self.get_sequence_no_tracking(video_entry, self._conf.mode)
         video_entry["gt_annotation"] = gt_annotation
         pred = self._model.forward_single_entry(context_fraction=context_fraction, entry=video_entry)
         num_tf = len(video_entry["im_idx"].unique())

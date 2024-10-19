@@ -13,24 +13,24 @@ python train_sga_methods.py --task_name=sga --method_name=ode --mode=sgdet --max
 python train_sga_methods.py --task_name=sga --method_name=sde --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=10
 
 
-########### Train future frames - 3 future frame Label Noise Annotations with percentage 40%
+########### Train future frames - 3 future frame Label Noise Annotations with percentage 20%
 
-python train_sga_methods.py --task_name=sga --method_name=sttran_ant --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=40
-python train_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=40
-python train_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=40
-python train_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=40
-python train_sga_methods.py --task_name=sga --method_name=ode --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=40
-python train_sga_methods.py --task_name=sga --method_name=sde --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=40
+python train_sga_methods.py --task_name=sga --method_name=sttran_ant --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=20
+python train_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=20
+python train_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=20
+python train_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=20
+python train_sga_methods.py --task_name=sga --method_name=ode --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=20
+python train_sga_methods.py --task_name=sga --method_name=sde --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=20
 
 
-########### Train future frames - 3 future frame Label Noise Annotations with percentage 70%
+########### Train future frames - 3 future frame Label Noise Annotations with percentage 30%
 
-python train_sga_methods.py --task_name=sga --method_name=sttran_ant --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=70
-python train_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=70
-python train_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=70
-python train_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=70
-python train_sga_methods.py --task_name=sga --method_name=ode --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=70
-python train_sga_methods.py --task_name=sga --method_name=sde --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=70
+python train_sga_methods.py --task_name=sga --method_name=sttran_ant --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=30
+python train_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=30
+python train_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=30
+python train_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=30
+python train_sga_methods.py --task_name=sga --method_name=ode --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=30
+python train_sga_methods.py --task_name=sga --method_name=sde --mode=sgdet --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=30
 
 
 # ------------------------------------------------------------------------------
@@ -48,24 +48,24 @@ python train_sga_methods.py --task_name=sga --method_name=ode --mode=sgcls --max
 python train_sga_methods.py --task_name=sga --method_name=sde --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=10
 
 
-########### Train future frames - 3 future frame Label Noise Annotations with percentage 40%
+########### Train future frames - 3 future frame Label Noise Annotations with percentage 20%
 
-python train_sga_methods.py --task_name=sga --method_name=sttran_ant --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=40
-python train_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=40
-python train_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=40
-python train_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=40
-python train_sga_methods.py --task_name=sga --method_name=ode --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=40
-python train_sga_methods.py --task_name=sga --method_name=sde --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=40
+python train_sga_methods.py --task_name=sga --method_name=sttran_ant --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=20
+python train_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=20
+python train_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=20
+python train_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=20
+python train_sga_methods.py --task_name=sga --method_name=ode --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=20
+python train_sga_methods.py --task_name=sga --method_name=sde --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=20
 
 
-########### Train future frames - 3 future frame Label Noise Annotations with percentage 70%
+########### Train future frames - 3 future frame Label Noise Annotations with percentage 30%
 
-python train_sga_methods.py --task_name=sga --method_name=sttran_ant --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=70
-python train_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=70
-python train_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=70
-python train_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=70
-python train_sga_methods.py --task_name=sga --method_name=ode --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=70
-python train_sga_methods.py --task_name=sga --method_name=sde --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=70
+python train_sga_methods.py --task_name=sga --method_name=sttran_ant --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=30
+python train_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=30
+python train_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=30
+python train_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=30
+python train_sga_methods.py --task_name=sga --method_name=ode --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=30
+python train_sga_methods.py --task_name=sga --method_name=sde --mode=sgcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=30
 
 
 # ------------------------------------------------------------------------------
@@ -84,21 +84,21 @@ python train_sga_methods.py --task_name=sga --method_name=ode --mode=predcls --m
 python train_sga_methods.py --task_name=sga --method_name=sde --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=10
 
 
-########### Train future frames - 3 future frame Label Noise Annotations with percentage 40%
+########### Train future frames - 3 future frame Label Noise Annotations with percentage 20%
 
-python train_sga_methods.py --task_name=sga --method_name=sttran_ant --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=40
-python train_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=40
-python train_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=40
-python train_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=40
-python train_sga_methods.py --task_name=sga --method_name=ode --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=40
-python train_sga_methods.py --task_name=sga --method_name=sde --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=40
+python train_sga_methods.py --task_name=sga --method_name=sttran_ant --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=20
+python train_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=20
+python train_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=20
+python train_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=20
+python train_sga_methods.py --task_name=sga --method_name=ode --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=20
+python train_sga_methods.py --task_name=sga --method_name=sde --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=20
 
 
-########### Train future frames - 3 future frame Label Noise Annotations with percentage 70%
+########### Train future frames - 3 future frame Label Noise Annotations with percentage 30%
 
-python train_sga_methods.py --task_name=sga --method_name=sttran_ant --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=70
-python train_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=70
-python train_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=70
-python train_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=70
-python train_sga_methods.py --task_name=sga --method_name=ode --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=70
-python train_sga_methods.py --task_name=sga --method_name=sde --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=70
+python train_sga_methods.py --task_name=sga --method_name=sttran_ant --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=30
+python train_sga_methods.py --task_name=sga --method_name=sttran_gen_ant --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=30
+python train_sga_methods.py --task_name=sga --method_name=dsgdetr_ant --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=30
+python train_sga_methods.py --task_name=sga --method_name=dsgdetr_gen_ant --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=30
+python train_sga_methods.py --task_name=sga --method_name=ode --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=30
+python train_sga_methods.py --task_name=sga --method_name=sde --mode=predcls --max_window=3 --bce_loss --use_label_noise --label_noise_percentage=30

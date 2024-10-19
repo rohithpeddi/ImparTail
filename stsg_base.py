@@ -78,7 +78,7 @@ class STSGBase:
                 if self._conf.use_partial_annotations:
                     self._checkpoint_name = f"{self._conf.method_name}_partial_{self._conf.partial_percentage}_{self._conf.mode}_future_{self._conf.max_window}"
                 elif self._conf.use_label_noise:
-                    self._checkpoint_name = f"{self._conf.method_name}_label_noise_{self._conf.partial_percentage}_{self._conf.mode}_future_{self._conf.max_window}"
+                    self._checkpoint_name = f"{self._conf.method_name}_label_noise_{self._conf.label_noise_percentage}_{self._conf.mode}_future_{self._conf.max_window}"
                 else:
                     self._checkpoint_name = f"{self._conf.method_name}_{self._conf.mode}_future_{self._conf.max_window}"
                 print("--------------------------------------------------------")

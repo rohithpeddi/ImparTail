@@ -98,6 +98,13 @@ class TrainSTSGBase(STSGBase):
                 losses = self.compute_loss(pred, gt_annotation)
                 # ----------------------------------------------------------------------
 
+                if len(losses) == 0:
+                    # NOTE: For PREDCLS where object classification loss is not present
+                    # It can happen that the next frame has no objects intersecting with the last context frame objects
+                    # In those cases there will be no losses in the losses dictionary
+                    print(f'No losses found in the video {video_index}. Skipping...')
+                    continue
+
                 self._optimizer.zero_grad()
                 loss = sum(losses.values())
                 loss.backward()
@@ -457,11 +464,12 @@ class TrainSTSGBase(STSGBase):
 
         if loss_count > 0:
             if self._enable_ant_pred_loss:
+                assert cum_ant_attention_relation_loss != 0 and cum_ant_spatial_relation_loss != 0 and cum_ant_contact_relation_loss != 0
                 losses["anticipated_attention_relation_loss"] = cum_ant_spatial_relation_loss / loss_count
                 losses["anticipated_spatial_relation_loss"] = cum_ant_spatial_relation_loss / loss_count
                 losses["anticipated_contact_relation_loss"] = cum_ant_contact_relation_loss / loss_count
-
             if self._enable_ant_recon_loss:
+                assert cum_ant_latent_loss != 0
                 losses["anticipated_latent_loss"] = cum_ant_latent_loss / loss_count
 
         return losses

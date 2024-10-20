@@ -202,7 +202,7 @@ class TestSTSGBase(STSGBase):
 
     def _publish_evaluation_results(self, is_future_frame=True):
         # 1. Collate the evaluation statistics
-        self._collated_stats = self._collate_evaluation_stats()
+        # self._collated_stats = self._collate_evaluation_stats()
         # 2. Write to the CSV File
         self._write_evaluation_statistics(is_future_frame=is_future_frame)
         # 3. Publish the results to Firebase

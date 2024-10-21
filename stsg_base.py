@@ -121,25 +121,25 @@ class STSGBase:
         window_total_objects = window_mask_ant.shape[0]
 
         # We need to filter out the labels and the specific type of distribution based on the masks
-        # 1. Take ground truth labels for the distribution type for all frames
-        # 2. Filter them to only include the labels that are common with last context frame (Ordered*)
-        tf_gt_labels = torch.tensor(pred[label_type], device=self._device)
-        window_gt_labels = tf_gt_labels[window_mask_gt]
-
-        # 1. Take ground truth labels for loss masks for all frames
-        # 2. Filter them to only include the labels that are common with last context frame (Ordered*)
-        tf_labels_mask = pred[f'{label_type}_mask']
-        window_gt_labels_mask = tf_labels_mask[window_mask_gt]
+        window_gt_labels = []
+        window_gt_labels_mask = []
+        for i in range(window_mask_gt.shape[0]):
+            # 1. Take ground truth labels for the distribution type for all frames
+            # 2. Filter them to only include the labels that are common with last context frame (Ordered*)
+            window_gt_labels.append(pred[label_type][window_mask_gt[i]])
+            # 1. Take ground truth labels for loss masks for all frames
+            # 2. Filter them to only include the labels that are common with last context frame (Ordered*)
+            window_gt_labels_mask.append(pred[f'{label_type}_mask'][window_mask_gt[i]])
 
         # 2. Filter pred distribution to include that are present in the last context frame (Ordered*)
         window_pred_distribution = pred_distribution[window_mask_ant]
 
-        assert window_gt_labels.shape[0] == window_gt_labels_mask.shape[0] == window_pred_distribution.shape[0]
+        assert len(window_gt_labels) == len(window_gt_labels_mask) == window_pred_distribution.shape[0]
 
         # Filter out the distribution based on masks
         filtered_window_pred_distribution = []
         filtered_window_gt_labels = []
-        if not self._conf.bce_loss:
+        if self._conf.bce_loss:
             # For Binary Cross Entropy Loss (BCE)
             for i in range(window_total_objects):
                 gt = torch.tensor(window_gt_labels[i], device=self._device)

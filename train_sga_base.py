@@ -16,6 +16,7 @@ from dataloader.standard.action_genome.ag_dataset import StandardAG
 from dataloader.standard.action_genome.ag_dataset import cuda_collate_fn as ag_data_cuda_collate_fn
 from lib.object_detector import Detector
 from stsg_base import STSGBase
+from constants import Constants as const
 
 
 class TrainSTSGBase(STSGBase):
@@ -82,13 +83,25 @@ class TrainSTSGBase(STSGBase):
                 video_index = data[4]
                 gt_annotation = self._train_dataset.gt_annotations[video_index]
 
+                gt_annotation_mask = None
+                if self._conf.use_partial_annotations:
+                    gt_annotation_mask = self._train_dataset.gt_annotations_mask[video_index]
+
                 if len(gt_annotation) == 0:
                     print(f'No annotations found in the video {video_index}. Skipping...')
                     continue
 
                 frame_size = (im_info[0][:2] / im_info[0, 2]).cpu().data
                 with torch.no_grad():
-                    entry = self._object_detector(im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all=None)
+                    entry = self._object_detector(
+                        im_data,
+                        im_info,
+                        gt_boxes,
+                        num_boxes,
+                        gt_annotation,
+                        im_all=None,
+                        gt_annotation_mask=gt_annotation_mask
+                    )
 
                 # ----------------- Process the video (Method Specific)-----------------
                 pred = self.process_train_video(entry, gt_annotation, frame_size)
@@ -433,10 +446,6 @@ class TrainSTSGBase(STSGBase):
                     print(ant_global_output.shape, mask_ant.shape, global_output.shape, mask_gt.shape)
                     print(mask_ant)
 
-                # TODO: Filter out for missing ground truth annotations corresponding to each distribution!
-                # For partial annotations ground truth might not contain all the annotations!
-                # In such cases, we have to filter out the outputs of ...dist[mask_ant] and ...label[mask_gt] together.
-
                 # 2. Anticipated Attention Relationship Loss
                 loss_count += 1
                 ant_attention_relation_loss = self._ce_loss(
@@ -474,6 +483,107 @@ class TrainSTSGBase(STSGBase):
 
         return losses
 
+    def compute_ff_ant_loss_with_mask(self, pred, losses, attention_label, spatial_label, contact_label):
+        global_output = pred["global_output"]
+        ant_output = pred["output"]
+
+        cum_ant_attention_relation_loss = 0
+        cum_ant_spatial_relation_loss = 0
+        cum_ant_contact_relation_loss = 0
+        cum_ant_latent_loss = 0
+
+        loss_count = 0
+        count = 0
+
+        num_cf = self._conf.baseline_context
+        num_tf = len(pred["im_idx"].unique())
+        while num_cf + 1 <= num_tf:
+            ant_spatial_distribution = ant_output[count]["spatial_distribution"]
+            ant_contact_distribution = ant_output[count]["contacting_distribution"]
+            ant_attention_distribution = ant_output[count]["attention_distribution"]
+            ant_global_output = ant_output[count]["global_output"]
+
+            mask_ant = ant_output[count]["mask_ant"].cpu().numpy()
+            mask_gt = ant_output[count]["mask_gt"].cpu().numpy()
+
+            #TODO: Check if different loss categories masks are required
+            if len(mask_ant) == 0:
+                assert len(mask_gt) == 0
+            else:
+                # 1. Reconstruction Loss
+                try:
+                    ant_anticipated_latent_loss = self._conf.hp_recon_loss * self._abs_loss(
+                        ant_global_output[mask_ant],
+                        global_output[mask_gt]
+                    ).mean()
+                except:
+                    ant_anticipated_latent_loss = 0
+                    print(ant_global_output.shape, mask_ant.shape, global_output.shape, mask_gt.shape)
+                    print(mask_ant)
+
+                cum_ant_latent_loss += ant_anticipated_latent_loss
+
+                # 2. Anticipated Attention Relationship Loss
+                loss_count += 1
+
+                # 2a. Anticipated Attention Relationship Loss
+                filtered_ant_attention_distribution, filtered_attention_label = self._prepare_labels_and_distribution(
+                    pred=ant_output[count],
+                    distribution_type="attention_distribution",
+                    label_type=const.ATTENTION_GT,
+                    max_len=3
+                )
+
+
+
+                filtered_ant_attention_distribution = ant_attention_distribution[mask_ant][attention_loss_mask == 1]
+                filtered_attention_label = attention_label[mask_gt][attention_loss_mask == 1]
+                if len(filtered_ant_attention_distribution) > 0:
+                    ant_attention_relation_loss = self._ce_loss(
+                        filtered_ant_attention_distribution,
+                        filtered_attention_label
+                    ).mean()
+                    cum_ant_attention_relation_loss += ant_attention_relation_loss
+
+                # 2b. Anticipated Spatial Relationship Loss
+                filtered_ant_spatial_distribution = ant_spatial_distribution[mask_ant][loss_mask == 1]
+                filtered_spatial_label = spatial_label[mask_gt][loss_mask == 1]
+                if len(filtered_ant_spatial_distribution) > 0:
+                    if not self._conf.bce_loss:
+                        ant_spatial_relation_loss = self._mlm_loss(filtered_ant_spatial_distribution,
+                                                                   filtered_spatial_label).mean()
+                    else:
+                        ant_spatial_relation_loss = self._bce_loss(filtered_ant_spatial_distribution,
+                                                                   filtered_spatial_label).mean()
+                    cum_ant_spatial_relation_loss += ant_spatial_relation_loss
+
+                # 2c. Anticipated Contact Relationship Loss
+                filtered_ant_contact_distribution = ant_contact_distribution[mask_ant][loss_mask == 1]
+                filtered_contact_label = contact_label[mask_gt][loss_mask == 1]
+                if len(filtered_ant_contact_distribution) > 0:
+                    if not self._conf.bce_loss:
+                        ant_contact_relation_loss = self._mlm_loss(filtered_ant_contact_distribution,
+                                                                   filtered_contact_label).mean()
+                    else:
+                        ant_contact_relation_loss = self._bce_loss(filtered_ant_contact_distribution,
+                                                                   filtered_contact_label).mean()
+                    cum_ant_contact_relation_loss += ant_contact_relation_loss
+
+            num_cf += 1
+            count += 1
+
+        if loss_count > 0:
+            if self._enable_ant_pred_loss:
+                assert cum_ant_attention_relation_loss != 0 and cum_ant_spatial_relation_loss != 0 and cum_ant_contact_relation_loss != 0
+                losses["anticipated_attention_relation_loss"] = cum_ant_spatial_relation_loss / loss_count
+                losses["anticipated_spatial_relation_loss"] = cum_ant_spatial_relation_loss / loss_count
+                losses["anticipated_contact_relation_loss"] = cum_ant_contact_relation_loss / loss_count
+            if self._enable_ant_recon_loss:
+                assert cum_ant_latent_loss != 0
+                losses["anticipated_latent_loss"] = cum_ant_latent_loss / loss_count
+
+        return losses
+
     def compute_baseline_ant_loss(self, pred):
         attention_label, spatial_label, contact_label = self.compute_gt_relationship_labels(pred)
 
@@ -483,6 +593,81 @@ class TrainSTSGBase(STSGBase):
                 losses['object_loss'] = self._ce_loss(pred['distribution'], pred['labels']).mean()
 
         losses = self.compute_ff_ant_loss(pred, losses, attention_label, spatial_label, contact_label)
+        return losses
+
+    def compute_baseline_ant_loss_with_mask(self, pred):
+        attention_label, spatial_label, contact_label = self.compute_gt_relationship_labels(pred)
+
+        losses = {}
+        if self._conf.mode == 'sgcls' or self._conf.mode == 'sgdet':
+            if self._enable_obj_class_loss:
+                losses['object_loss'] = self._ce_loss(pred['distribution'], pred['labels']).mean()
+
+        losses = self.compute_ff_ant_loss_with_mask(pred, losses, attention_label, spatial_label, contact_label)
+        return losses
+
+    def compute_baseline_gen_ant_loss_with_mask(self, pred):
+        losses = {}
+        # 1. Object Loss
+        if self._conf.mode == 'sgcls' or self._conf.mode == 'sgdet':
+            if self._enable_obj_class_loss:
+                losses['object_loss'] = self._ce_loss(pred['distribution'], pred['labels']).mean()
+
+        attention_label, spatial_label, contact_label = self.compute_gt_relationship_labels(pred)
+
+        # 2. Attention Loss
+        attention_distribution = pred["gen_attention_distribution"]
+        attention_label = torch.tensor(pred["attention_gt"], dtype=torch.long).to(device=self._device).squeeze()
+        attention_label_mask = torch.tensor(pred[const.ATTENTION_GT_MASK], dtype=torch.float32).to(
+            device=self._device).squeeze()
+        assert attention_label.shape == attention_label_mask.shape
+
+        # Change the shape of the attention label to the format [1] if it defaults to a singular value
+        if len(attention_label.shape) == 0:
+            attention_label = attention_label.unsqueeze(0)
+            attention_label_mask = attention_label_mask.unsqueeze(0)
+
+        # Filter attention distribution and attention label based on the attention label mask
+        filtered_attention_distribution = attention_distribution[attention_label_mask == 1]
+        filtered_attention_label = attention_label[attention_label_mask == 1]
+        assert filtered_attention_distribution.shape[0] == filtered_attention_label.shape[0]
+
+        losses["gen_attention_relation_loss"] = self._ce_loss(filtered_attention_distribution, filtered_attention_label).mean()
+
+        # 3. Spatial Loss
+        filtered_spatial_distribution, filtered_spatial_labels = self._prepare_labels_and_distribution(
+            pred=pred,
+            distribution_type="gen_spatial_distribution",
+            label_type=const.SPATIAL_GT,
+            max_len=6
+        )
+
+        if filtered_spatial_distribution is not None and filtered_spatial_labels is not None:
+            if not self._conf.bce_loss:
+                losses["gen_spatial_relation_loss"] = self._mlm_loss(filtered_spatial_distribution,
+                                                                     filtered_spatial_labels).mean()
+            else:
+                losses["gen_spatial_relation_loss"] = self._bce_loss(filtered_spatial_distribution,
+                                                                     filtered_spatial_labels).mean()
+
+        # 4. Contacting Loss
+        filtered_contact_distribution, filtered_contact_labels = self._prepare_labels_and_distribution(
+            pred=pred,
+            distribution_type="gen_contacting_distribution",
+            label_type=const.CONTACTING_GT,
+            max_len=17
+        )
+
+        if filtered_contact_distribution is not None and filtered_contact_labels is not None:
+            if not self._conf.bce_loss:
+                losses["gen_contact_relation_loss"] = self._mlm_loss(filtered_contact_distribution,
+                                                                        filtered_contact_labels).mean()
+            else:
+                losses["gen_contact_relation_loss"] = self._bce_loss(filtered_contact_distribution,
+                                                                        filtered_contact_labels).mean()
+        # 5. Anticipation Loss
+        losses = self.compute_ff_ant_loss_with_mask(pred, losses, attention_label, spatial_label, contact_label)
+
         return losses
 
     def compute_baseline_gen_ant_loss(self, pred):
@@ -495,9 +680,6 @@ class TrainSTSGBase(STSGBase):
 
         losses = self.compute_ff_ant_loss(pred, losses, attention_label, spatial_label, contact_label)
 
-        # TODO: Filter out for missing ground truth annotations corresponding to each distribution!
-        # For partial relationship annotations ground truth might not contain all the annotations!
-        # In such cases, we have to filter out the outputs of gen.....dist and ...label together.
         if self._enable_gen_pred_class_loss:
             attention_distribution = pred["gen_attention_distribution"]
             spatial_distribution = pred["gen_spatial_distribution"]

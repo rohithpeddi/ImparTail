@@ -115,7 +115,7 @@ class BaseTransformer(nn.Module):
         padding_mask = torch.cat([padding_mask, additional_column], dim=1)
         return padding_mask
 
-    def generate_future_ff_rels_for_context(self, entry, so_rels_feats_tf, obj_seqs_tf, num_cf, num_tf, num_ff):
+    def generate_ff_rels_for_context(self, entry, so_rels_feats_tf, obj_seqs_tf, num_cf, num_tf, num_ff):
         num_ff = min(num_ff, num_tf - num_cf)
         ff_start_id = entry["im_idx"].unique()[num_cf]
         cf_end_id = entry["im_idx"].unique()[num_cf - 1]

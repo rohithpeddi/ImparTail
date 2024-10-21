@@ -37,7 +37,7 @@ class TrainSTTranAnt(TrainSTSGBase):
 
     def process_train_video(self, entry, gt_annotation, frame_size) -> dict:
         self.get_sequence_no_tracking(entry, self._conf.mode)
-        pred = self._model(entry, self._conf.baseline_context, self._conf.max_future)
+        pred = self._model(entry, self._conf.baseline_context, self._conf.max_window)
         return pred
 
     def process_test_video(self, entry, gt_annotation, frame_size) -> dict:
@@ -48,7 +48,10 @@ class TrainSTTranAnt(TrainSTSGBase):
         return pred
 
     def compute_loss(self, pred, gt) -> dict:
-        losses = self.compute_baseline_ant_loss(pred)
+        if self._conf.use_partial_annotations:
+            losses = self.compute_baseline_ant_loss_with_mask(pred)
+        else:
+            losses = self.compute_baseline_ant_loss(pred)
         return losses
 
     def process_evaluation_score(self, pred, gt):
@@ -86,7 +89,7 @@ class TrainSTTranGenAnt(TrainSTSGBase):
 
     def process_train_video(self, entry, gt_annotation, frame_size) -> dict:
         self.get_sequence_no_tracking(entry, self._conf.mode)
-        pred = self._model(entry, self._conf.baseline_context, self._conf.max_future)
+        pred = self._model(entry, self._conf.baseline_context, self._conf.max_window)
         return pred
 
     def process_test_video(self, entry, gt_annotation, frame_size) -> dict:
@@ -97,7 +100,10 @@ class TrainSTTranGenAnt(TrainSTSGBase):
         return pred
 
     def compute_loss(self, pred, gt) -> dict:
-        losses = self.compute_baseline_gen_ant_loss(pred)
+        if self._conf.use_partial_annotations:
+            losses = self.compute_baseline_gen_ant_loss_with_mask(pred)
+        else:
+            losses = self.compute_baseline_gen_ant_loss(pred)
         return losses
 
     def process_evaluation_score(self, pred, gt):
@@ -136,7 +142,7 @@ class TrainDsgDetrAnt(TrainSTSGBase):
 
     def process_train_video(self, entry, gt_annotation, frame_size) -> dict:
         get_sequence_with_tracking(entry, gt_annotation, self._matcher, frame_size, self._conf.mode)
-        pred = self._model(entry, self._conf.baseline_context, self._conf.max_future)
+        pred = self._model(entry, self._conf.baseline_context, self._conf.max_window)
         return pred
 
     def process_test_video(self, entry, gt_annotation, frame_size) -> dict:
@@ -147,7 +153,10 @@ class TrainDsgDetrAnt(TrainSTSGBase):
         return pred
 
     def compute_loss(self, pred, gt) -> dict:
-        losses = self.compute_baseline_ant_loss(pred)
+        if self._conf.use_partial_annotations:
+            losses = self.compute_baseline_ant_loss_with_mask(pred)
+        else:
+            losses = self.compute_baseline_ant_loss(pred)
         return losses
 
     def process_evaluation_score(self, pred, gt):
@@ -186,7 +195,7 @@ class TrainDsgDetrGenAnt(TrainSTSGBase):
 
     def process_train_video(self, entry, gt_annotation, frame_size) -> dict:
         get_sequence_with_tracking(entry, gt_annotation, self._matcher, frame_size, self._conf.mode)
-        pred = self._model(entry, self._conf.baseline_context, self._conf.max_future)
+        pred = self._model(entry, self._conf.baseline_context, self._conf.max_window)
         return pred
 
     def process_test_video(self, entry, gt_annotation, frame_size) -> dict:
@@ -197,7 +206,10 @@ class TrainDsgDetrGenAnt(TrainSTSGBase):
         return pred
 
     def compute_loss(self, pred, gt) -> dict:
-        losses = self.compute_baseline_gen_ant_loss(pred)
+        if self._conf.use_partial_annotations:
+            losses = self.compute_baseline_gen_ant_loss_with_mask(pred)
+        else:
+            losses = self.compute_baseline_gen_ant_loss(pred)
         return losses
 
     def process_evaluation_score(self, pred, gt):

@@ -128,8 +128,8 @@ class DsgDetrGenAnt(BaseTransformer):
         num_cf = min(int(math.ceil(context_fraction * num_tf)), num_tf - 1)
         num_ff = num_tf - num_cf
 
-        result[count] = self.generate_future_ff_rels_for_context(entry, spa_temp_so_rels_feats_tf,
-                                                                 obj_seqs_tf, num_cf, num_tf, num_ff)
+        result[count] = self.generate_ff_rels_for_context(entry, spa_temp_so_rels_feats_tf,
+                                                          obj_seqs_tf, num_cf, num_tf, num_ff)
         entry["output"] = result
         entry["global_output"] = spa_temp_so_rels_feats_tf
         entry["gen_attention_distribution"] = self.gen_a_rel_compress(spa_temp_so_rels_feats_tf)
@@ -164,8 +164,8 @@ class DsgDetrGenAnt(BaseTransformer):
         num_cf = min(num_cf, num_tf - 1)
         while num_cf + 1 <= num_tf:
             num_ff = min(num_ff, num_tf - num_cf)
-            result[count] = self.generate_future_ff_rels_for_context(entry, spa_temp_so_rels_feats_tf, obj_seqs_tf,
-                                                                     num_cf, num_tf, num_ff)
+            result[count] = self.generate_ff_rels_for_context(entry, spa_temp_so_rels_feats_tf, obj_seqs_tf,
+                                                              num_cf, num_tf, num_ff)
             count += 1
             num_cf += 1
         entry["gen_attention_distribution"] = self.gen_a_rel_compress(spa_temp_so_rels_feats_tf)

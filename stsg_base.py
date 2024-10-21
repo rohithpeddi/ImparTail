@@ -107,6 +107,54 @@ class STSGBase:
         else:
             raise NotImplementedError
 
+
+    def _prepare_ant_labels_and_distribution(self, pred, distribution_type, label_type, max_len, mask_ant, mask_gt):
+        total_labels = len(pred[label_type][mask_gt])
+        pred_distribution = pred[distribution_type][mask_ant]
+
+        # Filter out both the distribution and labels if all the labels are masked
+        # Note: Loss should not include items if all the labels are masked
+        filtered_labels = []
+        filtered_distribution = []
+        if not self._conf.bce_loss:
+            # For Multi Label Margin Loss (MLM)
+            for i in range(total_labels):
+                gt = torch.tensor(pred[label_type][i], device=self._device)
+                loss_mask = torch.tensor(pred[f'{label_type}_mask'][i], device=self._device)
+                gt_masked = gt[loss_mask == 1]
+                pred_distribution_i = pred_distribution[i]
+
+                if gt_masked.shape[0] == 0:
+                    continue
+                else:
+                    label = -torch.ones([max_len], dtype=torch.long, device=self._device)
+                    label[:gt_masked.size(0)] = gt_masked
+                    filtered_labels.append(label)
+                    filtered_distribution.append(pred_distribution_i)
+        else:
+            # For Binary Cross Entropy Loss (BCE)
+            for i in range(total_labels):
+                gt = torch.tensor(pred[label_type][i], device=self._device)
+                loss_mask = torch.tensor(pred[f'{label_type}_mask'][i], device=self._device)
+                gt_masked = gt[loss_mask == 1]
+                pred_distribution_i = pred_distribution[i]
+
+                if gt_masked.shape[0] == 0:
+                    continue
+                else:
+                    label = torch.zeros([max_len], dtype=torch.float32, device=self._device)
+                    label[gt_masked] = 1
+                    filtered_labels.append(label)
+                    filtered_distribution.append(pred_distribution_i)
+
+        if len(filtered_labels) == 0 and len(filtered_distribution) == 0:
+            return None, None
+
+        filtered_labels = torch.stack(filtered_labels)
+        filtered_distribution = torch.stack(filtered_distribution)
+
+        return filtered_distribution, filtered_labels
+
     def _init_scheduler(self):
         self._scheduler = ReduceLROnPlateau(self._optimizer, "max", patience=1, factor=0.5, verbose=True,
                                             threshold=1e-4, threshold_mode="abs", min_lr=1e-7)

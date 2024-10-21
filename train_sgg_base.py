@@ -56,53 +56,6 @@ class TrainSGGBase(STSGBase):
         ).to(device=self._device)
         self._object_detector.eval()
 
-    def _prepare_labels_and_distribution(self, pred, distribution_type, label_type, max_len):
-        total_labels = len(pred[label_type])
-        pred_distribution = pred[distribution_type]
-
-        # Filter out both the distribution and labels if all the labels are masked
-        # Note: Loss should not include items if all the labels are masked
-        filtered_labels = []
-        filtered_distribution = []
-        if not self._conf.bce_loss:
-            # For Multi Label Margin Loss (MLM)
-            for i in range(total_labels):
-                gt = torch.tensor(pred[label_type][i], device=self._device)
-                mask = torch.tensor(pred[f'{label_type}_mask'][i], device=self._device)
-                gt_masked = gt[mask == 1]
-                pred_distribution_i = pred_distribution[i]
-
-                if gt_masked.shape[0] == 0:
-                    continue
-                else:
-                    label = -torch.ones([max_len], dtype=torch.long, device=self._device)
-                    label[:gt_masked.size(0)] = gt_masked
-                    filtered_labels.append(label)
-                    filtered_distribution.append(pred_distribution_i)
-        else:
-            # For Binary Cross Entropy Loss (BCE)
-            for i in range(total_labels):
-                gt = torch.tensor(pred[label_type][i], device=self._device)
-                mask = torch.tensor(pred[f'{label_type}_mask'][i], device=self._device)
-                gt_masked = gt[mask == 1]
-                pred_distribution_i = pred_distribution[i]
-
-                if gt_masked.shape[0] == 0:
-                    continue
-                else:
-                    label = torch.zeros([max_len], dtype=torch.float32, device=self._device)
-                    label[gt_masked] = 1
-                    filtered_labels.append(label)
-                    filtered_distribution.append(pred_distribution_i)
-
-        if len(filtered_labels) == 0 and len(filtered_distribution) == 0:
-            return None, None
-
-        filtered_labels = torch.stack(filtered_labels)
-        filtered_distribution = torch.stack(filtered_distribution)
-
-        return filtered_distribution, filtered_labels
-
     def _calculate_losses_for_partial_annotations(self, pred):
         losses = {}
 

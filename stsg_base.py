@@ -186,9 +186,9 @@ class STSGBase:
 
         return filtered_distribution, filtered_labels
 
-    def _prepare_labels_and_distribution(self, pred, distribution_type, label_type, max_len, mask_ant, mask_gt):
-        total_labels = len(pred[label_type][mask_gt])
-        pred_distribution = pred[distribution_type][mask_ant]
+    def _prepare_labels_and_distribution(self, pred, distribution_type, label_type, max_len):
+        total_labels = len(pred[label_type])
+        pred_distribution = pred[distribution_type]
 
         # Filter out both the distribution and labels if all the labels are masked
         # Note: Loss should not include items if all the labels are masked
@@ -198,8 +198,8 @@ class STSGBase:
             # For Multi Label Margin Loss (MLM)
             for i in range(total_labels):
                 gt = torch.tensor(pred[label_type][i], device=self._device)
-                loss_mask = torch.tensor(pred[f'{label_type}_mask'][i], device=self._device)
-                gt_masked = gt[loss_mask == 1]
+                mask = torch.tensor(pred[f'{label_type}_mask'][i], device=self._device)
+                gt_masked = gt[mask == 1]
                 pred_distribution_i = pred_distribution[i]
 
                 if gt_masked.shape[0] == 0:
@@ -213,8 +213,8 @@ class STSGBase:
             # For Binary Cross Entropy Loss (BCE)
             for i in range(total_labels):
                 gt = torch.tensor(pred[label_type][i], device=self._device)
-                loss_mask = torch.tensor(pred[f'{label_type}_mask'][i], device=self._device)
-                gt_masked = gt[loss_mask == 1]
+                mask = torch.tensor(pred[f'{label_type}_mask'][i], device=self._device)
+                gt_masked = gt[mask == 1]
                 pred_distribution_i = pred_distribution[i]
 
                 if gt_masked.shape[0] == 0:

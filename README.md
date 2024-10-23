@@ -141,6 +141,8 @@ Follow [this](https://www.youtube.com/watch?v=aai42Qp6L28) for changing gcc vers
 
 Download pretrained fasterRCNN model [here](https://utdallas.box.com/s/1pspm5x8etlczoklyw4bclotsmlejagj) and place in fasterRCNN/models/
 
+Download the pkl file from [here](https://utdallas.box.com/s/wioo5obxkggs7lyqftvp64fkbs2uz4eu) and place it in dataloader/
+
 
 ------
 

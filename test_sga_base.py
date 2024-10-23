@@ -217,7 +217,17 @@ class TestSTSGBase(STSGBase):
         if is_future_frame:
             # Create the results file
             for i, future_frame_window in enumerate(self._future_frame_windows):
-                file_name = f'{self._conf.method_name}_{self._conf.mode}_train_{self._conf.max_window}_test_{future_frame_window}_{self._corruption_name}.csv'
+                if self._conf.use_input_corruptions:
+                    file_name = f'{self._conf.method_name}_{self._conf.mode}_train_{self._conf.max_window}_test_{future_frame_window}_{self._corruption_name}.csv'
+                elif self._conf.use_partial_annotations:
+                    file_name = (f'{self._conf.method_name}_partial_{self._conf.partial_percentage}_'
+                                 f'{self._conf.mode}_{self._conf.max_window}_test_{future_frame_window}.csv')
+                elif self._conf.use_label_noise:
+                    file_name = (f'{self._conf.method_name}_label_noise_{self._conf.label_noise_percentage}_'
+                                 f'{self._conf.mode}_{self._conf.max_window}_test_{future_frame_window}.csv')
+                else:
+                    file_name = f'{self._conf.method_name}_{self._conf.mode}_train_{self._conf.max_window}_test_{future_frame_window}.csv'
+
                 results_file_path = os.path.join(mode_results_dir, file_name)
 
                 with open(results_file_path, "a", newline='') as activity_idx_step_idx_annotation_csv_file:
@@ -242,7 +252,17 @@ class TestSTSGBase(STSGBase):
 
         if not is_future_frame:
             for i, context_fraction in enumerate(self._context_fractions):
-                file_name = f'{self._conf.method_name}_{self._conf.mode}_train_{self._conf.max_window}_test_{context_fraction}_{self._corruption_name}.csv'
+                if self._conf.use_input_corruptions:
+                    file_name = f'{self._conf.method_name}_{self._conf.mode}_train_{self._conf.max_window}_test_{context_fraction}_{self._corruption_name}.csv'
+                elif self._conf.use_partial_annotations:
+                    file_name = (f'{self._conf.method_name}_partial_{self._conf.partial_percentage}_'
+                                 f'{self._conf.mode}_{self._conf.max_window}_test_{context_fraction}.csv')
+                elif self._conf.use_label_noise:
+                    file_name = (f'{self._conf.method_name}_label_noise_{self._conf.label_noise_percentage}_'
+                                 f'{self._conf.mode}_{self._conf.max_window}_test_{context_fraction}.csv')
+                else:
+                    file_name = f'{self._conf.method_name}_{self._conf.mode}_train_{self._conf.max_window}_test_{context_fraction}.csv'
+
                 results_file_path = os.path.join(mode_results_dir, file_name)
 
                 with open(results_file_path, "a", newline='') as activity_idx_step_idx_annotation_csv_file:

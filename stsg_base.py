@@ -107,7 +107,85 @@ class STSGBase:
         else:
             raise NotImplementedError
 
-    def _prepare_ant_labels_and_distribution(self, pred, count, distribution_type, label_type, max_len):
+    def _prepare_scenesayer_ant_labels_and_distribution(self, pred, count, distribution_type, label_type, max_len):
+        pred_distribution = pred[distribution_type][count-1]
+
+        # Intersection between the objects in the last context frame and the objects in each future frame flattened
+        window_mask_curr = pred["mask_curr_" + str(count)]
+        window_mask_gt = pred["mask_gt_" + str(count)]
+
+        assert window_mask_curr.shape[0] == window_mask_gt.shape[0]
+
+        # Total number of objects in this window
+        window_total_objects = window_mask_curr.shape[0]
+
+        # We need to filter out the labels and the specific type of distribution based on the masks
+        window_gt_labels = []
+        window_gt_labels_mask = []
+        for i in range(window_mask_gt.shape[0]):
+            # 1. Take ground truth labels for the distribution type for all frames
+            # 2. Filter them to only include the labels that are common with last context frame (Ordered*)
+            window_gt_labels.append(pred[label_type][window_mask_gt[i]])
+            # 1. Take ground truth labels for loss masks for all frames
+            # 2. Filter them to only include the labels that are common with last context frame (Ordered*)
+            window_gt_labels_mask.append(pred[f'{label_type}_mask'][window_mask_gt[i]])
+
+        # 2. Filter pred distribution to include that are present in the last context frame (Ordered*)
+        window_pred_distribution = pred_distribution[window_mask_curr]
+
+        assert len(window_gt_labels) == len(window_gt_labels_mask) == window_pred_distribution.shape[0]
+
+        # Filter out the distribution based on masks
+        filtered_window_pred_distribution = []
+        filtered_window_gt_labels = []
+        if self._conf.bce_loss:
+            # For Binary Cross Entropy Loss (BCE)
+            for i in range(window_total_objects):
+                gt = torch.tensor(window_gt_labels[i], device=self._device)
+                loss_mask = torch.tensor(window_gt_labels_mask[i], device=self._device)
+
+                assert gt.shape[0] == loss_mask.shape[0]
+
+                gt_masked = gt[loss_mask == 1]
+                pred_distribution_i = window_pred_distribution[i]
+
+                if gt_masked.shape[0] == 0:
+                    continue
+                else:
+                    label = torch.zeros([max_len], dtype=torch.float32, device=self._device)
+                    label[gt_masked] = 1
+                    filtered_window_gt_labels.append(label)
+                    filtered_window_pred_distribution.append(pred_distribution_i)
+        else:
+            # For Multi Label Margin Loss (MLM)
+            for i in range(window_total_objects):
+                gt = torch.tensor(window_gt_labels[i], device=self._device)
+                loss_mask = torch.tensor(window_gt_labels_mask[i], device=self._device)
+
+                assert gt.shape[0] == loss_mask.shape[0]
+
+                gt_masked = gt[loss_mask == 1]
+                pred_distribution_i = window_pred_distribution[i]
+
+                if gt_masked.shape[0] == 0:
+                    continue
+                else:
+                    label = -torch.ones([max_len], dtype=torch.long, device=self._device)
+                    label[:gt_masked.size(0)] = gt_masked
+                    filtered_window_gt_labels.append(label)
+                    filtered_window_pred_distribution.append(pred_distribution_i)
+
+        if len(filtered_window_gt_labels) == 0 and len(filtered_window_pred_distribution) == 0:
+            return None, None
+
+        filtered_labels = torch.stack(filtered_window_gt_labels)
+        filtered_distribution = torch.stack(filtered_window_pred_distribution)
+
+        assert filtered_labels.shape[0] == filtered_distribution.shape[0]
+
+        return filtered_distribution, filtered_labels
+
+    def _prepare_transformer_ant_labels_and_distribution(self, pred, count, distribution_type, label_type, max_len):
         window_pred = pred["output"][count]
         pred_distribution = window_pred[distribution_type]
 

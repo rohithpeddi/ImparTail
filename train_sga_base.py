@@ -405,6 +405,215 @@ class TrainSTSGBase(STSGBase):
 
         return losses
 
+    def compute_scene_sayer_loss_with_mask(self, pred, model_ratio):
+        losses = {}
+        # --------------------------------------------------------------------------------------------
+        # 1. Object Loss
+        # --------------------------------------------------------------------------------------------
+        if self._conf.mode == 'sgcls' or self._conf.mode == 'sgdet':
+            if self._enable_obj_class_loss:
+                losses['object_loss'] = self._ce_loss(pred['distribution'], pred['labels'])
+
+        # --------------------------------------------------------------------------------------------
+        # 2. Attention Loss for Generation
+        # --------------------------------------------------------------------------------------------
+        attention_distribution = pred["attention_distribution"]
+        attention_label = torch.tensor(pred["attention_gt"], dtype=torch.long).to(device=self._device).squeeze()
+        attention_label_mask = torch.tensor(pred[const.ATTENTION_GT_MASK], dtype=torch.float32).to(
+            device=self._device).squeeze()
+        assert attention_label.shape == attention_label_mask.shape
+
+        # Change the shape of the attention label to the format [1] if it defaults to a singular value
+        if len(attention_label.shape) == 0:
+            attention_label = attention_label.unsqueeze(0)
+            attention_label_mask = attention_label_mask.unsqueeze(0)
+
+        # Filter attention distribution and attention label based on the attention label mask
+        filtered_attention_distribution = attention_distribution[attention_label_mask == 1]
+        filtered_attention_label = attention_label[attention_label_mask == 1]
+        assert filtered_attention_distribution.shape[0] == filtered_attention_label.shape[0]
+
+        losses["attention_relation_loss"] = self._ce_loss(filtered_attention_distribution, filtered_attention_label)
+
+        # --------------------------------------------------------------------------------------------
+        # 3. Spatial Loss for Generation
+        # --------------------------------------------------------------------------------------------
+        if not self._conf.bce_loss:
+            spatial_label = -torch.ones([len(pred["spatial_gt"]), 6], dtype=torch.long).to(device=self._device)
+            for i in range(len(pred["spatial_gt"])):
+                spatial_label[i, : len(pred["spatial_gt"][i])] = torch.tensor(pred["spatial_gt"][i])
+        else:
+            spatial_label = torch.zeros([len(pred["spatial_gt"]), 6], dtype=torch.float32).to(device=self._device)
+            for i in range(len(pred["spatial_gt"])):
+                spatial_label[i, pred["spatial_gt"][i]] = 1
+
+        filtered_spatial_distribution, filtered_spatial_labels = self._prepare_labels_and_distribution(
+            pred=pred,
+            distribution_type="spatial_distribution",
+            label_type=const.SPATIAL_GT,
+            max_len=6
+        )
+
+        if filtered_spatial_distribution is not None and filtered_spatial_labels is not None:
+            if not self._conf.bce_loss:
+                losses["gen_spatial_relation_loss"] = self._mlm_loss(filtered_spatial_distribution,
+                                                                     filtered_spatial_labels).mean()
+            else:
+                losses["gen_spatial_relation_loss"] = self._bce_loss(filtered_spatial_distribution,
+                                                                     filtered_spatial_labels).mean()
+
+        # --------------------------------------------------------------------------------------------
+        # 4. Contacting Loss for Generation
+        # --------------------------------------------------------------------------------------------
+        if not self._conf.bce_loss:
+            contact_label = -torch.ones([len(pred["contacting_gt"]), 17], dtype=torch.long).to(device=self._device)
+            for i in range(len(pred["spatial_gt"])):
+                contact_label[i, : len(pred["contacting_gt"][i])] = torch.tensor(pred["contacting_gt"][i])
+        else:
+            contact_label = torch.zeros([len(pred["contacting_gt"]), 17], dtype=torch.float32).to(device=self._device)
+            for i in range(len(pred["spatial_gt"])):
+                contact_label[i, pred["contacting_gt"][i]] = 1
+
+        filtered_contact_distribution, filtered_contact_labels = self._prepare_labels_and_distribution(
+            pred=pred,
+            distribution_type="gen_contacting_distribution",
+            label_type=const.CONTACTING_GT,
+            max_len=17
+        )
+
+        if filtered_contact_distribution is not None and filtered_contact_labels is not None:
+            if not self._conf.bce_loss:
+                losses["gen_contact_relation_loss"] = self._mlm_loss(filtered_contact_distribution,
+                                                                     filtered_contact_labels).mean()
+            else:
+                losses["gen_contact_relation_loss"] = self._bce_loss(filtered_contact_distribution,
+                                                                     filtered_contact_labels).mean()
+
+        # --------------------------------------------------------------------------------------------
+        # 5. Bounding Box Regression Loss
+        # --------------------------------------------------------------------------------------------
+        subject_boxes_rcnn = pred["subject_boxes_rcnn"]
+        # object_boxes_rcnn = pred["object_boxes_rcnn"]
+        subject_boxes_dsg = pred["subject_boxes_dsg"]
+        # object_boxes_dsg = pred["object_boxes_dsg"]
+
+        losses["subject_boxes_loss"] = self._conf.bbox_ratio * self._bbox_loss(subject_boxes_dsg, subject_boxes_rcnn)
+        # losses["object_boxes_loss"] = bbox_ratio * bbox_loss(object_boxes_dsg, object_boxes_rcnn)
+
+        # --------------------------------------------------------------------------------------------
+        # 6. Anticipation Representation Losses
+        # --------------------------------------------------------------------------------------------
+
+        global_output = pred["global_output"]
+        anticipated_global_output = pred["anticipated_vals"]
+        anticipated_subject_boxes = pred["anticipated_subject_boxes"]
+        # targets = pred["detached_outputs"]
+        anticipated_attention_distribution = pred["anticipated_attention_distribution"]
+
+        cum_ant_latent_loss = 0
+        cum_ant_spatial_relation_loss = 0
+        cum_ant_contact_relation_loss = 0
+        cum_ant_attention_relation_loss = 0
+        cum_ant_subject_boxes_loss = 0
+
+        for i in range(1, self._conf.max_window + 1):
+            if "mask_gt_" + str(i) not in pred:
+                print("mask_gt_" + str(i) + " not in pred")
+                continue
+
+            window_mask_curr = pred["mask_curr_" + str(i)]
+            window_mask_gt = pred["mask_gt_" + str(i)]
+
+            # -----------------------------------------------------------------------------------------------
+            # 6a. Reconstruction Loss for Anticipated Latent Representations
+            # -----------------------------------------------------------------------------------------------
+            if self._enable_ant_recon_loss:
+                cum_ant_latent_loss += model_ratio * self._abs_loss(
+                    anticipated_global_output[i - 1][window_mask_curr],
+                    global_output[window_mask_gt])
+
+            # -----------------------------------------------------------------------------------------------
+            # 6b. Anticipated Bounding Box Regression Loss
+            # -----------------------------------------------------------------------------------------------
+            if self._enable_ant_bb_subject_loss:
+                cum_ant_subject_boxes_loss += self._conf.bbox_ratio * self._bbox_loss \
+                    (anticipated_subject_boxes[i - 1][window_mask_curr], subject_boxes_rcnn[window_mask_gt])
+
+            # -----------------------------------------------------------------------------------------------
+            # Anticipated Predicate Relationship Losses
+            # -----------------------------------------------------------------------------------------------
+            if self._enable_ant_pred_loss:
+                # -----------------------------------------------------------------------------------------------
+                # 6c. Anticipated Attention Relationship Loss
+                # -----------------------------------------------------------------------------------------------
+                window_attention_distribution = anticipated_attention_distribution[i-1][window_mask_curr]
+                window_gt_attention_label = attention_label[window_mask_gt]
+                window_gt_attention_loss_mask = attention_label_mask[window_mask_gt]
+
+                filtered_ant_attention_distribution = window_attention_distribution[window_gt_attention_loss_mask == 1]
+                filtered_attention_label = window_gt_attention_label[window_gt_attention_loss_mask == 1]
+
+                if len(filtered_ant_attention_distribution) > 0:
+                    ant_attention_relation_loss = self._ce_loss(
+                        filtered_ant_attention_distribution,
+                        filtered_attention_label
+                    )
+
+                    cum_ant_attention_relation_loss += ant_attention_relation_loss
+
+                # -----------------------------------------------------------------------------------------------
+                # 6d. Anticipated Spatial Relationship Loss
+                # -----------------------------------------------------------------------------------------------
+                filtered_ant_spatial_distribution, filtered_ant_spatial_label = self._prepare_scenesayer_ant_labels_and_distribution(
+                    pred=pred,
+                    count=i,
+                    distribution_type="anticipated_spatial_distribution",
+                    label_type=const.SPATIAL_GT,
+                    max_len=6
+                )
+
+                if filtered_ant_spatial_distribution is not None and len(filtered_ant_spatial_distribution) > 0:
+                    if not self._conf.bce_loss:
+                        ant_spatial_relation_loss = self._mlm_loss(filtered_ant_spatial_distribution,
+                                                                   filtered_ant_spatial_label)
+                    else:
+                        ant_spatial_relation_loss = self._bce_loss(filtered_ant_spatial_distribution,
+                                                                   filtered_ant_spatial_label)
+
+                    cum_ant_spatial_relation_loss += ant_spatial_relation_loss
+
+                # -----------------------------------------------------------------------------------------------
+                # 6e. Anticipated Contacting Relationship Loss
+                # -----------------------------------------------------------------------------------------------
+                filtered_ant_contact_distribution, filtered_ant_contact_label = self._prepare_scenesayer_ant_labels_and_distribution(
+                    pred=pred,
+                    count=i,
+                    distribution_type="anticipated_contacting_distribution",
+                    label_type=const.CONTACTING_GT,
+                    max_len=17
+                )
+
+                if filtered_ant_contact_distribution is not None and len(filtered_ant_contact_distribution) > 0:
+                    if not self._conf.bce_loss:
+                        ant_spatial_relation_loss = self._mlm_loss(filtered_ant_contact_distribution,
+                                                                   filtered_ant_contact_label)
+                    else:
+                        ant_spatial_relation_loss = self._bce_loss(filtered_ant_contact_distribution,
+                                                                   filtered_ant_contact_label)
+                    cum_ant_spatial_relation_loss += ant_spatial_relation_loss
+
+        if self._enable_ant_recon_loss:
+            losses["anticipated_latent_loss"] = cum_ant_latent_loss
+        if self._enable_ant_bb_subject_loss:
+            losses["anticipated_subject_boxes_loss"] = cum_ant_subject_boxes_loss
+            # losses["anticipated_object_boxes_loss"] = 0
+
+        if self._enable_ant_pred_loss:
+            losses["anticipated_spatial_relation_loss"] = cum_ant_spatial_relation_loss
+            losses["anticipated_contact_relation_loss"] = cum_ant_contact_relation_loss
+            losses["anticipated_attention_relation_loss"] = cum_ant_attention_relation_loss
+        return losses
+
     # ------------------------------------------------------------------------------------------------------
     # ----------------------------------- BASELINE LOSS FUNCTIONS ------------------------------------------
     # ------------------------------------------------------------------------------------------------------
@@ -563,7 +772,7 @@ class TrainSTSGBase(STSGBase):
                 # -----------------------------------------------------------------------------------------------
                 # 2b. Anticipated Spatial Relationship Loss
                 # -----------------------------------------------------------------------------------------------
-                filtered_ant_spatial_distribution, filtered_ant_spatial_label = self._prepare_ant_labels_and_distribution(
+                filtered_ant_spatial_distribution, filtered_ant_spatial_label = self._prepare_transformer_ant_labels_and_distribution(
                     pred=pred,
                     count=count,
                     distribution_type="spatial_distribution",
@@ -585,7 +794,7 @@ class TrainSTSGBase(STSGBase):
                 # -----------------------------------------------------------------------------------------------
                 # 2c. Anticipated Contact Relationship Loss
                 # -----------------------------------------------------------------------------------------------
-                filtered_ant_contact_distribution, filtered_ant_contact_label = self._prepare_ant_labels_and_distribution(
+                filtered_ant_contact_distribution, filtered_ant_contact_label = self._prepare_transformer_ant_labels_and_distribution(
                     pred=pred,
                     count=count,
                     distribution_type="contacting_distribution",

@@ -407,6 +407,11 @@ class TrainSTSGBase(STSGBase):
 
     def compute_scene_sayer_loss_with_mask(self, pred, model_ratio):
         losses = {}
+
+        skip_window_attention_loss = False
+        skip_window_spatial_loss = False
+        skip_window_contact_loss = False
+
         # --------------------------------------------------------------------------------------------
         # 1. Object Loss
         # --------------------------------------------------------------------------------------------
@@ -433,7 +438,11 @@ class TrainSTSGBase(STSGBase):
         filtered_attention_label = attention_label[attention_label_mask == 1]
         assert filtered_attention_distribution.shape[0] == filtered_attention_label.shape[0]
 
-        losses["attention_relation_loss"] = self._ce_loss(filtered_attention_distribution, filtered_attention_label)
+        if len(filtered_attention_distribution) > 0:
+            losses["attention_relation_loss"] = self._ce_loss(filtered_attention_distribution, filtered_attention_label)
+        else:
+            skip_window_attention_loss = True
+            print("Empty attention distribution")
 
         # --------------------------------------------------------------------------------------------
         # 3. Spatial Loss for Generation
@@ -461,6 +470,9 @@ class TrainSTSGBase(STSGBase):
             else:
                 losses["gen_spatial_relation_loss"] = self._bce_loss(filtered_spatial_distribution,
                                                                      filtered_spatial_labels).mean()
+        else:
+            skip_window_spatial_loss = True
+            print("Empty spatial distribution")
 
         # --------------------------------------------------------------------------------------------
         # 4. Contacting Loss for Generation
@@ -476,7 +488,7 @@ class TrainSTSGBase(STSGBase):
 
         filtered_contact_distribution, filtered_contact_labels = self._prepare_labels_and_distribution(
             pred=pred,
-            distribution_type="gen_contacting_distribution",
+            distribution_type="contacting_distribution",
             label_type=const.CONTACTING_GT,
             max_len=17
         )
@@ -488,6 +500,9 @@ class TrainSTSGBase(STSGBase):
             else:
                 losses["gen_contact_relation_loss"] = self._bce_loss(filtered_contact_distribution,
                                                                      filtered_contact_labels).mean()
+        else:
+            skip_window_contact_loss = True
+            print("Empty contact distribution")
 
         # --------------------------------------------------------------------------------------------
         # 5. Bounding Box Regression Loss
@@ -546,61 +561,78 @@ class TrainSTSGBase(STSGBase):
                 # -----------------------------------------------------------------------------------------------
                 # 6c. Anticipated Attention Relationship Loss
                 # -----------------------------------------------------------------------------------------------
-                window_attention_distribution = anticipated_attention_distribution[i-1][window_mask_curr]
-                window_gt_attention_label = attention_label[window_mask_gt]
-                window_gt_attention_loss_mask = attention_label_mask[window_mask_gt]
+                if not skip_window_attention_loss:
+                    window_attention_distribution = anticipated_attention_distribution[i - 1][window_mask_curr]
+                    window_gt_attention_label = attention_label[window_mask_gt]
+                    window_gt_attention_loss_mask = attention_label_mask[window_mask_gt]
 
-                filtered_ant_attention_distribution = window_attention_distribution[window_gt_attention_loss_mask == 1]
-                filtered_attention_label = window_gt_attention_label[window_gt_attention_loss_mask == 1]
+                    filtered_ant_attention_distribution = window_attention_distribution[window_gt_attention_loss_mask == 1]
+                    filtered_attention_label = window_gt_attention_label[window_gt_attention_loss_mask == 1]
 
-                if len(filtered_ant_attention_distribution) > 0:
-                    ant_attention_relation_loss = self._ce_loss(
-                        filtered_ant_attention_distribution,
-                        filtered_attention_label
-                    )
+                    if len(filtered_ant_attention_distribution) > 0:
+                        ant_attention_relation_loss = self._ce_loss(
+                            filtered_ant_attention_distribution,
+                            filtered_attention_label
+                        )
 
-                    cum_ant_attention_relation_loss += ant_attention_relation_loss
+                        cum_ant_attention_relation_loss += ant_attention_relation_loss
+                    else:
+                        print("Empty attention distribution for window:", i)
+                else:
+                    print("Skipping attention loss for window:", i)
 
                 # -----------------------------------------------------------------------------------------------
                 # 6d. Anticipated Spatial Relationship Loss
                 # -----------------------------------------------------------------------------------------------
-                filtered_ant_spatial_distribution, filtered_ant_spatial_label = self._prepare_scenesayer_ant_labels_and_distribution(
-                    pred=pred,
-                    count=i,
-                    distribution_type="anticipated_spatial_distribution",
-                    label_type=const.SPATIAL_GT,
-                    max_len=6
-                )
 
-                if filtered_ant_spatial_distribution is not None and len(filtered_ant_spatial_distribution) > 0:
-                    if not self._conf.bce_loss:
-                        ant_spatial_relation_loss = self._mlm_loss(filtered_ant_spatial_distribution,
-                                                                   filtered_ant_spatial_label)
+                if not skip_window_spatial_loss:
+                    filtered_ant_spatial_distribution, filtered_ant_spatial_label = self._prepare_scenesayer_ant_labels_and_distribution(
+                        pred=pred,
+                        count=i,
+                        distribution_type="anticipated_spatial_distribution",
+                        label_type=const.SPATIAL_GT,
+                        max_len=6
+                    )
+
+                    if filtered_ant_spatial_distribution is not None and len(filtered_ant_spatial_distribution) > 0:
+                        if not self._conf.bce_loss:
+                            ant_spatial_relation_loss = self._mlm_loss(filtered_ant_spatial_distribution,
+                                                                       filtered_ant_spatial_label)
+                        else:
+                            ant_spatial_relation_loss = self._bce_loss(filtered_ant_spatial_distribution,
+                                                                       filtered_ant_spatial_label)
+
+                        cum_ant_spatial_relation_loss += ant_spatial_relation_loss
                     else:
-                        ant_spatial_relation_loss = self._bce_loss(filtered_ant_spatial_distribution,
-                                                                   filtered_ant_spatial_label)
-
-                    cum_ant_spatial_relation_loss += ant_spatial_relation_loss
+                        print("Empty spatial distribution for window:", i)
+                else:
+                    print("Skipping spatial loss for window:", i)
 
                 # -----------------------------------------------------------------------------------------------
                 # 6e. Anticipated Contacting Relationship Loss
                 # -----------------------------------------------------------------------------------------------
-                filtered_ant_contact_distribution, filtered_ant_contact_label = self._prepare_scenesayer_ant_labels_and_distribution(
-                    pred=pred,
-                    count=i,
-                    distribution_type="anticipated_contacting_distribution",
-                    label_type=const.CONTACTING_GT,
-                    max_len=17
-                )
 
-                if filtered_ant_contact_distribution is not None and len(filtered_ant_contact_distribution) > 0:
-                    if not self._conf.bce_loss:
-                        ant_spatial_relation_loss = self._mlm_loss(filtered_ant_contact_distribution,
-                                                                   filtered_ant_contact_label)
+                if not skip_window_contact_loss:
+                    filtered_ant_contact_distribution, filtered_ant_contact_label = self._prepare_scenesayer_ant_labels_and_distribution(
+                        pred=pred,
+                        count=i,
+                        distribution_type="anticipated_contacting_distribution",
+                        label_type=const.CONTACTING_GT,
+                        max_len=17
+                    )
+
+                    if filtered_ant_contact_distribution is not None and len(filtered_ant_contact_distribution) > 0:
+                        if not self._conf.bce_loss:
+                            ant_spatial_relation_loss = self._mlm_loss(filtered_ant_contact_distribution,
+                                                                       filtered_ant_contact_label)
+                        else:
+                            ant_spatial_relation_loss = self._bce_loss(filtered_ant_contact_distribution,
+                                                                       filtered_ant_contact_label)
+                        cum_ant_spatial_relation_loss += ant_spatial_relation_loss
                     else:
-                        ant_spatial_relation_loss = self._bce_loss(filtered_ant_contact_distribution,
-                                                                   filtered_ant_contact_label)
-                    cum_ant_spatial_relation_loss += ant_spatial_relation_loss
+                        print("Empty contact distribution for window:", i)
+                else:
+                    print("Skipping contact loss for window:", i)
 
         if self._enable_ant_recon_loss:
             losses["anticipated_latent_loss"] = cum_ant_latent_loss
@@ -867,9 +899,9 @@ class TrainSTSGBase(STSGBase):
     def compute_baseline_gen_ant_loss_with_mask(self, pred):
         losses = {}
 
-        #--------------------------------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------
         # 1. Object Loss
-        #--------------------------------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------
         if self._conf.mode == 'sgcls' or self._conf.mode == 'sgdet':
             if self._enable_obj_class_loss:
                 losses['object_loss'] = self._ce_loss(pred['distribution'], pred['labels']).mean()
@@ -893,7 +925,8 @@ class TrainSTSGBase(STSGBase):
         filtered_attention_label = attention_label[attention_label_mask == 1]
         assert filtered_attention_distribution.shape[0] == filtered_attention_label.shape[0]
 
-        losses["gen_attention_relation_loss"] = self._ce_loss(filtered_attention_distribution, filtered_attention_label).mean()
+        losses["gen_attention_relation_loss"] = self._ce_loss(filtered_attention_distribution,
+                                                              filtered_attention_label).mean()
 
         # --------------------------------------------------------------------------------------------
         # 3. Spatial Loss for Generation
@@ -926,11 +959,11 @@ class TrainSTSGBase(STSGBase):
         if filtered_contact_distribution is not None and filtered_contact_labels is not None:
             if not self._conf.bce_loss:
                 losses["gen_contact_relation_loss"] = self._mlm_loss(filtered_contact_distribution,
-                                                                        filtered_contact_labels).mean()
+                                                                     filtered_contact_labels).mean()
             else:
                 losses["gen_contact_relation_loss"] = self._bce_loss(filtered_contact_distribution,
 
-                                                                       filtered_contact_labels).mean()
+                                                                     filtered_contact_labels).mean()
 
         # --------------------------------------------------------------------------------------------
         # 5. Anticipation Loss

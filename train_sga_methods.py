@@ -262,7 +262,10 @@ class TrainODE(TrainSTSGBase):
         return pred
 
     def compute_loss(self, pred, gt) -> dict:
-        losses = self.compute_scene_sayer_loss(pred, self._conf.ode_ratio)
+        if self._conf.use_partial_annotations:
+            losses = self.compute_scene_sayer_loss_with_mask(pred, self._conf.ode_ratio)
+        else:
+            losses = self.compute_scene_sayer_loss(pred, self._conf.ode_ratio)
         return losses
 
     def process_evaluation_score(self, pred, gt):
@@ -312,7 +315,10 @@ class TrainSDE(TrainSTSGBase):
         return pred
 
     def compute_loss(self, pred, gt) -> dict:
-        losses = self.compute_scene_sayer_loss(pred, self._conf.sde_ratio)
+        if self._conf.use_partial_annotations:
+            losses = self.compute_scene_sayer_loss_with_mask(pred, self._conf.sde_ratio)
+        else:
+            losses = self.compute_scene_sayer_loss(pred, self._conf.sde_ratio)
         return losses
 
     def process_evaluation_score(self, pred, gt):

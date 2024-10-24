@@ -203,7 +203,7 @@ class TestSTTranGenAnt(TestSTSGBase):
 
         num_cf = self._conf.baseline_context
         num_ff = self._conf.max_future
-        get_sequence_with_tracking(entry, gt_annotation, self._matcher, frame_size, self._conf.mode)
+        self.get_sequence_no_tracking(entry, self._conf.mode)
         pred = self._model(entry, num_cf, num_ff)
 
         return pred

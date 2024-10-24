@@ -1,5 +1,7 @@
 from argparse import ArgumentParser
 
+import torch
+
 
 class EgoConfig(object):
 
@@ -13,7 +15,7 @@ class EgoConfig(object):
         self.lr = 1e-5
         self.num_epoch = 10
         self.results_path = None
-        self.method_name = None
+        self.method_name = "easg"
         self.task_name = "easg"
         self.split = "train"
 
@@ -36,6 +38,8 @@ class EgoConfig(object):
         # ---------------- Use wandb ----------------
         self.use_wandb = False
 
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
         self.parser = self.setup_parser()
         self.args = vars(self.parser.parse_args())
         self.__dict__.update(self.args)
@@ -43,6 +47,16 @@ class EgoConfig(object):
 
     def setup_parser(self):
         parser = ArgumentParser(description='training code')
+
+        parser.add_argument('--method_name', type=str, default='easg', help='method name')
+        parser.add_argument('--save_path', type=str, default='/data/rohith/easg/checkpoints', help='path to save the model')
+        parser.add_argument('--data_path', type=str, default='/data/rohith/easg/features', help='path to data')
+        parser.add_argument('--ckpt', type=str, default=None, help='path to load the model')
+        parser.add_argument('--optimizer', type=str, default='adam', help='optimizer')
+        parser.add_argument('--task_name', type=str, default='easg', help='task name')
+
+        # ----------------------- EGO CENTRIC DATA CONFIGURATION -----------------------
+
         parser.add_argument('--path_to_annotations', default='/data/rohith/easg/annotations', type=str)
         parser.add_argument('--path_to_data', default='/data/rohith/easg/features', type=str)
         parser.add_argument('--path_to_output', default='/data/rohith/easg/checkpoints', type=str)
@@ -59,8 +73,8 @@ class EgoConfig(object):
         # ---------------- Partial Annotations ----------------
         parser.add_argument("--use_partial_annotations", action="store_true")
         parser.add_argument("--partial_percentage", default=100, type=int)
-
         parser.add_argument("--maintain_distribution", action="store_true")
+
         # ---------------- Label Noise ----------------
         parser.add_argument("--use_label_noise", action="store_true")
         parser.add_argument("--label_noise_percentage", default=20, type=int)

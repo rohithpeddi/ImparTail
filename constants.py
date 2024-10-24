@@ -122,6 +122,12 @@ class Constants:
     SGG = "sgg"
     SGA = "sga"
 
+class EgoConstants:
+    EASG = "easg"
+    TRAIN = "train"
+    TEST = "test"
+    VAL = "val"
+
 class DetectorConstants:
     BOXES = "boxes"
     LABELS = "labels"

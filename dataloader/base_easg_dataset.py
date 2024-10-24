@@ -7,11 +7,11 @@ from torch.utils.data import Dataset
 
 class BaseEASGData(Dataset):
 
-    def __init__(self, conf):
+    def __init__(self, conf, split):
         self._conf = conf
         self._path_to_annotations = self._conf.path_to_annotations
         self._path_to_data = self._conf.path_to_data
-        self._split = self._conf.split
+        self._split = split
 
         annotations_file_path = os.path.join(self._path_to_annotations, f'easg_{self._split}.pkl')
         with open(annotations_file_path, 'rb') as f:

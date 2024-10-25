@@ -1,0 +1,1 @@
+python train_easg_methods.py --task_name=easg --method_name=easg

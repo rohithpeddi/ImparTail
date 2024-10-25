@@ -13,13 +13,11 @@ class BaseEASGData(Dataset):
         self._path_to_data = self._conf.path_to_data
         self._split = split
 
+        print(f"[{self._conf.method_name}_{self._conf.split}] LOADING ANNOTATION DATA")
+
         annotations_file_path = os.path.join(self._path_to_annotations, f'easg_{self._split}.pkl')
         with open(annotations_file_path, 'rb') as f:
             annotations = pickle.load(f)
-
-        roi_feats_file_path = os.path.join(self._path_to_data, f'roi_feats_{self._split}.pkl')
-        with open(roi_feats_file_path, 'rb') as f:
-            roi_feats = pickle.load(f)
 
         verbs_file_path = os.path.join(self._path_to_annotations, 'verbs.txt')
         with open(verbs_file_path) as f:
@@ -32,6 +30,12 @@ class BaseEASGData(Dataset):
         rels_file_path = os.path.join(self._path_to_annotations, 'relationships.txt')
         with open(rels_file_path) as f:
             rels = [l.strip() for l in f.readlines()]
+
+        print(f"[{self._conf.method_name}_{self._conf.split}] LOADING FEATURES DATA ")
+
+        roi_feats_file_path = os.path.join(self._path_to_data, f'roi_feats_{self._split}.pkl')
+        with open(roi_feats_file_path, 'rb') as f:
+            roi_feats = pickle.load(f)
 
         clip_feats_file_path = os.path.join(self._path_to_data, f'verb_features.pt')
         clip_feats = torch.load(clip_feats_file_path)
@@ -60,6 +64,8 @@ class BaseEASGData(Dataset):
             dict['rels_vecs']: batched version of rels_vec
             dict['triplets']: all the triplets consisting of (verb, obj, rel)
         """
+
+        print(f"[{self._conf.method_name}_{self._conf.split}] PREPARING GT GRAPH DATA AND FEATURES ")
         graphs = []
         for graph_uid in annotations:
             graph = {}
@@ -91,6 +97,8 @@ class BaseEASGData(Dataset):
 
                 graphs.append(graph[verb_idx])
 
+        print(f"[{self._conf.method_name}_{self._conf.split}] PREPARING GT GRAPH BATCH DATA ")
+
         self.graphs = []
         for graph in graphs:
             graph_batch = {}
@@ -115,6 +123,8 @@ class BaseEASGData(Dataset):
                 graph_batch['triplets'] = torch.cat((graph_batch['triplets'], torch.tensor(triplets, dtype=torch.long)), dim=0)
 
             self.graphs.append(graph_batch)
+
+        print(f"[{self._conf.method_name}_{self._conf.split}] Finished processing graph data ")
 
     def __len__(self):
         return len(self.graphs)

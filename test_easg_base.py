@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 from dataloader.standard.easg.easg_dataset import StandardEASG
 from easg_base import EASGBase
-from Constants import EgoConstants as const
+from constants import EgoConstants as const
 
 class TestEASGBase(EASGBase):
 

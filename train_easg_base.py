@@ -64,7 +64,7 @@ class TrainEASGBase(EASGBase):
 
     def _train_model(self):
         tr = []
-        for epoch in range(self._conf.nepoch):
+        for epoch in range(self._conf.num_epoch):
             self._model.train()
 
             train_iter = iter(self._dataloader_train)

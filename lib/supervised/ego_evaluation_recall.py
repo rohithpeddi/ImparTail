@@ -3,7 +3,7 @@ from math import ceil
 import torch
 
 
-class BasicSceneGraphEvaluator:
+class BasicEgoActionSceneGraphEvaluator:
 
     def __init__(self, conf):
         self._conf = conf

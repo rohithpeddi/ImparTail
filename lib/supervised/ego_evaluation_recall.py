@@ -23,7 +23,7 @@ class BasicEgoActionSceneGraphEvaluator:
         self.recall_easgcls_with = {k: [] for k in self.list_k}
         self.recall_easgcls_no = {k: [] for k in self.list_k}
 
-    def _reset_recall_dicts(self):
+    def reset_result(self):
         for k in self.list_k:
             self.recall_predcls_with[k] = []
             self.recall_predcls_no[k] = []
@@ -31,6 +31,25 @@ class BasicEgoActionSceneGraphEvaluator:
             self.recall_sgcls_no[k] = []
             self.recall_easgcls_with[k] = []
             self.recall_easgcls_no[k] = []
+
+    def print_stats(self):
+        for k in self.list_k:
+            self.recall_predcls_with[k] = sum(self.recall_predcls_with[k]) / len(self.recall_predcls_with[k]) * 100
+            self.recall_predcls_no[k] = sum(self.recall_predcls_no[k]) / len(self.recall_predcls_no[k]) * 100
+            self.recall_sgcls_with[k] = sum(self.recall_sgcls_with[k]) / len(self.recall_sgcls_with[k]) * 100
+            self.recall_sgcls_no[k] = sum(self.recall_sgcls_no[k]) / len(self.recall_sgcls_no[k]) * 100
+            self.recall_easgcls_with[k] = sum(self.recall_easgcls_with[k]) / len(self.recall_easgcls_with[k]) * 100
+            self.recall_easgcls_no[k] = sum(self.recall_easgcls_no[k]) / len(self.recall_easgcls_no[k]) * 100
+
+        for k in self.list_k:
+            print("Recall@{}:".format(k))
+            print("  PredCls with: {:.2f}".format(self.recall_predcls_with[k]))
+            print("  PredCls no: {:.2f}".format(self.recall_predcls_no[k]))
+            print("  SGCls with: {:.2f}".format(self.recall_sgcls_with[k]))
+            print("  SGCls no: {:.2f}".format(self.recall_sgcls_no[k]))
+            print("  EASGCls with: {:.2f}".format(self.recall_easgcls_with[k]))
+            print("  EASGCls no: {:.2f}".format(self.recall_easgcls_no[k]))
+
 
     @staticmethod
     def intersect_2d(out, gt):
@@ -138,12 +157,3 @@ class BasicEgoActionSceneGraphEvaluator:
             self.recall_sgcls_no[k].append(out_to_gt_sg_no[:, :k].any(dim=1).sum().item() / num_gt)
             self.recall_easgcls_with[k].append(out_to_gt_easg_with[:, :k].any(dim=1).sum().item() / num_gt)
             self.recall_easgcls_no[k].append(out_to_gt_easg_no[:, :k].any(dim=1).sum().item() / num_gt)
-
-    def get_stats(self):
-        for k in self.list_k:
-            self.recall_predcls_with[k] = sum(self.recall_predcls_with[k]) / len(self.recall_predcls_with[k]) * 100
-            self.recall_predcls_no[k] = sum(self.recall_predcls_no[k]) / len(self.recall_predcls_no[k]) * 100
-            self.recall_sgcls_with[k] = sum(self.recall_sgcls_with[k]) / len(self.recall_sgcls_with[k]) * 100
-            self.recall_sgcls_no[k] = sum(self.recall_sgcls_no[k]) / len(self.recall_sgcls_no[k]) * 100
-            self.recall_easgcls_with[k] = sum(self.recall_easgcls_with[k]) / len(self.recall_easgcls_with[k]) * 100
-            self.recall_easgcls_no[k] = sum(self.recall_easgcls_no[k]) / len(self.recall_easgcls_no[k]) * 100

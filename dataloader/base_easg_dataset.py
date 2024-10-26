@@ -13,7 +13,7 @@ class BaseEASGData(Dataset):
         self._path_to_data = self._conf.path_to_data
         self._split = split
 
-        print(f"[{self._conf.method_name}_{self._conf.split}] LOADING ANNOTATION DATA")
+        print(f"[{self._conf.method_name}_{self._split}] LOADING ANNOTATION DATA")
 
         annotations_file_path = os.path.join(self._path_to_annotations, f'easg_{self._split}.pkl')
         with open(annotations_file_path, 'rb') as f:
@@ -31,7 +31,7 @@ class BaseEASGData(Dataset):
         with open(rels_file_path) as f:
             rels = [l.strip() for l in f.readlines()]
 
-        print(f"[{self._conf.method_name}_{self._conf.split}] LOADING FEATURES DATA ")
+        print(f"[{self._conf.method_name}_{self._split}] LOADING FEATURES DATA ")
 
         roi_feats_file_path = os.path.join(self._path_to_data, f'roi_feats_{self._split}.pkl')
         with open(roi_feats_file_path, 'rb') as f:
@@ -65,7 +65,7 @@ class BaseEASGData(Dataset):
             dict['triplets']: all the triplets consisting of (verb, obj, rel)
         """
 
-        print(f"[{self._conf.method_name}_{self._conf.split}] PREPARING GT GRAPH DATA AND FEATURES ")
+        print(f"[{self._conf.method_name}_{self._split}] PREPARING GT GRAPH DATA AND FEATURES ")
         graphs = []
         for graph_uid in annotations:
             graph = {}
@@ -97,7 +97,7 @@ class BaseEASGData(Dataset):
 
                 graphs.append(graph[verb_idx])
 
-        print(f"[{self._conf.method_name}_{self._conf.split}] PREPARING GT GRAPH BATCH DATA ")
+        print(f"[{self._conf.method_name}_{self._split}] PREPARING GT GRAPH BATCH DATA ")
 
         self.graphs = []
         for graph in graphs:
@@ -124,7 +124,7 @@ class BaseEASGData(Dataset):
 
             self.graphs.append(graph_batch)
 
-        print(f"[{self._conf.method_name}_{self._conf.split}] Finished processing graph data ")
+        print(f"[{self._conf.method_name}_{self._split}] Finished processing graph data ")
 
     def __len__(self):
         return len(self.graphs)

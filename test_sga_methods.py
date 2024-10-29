@@ -237,7 +237,12 @@ class TestDsgDetrAnt(TestSTSGBase):
         self._matcher.eval()
 
     def process_test_video_context(self, video_entry, frame_size, gt_annotation, context_fraction) -> dict:
-        self.get_sequence_no_tracking(video_entry, self._conf.mode)
+        get_sequence_with_tracking(
+            entry=video_entry,
+            gt_annotation=gt_annotation,
+            matcher=self._matcher,
+            shape=frame_size,
+            task=self._conf.mode)
         video_entry["gt_annotation"] = gt_annotation
         pred = self._model.forward_single_entry(context_fraction=context_fraction, entry=video_entry)
         num_tf = len(video_entry["im_idx"].unique())
@@ -256,7 +261,12 @@ class TestDsgDetrAnt(TestSTSGBase):
 
         num_cf = self._conf.baseline_context
         num_ff = self._conf.max_future
-        get_sequence_with_tracking(entry, gt_annotation, self._matcher, frame_size, self._conf.mode)
+        get_sequence_with_tracking(
+            entry=entry,
+            gt_annotation=gt_annotation,
+            matcher=self._matcher,
+            shape=frame_size,
+            task=self._conf.mode)
         pred = self._model(entry, num_cf, num_ff)
 
         return pred

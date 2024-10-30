@@ -116,7 +116,7 @@ class Result:
 	def __init__(
 			self,
 			task_name,  # sgg, sga, easg
-			scenario,  # corruption, labelnoise, partial, full
+			scenario_name,  # corruption, labelnoise, partial, full
 			method_name,
 			mode,
 			corruption_type=None,
@@ -130,7 +130,7 @@ class Result:
 	):
 		# Common Attributes
 		self.task_name = task_name
-		self.scenario = scenario
+		self.scenario_name = scenario_name
 		self.method_name = method_name
 		self.mode = mode
 		
@@ -161,7 +161,7 @@ class Result:
 	def to_dict(self):
 		result_dict = {
 			const.TASK_NAME: self.task_name,
-			const.SCENARIO: self.scenario,
+			const.SCENARIO_NAME: self.scenario_name,
 			const.METHOD_NAME: self.method_name,
 			const.MODE: self.mode,
 			const.RESULT_ID: self.result_id,
@@ -198,7 +198,7 @@ class Result:
 	def from_dict(cls, result_dict):
 		result = cls(
 			task_name=result_dict[const.TASK_NAME],
-			scenario=result_dict[const.SCENARIO],
+			scenario_name=result_dict[const.SCENARIO_NAME],
 			method_name=result_dict[const.METHOD_NAME],
 			mode=result_dict[const.MODE],
 			result_id=result_dict[const.RESULT_ID]

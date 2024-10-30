@@ -283,6 +283,7 @@ class DataloaderConstants:
 
 
 class ResultConstants:
+    SGG = None
     RECALL_10 = "recall_10"
     RECALL_20 = "recall_20"
     RECALL_50 = "recall_50"
@@ -316,6 +317,8 @@ class ResultConstants:
     # Task Names
     DYSGG = "dysgg"
     SGA = "sga"
+    SGG = "sgg"
+    EASG = "easg"
 
     # Method Names
     DYSTTRAN = "dysttran"
@@ -337,12 +340,13 @@ class ResultConstants:
     CORRUPTION_TYPE = "corruption_type"
     CORRUPTION_LEVEL = "corruption_level"
     PARTIAL_PERCENTAGE = "partial_percentage"
+    FULL = "full"
     PARTIAL = "partial"
     LABEL_NOISE = "labelnoise"
     LABEL_NOISE_PERCENTAGE = "label_noise_percentage"
     CORRUPTION_SEVERITY = "corruption_severity"
     
-    SCENARIO = "scenario"
+    SCENARIO_NAME = "scenario_name"
 
 
 class CorruptionConstants:

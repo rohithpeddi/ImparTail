@@ -64,7 +64,8 @@ class Metrics:
 			harmonic_recall_10=metrics_dict[const.HARMONIC_RECALL_10],
 			harmonic_recall_20=metrics_dict[const.HARMONIC_RECALL_20],
 			harmonic_recall_50=metrics_dict[const.HARMONIC_RECALL_50],
-			harmonic_recall_100=metrics_dict[const.HARMONIC_RECALL_100] if const.HARMONIC_RECALL_100 in metrics_dict else None,
+			harmonic_recall_100=metrics_dict[
+				const.HARMONIC_RECALL_100] if const.HARMONIC_RECALL_100 in metrics_dict else None,
 		)
 
 
@@ -114,25 +115,35 @@ class Result:
 	
 	def __init__(
 			self,
-			task_name,
+			task_name,  # sgg, sga, easg
+			scenario,  # corruption, labelnoise, partial, full
 			method_name,
 			mode,
-			corruption_type,
+			corruption_type=None,
+			corruption_severity=None,
+			label_noise_percentage=None,
 			partial_percentage=None,
 			result_id=None,
 			train_future_frames=None,
 			test_future_frames=None,
+			test_context_fraction=None
 	):
+		# Common Attributes
 		self.task_name = task_name
+		self.scenario = scenario
 		self.method_name = method_name
 		self.mode = mode
-		self.corruption_type = corruption_type
 		
-		# Specific Attributes
+		# Scenario Specific Attributes
+		self.corruption_type = corruption_type
+		self.corruption_severity = corruption_severity
+		self.label_noise_percentage = label_noise_percentage
+		self.partial_percentage = partial_percentage
+		
+		# Evaluation Specific Attributes
 		self.train_num_future_frames = train_future_frames
 		self.test_num_future_frames = test_future_frames
-		self.context_fraction = None
-		self.partial_percentage = partial_percentage
+		self.context_fraction = test_context_fraction
 		
 		# Common Attributes
 		self.result_details = None
@@ -141,7 +152,7 @@ class Result:
 			self.result_id = str(uuid.uuid4())
 		else:
 			self.result_id = result_id
-			
+		
 		self.result_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 	
 	def add_result_details(self, result_details):
@@ -150,28 +161,36 @@ class Result:
 	def to_dict(self):
 		result_dict = {
 			const.TASK_NAME: self.task_name,
+			const.SCENARIO: self.scenario,
 			const.METHOD_NAME: self.method_name,
 			const.MODE: self.mode,
 			const.RESULT_ID: self.result_id,
-			const.DATE: self.result_date,
-			const.CORRUPTION_TYPE: self.corruption_type,
-			const.PARTIAL_PERCENTAGE: self.partial_percentage
+			const.DATE: self.result_date
 		}
+		
+		if self.corruption_type is not None:
+			result_dict[const.CORRUPTION_TYPE] = self.corruption_type
+		
+		if self.corruption_severity is not None:
+			result_dict[const.CORRUPTION_SEVERITY] = self.corruption_severity
+		
+		if self.label_noise_percentage is not None:
+			result_dict[const.LABEL_NOISE_PERCENTAGE] = self.label_noise_percentage
+		
+		if self.partial_percentage is not None:
+			result_dict[const.PARTIAL_PERCENTAGE] = self.partial_percentage
 		
 		if self.train_num_future_frames is not None:
 			result_dict[const.TRAIN_NUM_FUTURE_FRAMES] = self.train_num_future_frames
 		
 		if self.test_num_future_frames is not None:
 			result_dict[const.TEST_NUM_FUTURE_FRAMES] = self.test_num_future_frames
-			
+		
 		if self.context_fraction is not None:
 			result_dict[const.CONTEXT_FRACTION] = self.context_fraction
-			
+		
 		if self.result_details is not None:
 			result_dict[const.RESULT_DETAILS] = self.result_details.to_dict()
-
-		if self.partial_percentage is not None:
-			result_dict[const.PARTIAL_PERCENTAGE] = self.partial_percentage
 		
 		return result_dict
 	
@@ -179,11 +198,23 @@ class Result:
 	def from_dict(cls, result_dict):
 		result = cls(
 			task_name=result_dict[const.TASK_NAME],
+			scenario=result_dict[const.SCENARIO],
 			method_name=result_dict[const.METHOD_NAME],
 			mode=result_dict[const.MODE],
-			result_id=result_dict[const.RESULT_ID],
-			corruption_type=result_dict[const.CORRUPTION_TYPE]
+			result_id=result_dict[const.RESULT_ID]
 		)
+		
+		if const.CORRUPTION_TYPE in result_dict:
+			result.corruption_type = result_dict[const.CORRUPTION_TYPE]
+		
+		if const.CORRUPTION_SEVERITY in result_dict:
+			result.corruption_severity = result_dict[const.CORRUPTION_SEVERITY]
+		
+		if const.LABEL_NOISE_PERCENTAGE in result_dict:
+			result.label_noise_percentage = result_dict[const.LABEL_NOISE_PERCENTAGE]
+		
+		if const.PARTIAL_PERCENTAGE in result_dict:
+			result.partial_percentage = result_dict[const.PARTIAL_PERCENTAGE]
 		
 		if const.TRAIN_NUM_FUTURE_FRAMES in result_dict:
 			result.train_num_future_frames = result_dict[const.TRAIN_NUM_FUTURE_FRAMES]
@@ -196,11 +227,8 @@ class Result:
 		
 		if const.RESULT_DETAILS in result_dict:
 			result.add_result_details(ResultDetails.from_dict(result_dict[const.RESULT_DETAILS]))
-			
+		
 		if const.DATE in result_dict:
 			result.result_date = result_dict[const.DATE]
-
-		if const.PARTIAL_PERCENTAGE in result_dict:
-			result.partial_percentage = result_dict[const.PARTIAL_PERCENTAGE]
 		
 		return result

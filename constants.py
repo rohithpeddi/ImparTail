@@ -336,10 +336,13 @@ class ResultConstants:
 
     CORRUPTION_TYPE = "corruption_type"
     CORRUPTION_LEVEL = "corruption_level"
-
     PARTIAL_PERCENTAGE = "partial_percentage"
-    PARTIAL_OBJ = "partial_obj"
-    PARTIAL_REL = "partial_rel"
+    PARTIAL = "partial"
+    LABEL_NOISE = "labelnoise"
+    LABEL_NOISE_PERCENTAGE = "label_noise_percentage"
+    CORRUPTION_SEVERITY = "corruption_severity"
+    
+    SCENARIO = "scenario"
 
 
 class CorruptionConstants:

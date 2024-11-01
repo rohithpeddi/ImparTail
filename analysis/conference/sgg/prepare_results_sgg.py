@@ -268,6 +268,13 @@ class PrepareResultsSGG(PrepareResultsBase):
 def main():
 	prepare_results_sgg = PrepareResultsSGG()
 	prepare_results_sgg.compile_sgg_method_wise_results()
+	
+def combine_results():
+	prepare_results_sgg = PrepareResultsSGG()
+	prepare_results_sgg.combine_csv_to_excel(
+		r"C:\Users\rohit\PycharmProjects\stl_stsg\analysis\results_docs\mode_results_sgg",
+		r"C:\Users\rohit\PycharmProjects\stl_stsg\analysis\results_docs\mode_results_sgg\sgg_modes_combined_results.xlsx"
+	)
 
 
 if __name__ == '__main__':

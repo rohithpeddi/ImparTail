@@ -298,5 +298,14 @@ def main():
 	prepare_results_sga.compile_sga_results()
 
 
+def combine_results():
+	prepare_results_sga = PrepareResultsSGA()
+	prepare_results_sga.combine_csv_to_excel(
+		r"C:\Users\rohit\PycharmProjects\stl_stsg\analysis\results_docs\mode_results_csvs",
+		r"C:\Users\rohit\PycharmProjects\stl_stsg\analysis\results_docs\mode_results_csvs\sga_combined_results.xlsx"
+	)
+
+
 if __name__ == "__main__":
-	main()
+	# main()
+	combine_results()

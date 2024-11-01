@@ -41,6 +41,10 @@ def transfer_sga(
 		return
 	
 	with open(result_file_path, 'r') as read_obj:
+		csv_reader = csv.reader(read_obj)
+		num_rows = len(list(csv_reader))
+	
+	with open(result_file_path, 'r') as read_obj:
 		# pass the file object to reader() to get the reader object
 		csv_reader = csv.reader(read_obj)
 		for row_id, row in enumerate(csv_reader):
@@ -49,7 +53,7 @@ def transfer_sga(
 				continue
 			
 			# As the first row here corresponds to the full annotations and the second corresponds to the partial annotations
-			if scenario_name == const.PARTIAL and row_id == 0:
+			if scenario_name == const.PARTIAL and row_id == 0 and num_rows > 1:
 				print(f"[{task_name}][{scenario_name}][{mode}] Skipping header row")
 				continue
 			
@@ -73,7 +77,7 @@ def transfer_sga(
 			
 			result.add_result_details(result_details)
 			print(f"[{task_name}][{scenario_name}][{mode}] Saving result: ", result.result_id)
-			db_service.update_result_to_db("results_31_10_sga", result.result_id, result.to_dict())
+			db_service.update_result_to_db("results_31_10_sga_v2", result.result_id, result.to_dict())
 			print(f"[{task_name}][{scenario_name}][{mode}] Saved result: ", result.result_id)
 			print("-----------------------------------------------------------------------------------")
 

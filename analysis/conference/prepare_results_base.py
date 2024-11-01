@@ -31,7 +31,7 @@ class PrepareResultsBase:
 		self.db_service = FirebaseService()
 		self.database_name = "results_31_10"
 		
-		self.sga_database_name = "results_31_10_sga"
+		self.sga_database_name = "results_31_10_sga_v2"
 		self.sgg_database_name = "results_31_10_sgg"
 	
 	def fetch_db_sgg_results(self):

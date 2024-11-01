@@ -8,222 +8,185 @@ class PrepareResultsSGA(PrepareResultsBase):
 	
 	def __init__(self):
 		super(PrepareResultsSGA, self).__init__()
+		self.scenario_list = ["full", "partial", "labelnoise"]
+		self.mode_list = ["sgcls", "sgdet", "predcls"]
+		self.method_list = ["sttran_ant", "dsgdetr_ant", "sttran_gen_ant", "dsgdetr_gen_ant", "ode", "sde"]
+		self.partial_percentages = [40]
+		self.label_noise_percentages = [20]
+		self.task_name = "sga"
+		
+		self.context_fraction_list = ['0.3', '0.5', '0.7', '0.9']
 	
-	def generate_context_results_csvs(self, context_results_json, context_fraction_list, train_ff_loss_list, modes,
-	                                  methods):
-		for cf in context_fraction_list:
-			for mode in modes:
-				csv_file_name = f"{mode}_{cf}.csv"
-				csv_file_path = os.path.join(os.path.dirname(__file__), "results_docs", "context_results_csvs",
-				                             csv_file_name)
-				os.makedirs(os.path.dirname(csv_file_path), exist_ok=True)
-				with open(csv_file_path, "a", newline='') as csv_file:
-					writer = csv.writer(csv_file, quoting=csv.QUOTE_NONNUMERIC)
-					writer.writerow([
-						"Anticipation Loss", "Method Name",
-						"R@10", "R@20", "R@50", "mR@10", "mR@20", "mR@50", "hR@10", "hR@20", "hR@50",
-						"R@10", "R@20", "R@50", "mR@10", "mR@20", "mR@50", "hR@10", "hR@20", "hR@50",
-						"R@10", "R@20", "R@50", "mR@10", "mR@20", "mR@50", "hR@10", "hR@20", "hR@50"
-					])
-					for train_ff in train_ff_loss_list:
-						for method_name in methods:
-							method_name = self.fetch_method_name_json(method_name)
-							method_name_csv = self.fetch_method_name_csv(method_name)
-							writer.writerow([
-								train_ff,
-								method_name_csv,
-								context_results_json[cf][mode][train_ff][method_name][0]["R@10"],
-								context_results_json[cf][mode][train_ff][method_name][0]["R@20"],
-								context_results_json[cf][mode][train_ff][method_name][0]["R@50"],
-								context_results_json[cf][mode][train_ff][method_name][0]["mR@10"],
-								context_results_json[cf][mode][train_ff][method_name][0]["mR@20"],
-								context_results_json[cf][mode][train_ff][method_name][0]["mR@50"],
-								context_results_json[cf][mode][train_ff][method_name][0]["hR@10"],
-								context_results_json[cf][mode][train_ff][method_name][0]["hR@20"],
-								context_results_json[cf][mode][train_ff][method_name][0]["hR@50"],
-								context_results_json[cf][mode][train_ff][method_name][1]["R@10"],
-								context_results_json[cf][mode][train_ff][method_name][1]["R@20"],
-								context_results_json[cf][mode][train_ff][method_name][1]["R@50"],
-								context_results_json[cf][mode][train_ff][method_name][1]["mR@10"],
-								context_results_json[cf][mode][train_ff][method_name][1]["mR@20"],
-								context_results_json[cf][mode][train_ff][method_name][1]["mR@50"],
-								context_results_json[cf][mode][train_ff][method_name][1]["hR@10"],
-								context_results_json[cf][mode][train_ff][method_name][1]["hR@20"],
-								context_results_json[cf][mode][train_ff][method_name][1]["hR@50"],
-								context_results_json[cf][mode][train_ff][method_name][2]["R@10"],
-								context_results_json[cf][mode][train_ff][method_name][2]["R@20"],
-								context_results_json[cf][mode][train_ff][method_name][2]["R@50"],
-								context_results_json[cf][mode][train_ff][method_name][2]["mR@10"],
-								context_results_json[cf][mode][train_ff][method_name][2]["mR@20"],
-								context_results_json[cf][mode][train_ff][method_name][2]["mR@50"],
-								context_results_json[cf][mode][train_ff][method_name][2]["hR@10"],
-								context_results_json[cf][mode][train_ff][method_name][2]["hR@20"],
-								context_results_json[cf][mode][train_ff][method_name][2]["hR@50"]
-							])
+	def fetch_sga_results_json(self):
+		db_results = self.fetch_db_sga_results()
+		sga_results_json = {}
+		for mode in self.mode_list:
+			sga_results_json[mode] = {}
+			for method_name in self.method_list:
+				sga_results_json[mode][method_name] = {}
+				for scenario_name in self.scenario_list:
+					sga_results_json[mode][method_name][scenario_name] = {}
+					for cf in self.context_fraction_list:
+						if scenario_name == "full":
+							sga_results_json[mode][method_name][scenario_name][cf] = self.fetch_empty_metrics_json()
+						else:
+							sga_results_json[mode][method_name][scenario_name][cf] = {}
+							percentage_list = self.partial_percentages if scenario_name == "partial" else self.label_noise_percentages
+							for percentage_num in percentage_list:
+								sga_results_json[mode][method_name][scenario_name][cf][
+									percentage_num] = self.fetch_empty_metrics_json()
+		
+		for sga_result in db_results:
+			mode = sga_result.mode
+			method_name = sga_result.method_name
+			scenario_name = sga_result.scenario_name
+			if sga_result.context_fraction is None:
+				continue
+			cf = sga_result.context_fraction
+			if scenario_name == "full":
+				with_constraint_metrics = sga_result.result_details.with_constraint_metrics
+				no_constraint_metrics = sga_result.result_details.no_constraint_metrics
+				semi_constraint_metrics = sga_result.result_details.semi_constraint_metrics
+				completed_metrics_json = self.fetch_completed_metrics_json(
+					with_constraint_metrics,
+					no_constraint_metrics,
+					semi_constraint_metrics
+				)
+				sga_results_json[mode][method_name][scenario_name][cf] = completed_metrics_json
+				continue
+			else:
+				percentage_num = sga_result.partial_percentage if scenario_name == "partial" else sga_result.label_noise_percentage
+				with_constraint_metrics = sga_result.result_details.with_constraint_metrics
+				no_constraint_metrics = sga_result.result_details.no_constraint_metrics
+				semi_constraint_metrics = sga_result.result_details.semi_constraint_metrics
+				completed_metrics_json = self.fetch_completed_metrics_json(
+					with_constraint_metrics,
+					no_constraint_metrics,
+					semi_constraint_metrics
+				)
+				sga_results_json[mode][method_name][scenario_name][cf][percentage_num] = completed_metrics_json
+		
+		return sga_results_json
 	
-	def generate_complete_future_frame_results_csvs(self, ff_results_json, test_ff_list, train_ff_loss_list, modes, methods):
-		for test_num_ff in test_ff_list:
-			for mode in modes:
-				csv_file_name = f"{mode}_{test_num_ff}.csv"
-				csv_file_path = os.path.join(os.path.dirname(__file__), "results_docs",
-				                             "complete_test_future_results_csvs", csv_file_name)
-				os.makedirs(os.path.dirname(csv_file_path), exist_ok=True)
-				with open(csv_file_path, "a", newline='') as csv_file:
-					writer = csv.writer(csv_file, quoting=csv.QUOTE_NONNUMERIC)
-					writer.writerow([
-						"Anticipation Loss", "Method Name",
-						"R@10", "R@20", "R@50", "mR@10", "mR@20", "mR@50", "hR@10", "hR@20", "hR@50",
-						"R@10", "R@20", "R@50", "mR@10", "mR@20", "mR@50", "hR@10", "hR@20", "hR@50",
-						"R@10", "R@20", "R@50", "mR@10", "mR@20", "mR@50", "hR@10", "hR@20", "hR@50"
-					])
-					for train_ff in train_ff_loss_list:
-						for method_name in methods:
-							method_name = self.fetch_method_name_json(method_name)
-							method_name_csv = self.fetch_method_name_csv(method_name)
-							writer.writerow([
-								train_ff,
-								method_name_csv,
-								ff_results_json[test_num_ff][mode][train_ff][method_name][0]["R@10"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][0]["R@20"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][0]["R@50"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][0]["mR@10"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][0]["mR@20"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][0]["mR@50"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][0]["hR@10"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][0]["hR@20"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][0]["hR@50"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][1]["R@10"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][1]["R@20"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][1]["R@50"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][1]["mR@10"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][1]["mR@20"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][1]["mR@50"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][1]["hR@10"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][1]["hR@20"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][1]["hR@50"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][2]["R@10"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][2]["R@20"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][2]["R@50"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][2]["mR@10"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][2]["mR@20"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][2]["mR@50"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][2]["hR@10"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][2]["hR@20"],
-								ff_results_json[test_num_ff][mode][train_ff][method_name][2]["hR@50"]
-							])
+	def generate_sga_results_csvs(self, sga_results_json):
+		for mode in self.mode_list:
+			csv_file_name = f"sga_combined_{mode}.csv"
+			csv_file_path = os.path.join(os.path.dirname(__file__), "../../results_docs", "mode_results_csvs",
+			                             csv_file_name)
+			os.makedirs(os.path.dirname(csv_file_path), exist_ok=True)
+			with open(csv_file_path, "a", newline='') as csv_file:
+				writer = csv.writer(csv_file, quoting=csv.QUOTE_NONNUMERIC)
+				writer.writerow([
+					"Method Name", "Scenario Name", "Severity Level", "Context Fraction",
+					"R@10", "R@20", "R@50", "R@100",
+					"mR@10", "mR@20", "mR@50", "mR@100",
+					"R@10", "R@20", "R@50", "R@100",
+					"mR@10", "mR@20", "mR@50", "mR@100",
+					"R@10", "R@20", "R@50", "R@100",
+					"mR@10", "mR@20", "mR@50", "mR@100"
+				])
+				for method_name in self.method_list:
+					for scenario_name in self.scenario_list:
+						if scenario_name == "full":
+							for cf in self.context_fraction_list:
+								writer.writerow([
+									method_name,
+									scenario_name,
+									"-",
+									cf,
+									sga_results_json[mode][method_name][scenario_name][cf][0]["R@10"],
+									sga_results_json[mode][method_name][scenario_name][cf][0]["R@20"],
+									sga_results_json[mode][method_name][scenario_name][cf][0]["R@50"],
+									sga_results_json[mode][method_name][scenario_name][cf][0]["R@100"],
+									sga_results_json[mode][method_name][scenario_name][cf][0]["mR@10"],
+									sga_results_json[mode][method_name][scenario_name][cf][0]["mR@20"],
+									sga_results_json[mode][method_name][scenario_name][cf][0]["mR@50"],
+									sga_results_json[mode][method_name][scenario_name][cf][0]["mR@100"],
+									sga_results_json[mode][method_name][scenario_name][cf][1]["R@10"],
+									sga_results_json[mode][method_name][scenario_name][cf][1]["R@20"],
+									sga_results_json[mode][method_name][scenario_name][cf][1]["R@50"],
+									sga_results_json[mode][method_name][scenario_name][cf][1]["R@100"],
+									sga_results_json[mode][method_name][scenario_name][cf][1]["mR@10"],
+									sga_results_json[mode][method_name][scenario_name][cf][1]["mR@20"],
+									sga_results_json[mode][method_name][scenario_name][cf][1]["mR@50"],
+									sga_results_json[mode][method_name][scenario_name][cf][1]["mR@100"],
+									sga_results_json[mode][method_name][scenario_name][cf][2]["R@10"],
+									sga_results_json[mode][method_name][scenario_name][cf][2]["R@20"],
+									sga_results_json[mode][method_name][scenario_name][cf][2]["R@50"],
+									sga_results_json[mode][method_name][scenario_name][cf][2]["R@100"],
+									sga_results_json[mode][method_name][scenario_name][cf][2]["mR@10"],
+									sga_results_json[mode][method_name][scenario_name][cf][2]["mR@20"],
+									sga_results_json[mode][method_name][scenario_name][cf][2]["mR@50"],
+									sga_results_json[mode][method_name][scenario_name][cf][2]["mR@100"]
+								])
+						else:
+							percentage_list = self.partial_percentages if scenario_name == "partial" else self.label_noise_percentages
+							for percentage_num in percentage_list:
+								for cf in self.context_fraction_list:
+									writer.writerow([
+										method_name,
+										scenario_name,
+										percentage_num,
+										cf,
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][0][
+											"R@10"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][0][
+											"R@20"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][0][
+											"R@50"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][0][
+											"R@100"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][0][
+											"mR@10"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][0][
+											"mR@20"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][0][
+											"mR@50"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][0][
+											"mR@100"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][1][
+											"R@10"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][1][
+											"R@20"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][1][
+											"R@50"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][1][
+											"R@100"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][1][
+											"mR@10"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][1][
+											"mR@20"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][1][
+											"mR@50"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][1][
+											"mR@100"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][2][
+											"R@10"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][2][
+											"R@20"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][2][
+											"R@50"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][2][
+											"R@100"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][2][
+											"mR@10"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][2][
+											"mR@20"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][2][
+											"mR@50"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][2][
+											"mR@100"]
+									])
 	
-	def fill_combined_context_fraction_values_matrix(self, values_matrix, idx, method_name, context_results_json,
-	                                                 context_fraction, mode, train_num_future_frame):
-		method_name = self.fetch_method_name_json(method_name)
-		values_matrix[idx, 0] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@10"])
-		values_matrix[idx, 1] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@20"])
-		values_matrix[idx, 2] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@50"])
-		values_matrix[idx, 3] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@10"])
-		values_matrix[idx, 4] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@20"])
-		values_matrix[idx, 5] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@50"])
-		values_matrix[idx, 6] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@10"])
-		values_matrix[idx, 7] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@20"])
-		values_matrix[idx, 8] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@50"])
-		values_matrix[idx, 9] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@10"])
-		values_matrix[idx, 10] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@20"])
-		values_matrix[idx, 11] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@50"])
-		return values_matrix
-	
-	def fill_combined_wn_context_fraction_values_matrix(self, values_matrix, idx, method_name, context_results_json,
-	                                                    context_fraction, mode, train_num_future_frame):
-		method_name = self.fetch_method_name_json(method_name)
-		values_matrix[idx, 0] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@10"])
-		values_matrix[idx, 1] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@20"])
-		values_matrix[idx, 2] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@50"])
-		values_matrix[idx, 3] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@10"])
-		values_matrix[idx, 4] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@20"])
-		values_matrix[idx, 5] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@50"])
-		values_matrix[idx, 6] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@10"])
-		values_matrix[idx, 7] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@20"])
-		values_matrix[idx, 8] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@50"])
-		values_matrix[idx, 9] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@10"])
-		values_matrix[idx, 10] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@20"])
-		values_matrix[idx, 11] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@50"])
-		return values_matrix
-	
-	def fill_combined_future_frame_values_matrix(self, values_matrix, idx, method_name, context_results_json,
-	                                             test_future_frame, mode, train_num_future_frame):
-		method_name = self.fetch_method_name_json(method_name)
-		values_matrix[idx, 0] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][0]["R@10"])
-		values_matrix[idx, 1] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][0]["R@20"])
-		values_matrix[idx, 2] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][0]["R@50"])
-		values_matrix[idx, 3] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][0]["mR@10"])
-		values_matrix[idx, 4] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][0]["mR@20"])
-		values_matrix[idx, 5] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][0]["mR@50"])
-		values_matrix[idx, 6] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][1]["R@10"])
-		values_matrix[idx, 7] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][1]["R@20"])
-		values_matrix[idx, 8] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][1]["R@50"])
-		values_matrix[idx, 9] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][1]["mR@10"])
-		values_matrix[idx, 10] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][1]["mR@20"])
-		values_matrix[idx, 11] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][1]["mR@50"])
-		return values_matrix
-	
-	def fill_combined_wn_future_frame_values_matrix(self, values_matrix, idx, method_name, context_results_json,
-	                                                test_future_frame, mode, train_num_future_frame):
-		method_name = self.fetch_method_name_json(method_name)
-		values_matrix[idx, 0] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][0]["R@10"])
-		values_matrix[idx, 1] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][0]["R@20"])
-		values_matrix[idx, 2] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][0]["R@50"])
-		values_matrix[idx, 3] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][1]["R@10"])
-		values_matrix[idx, 4] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][1]["R@20"])
-		values_matrix[idx, 5] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][1]["R@50"])
-		values_matrix[idx, 6] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][0]["mR@10"])
-		values_matrix[idx, 7] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][0]["mR@20"])
-		values_matrix[idx, 8] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][0]["mR@50"])
-		values_matrix[idx, 9] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][1]["mR@10"])
-		values_matrix[idx, 10] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][1]["mR@20"])
-		values_matrix[idx, 11] = fetch_value(
-			context_results_json[test_future_frame][mode][train_num_future_frame][method_name][1]["mR@50"])
-		return values_matrix
+	def compile_sga_results(self):
+		sga_results_json = self.fetch_sga_results_json()
+		self.generate_sga_results_csvs(sga_results_json)
+
+
+def main():
+	prepare_results_sga = PrepareResultsSGA()
+	prepare_results_sga.compile_sga_results()
+
+
+if __name__ == "__main__":
+	main()

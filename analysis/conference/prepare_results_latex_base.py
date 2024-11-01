@@ -1,4 +1,4 @@
-from analysis.conference.prepare_results_base import PrepareResultsBase
+from analysis.conference.prepare_results_base import PrepareResultsBase, fetch_value
 
 
 class PrepareResultsLatexBase(PrepareResultsBase):
@@ -93,3 +93,61 @@ class PrepareResultsLatexBase(PrepareResultsBase):
 		latex_footer += "    }\n"
 		latex_footer += "\\end{table}\n"
 		return latex_footer
+	
+	def fill_combined_context_fraction_values_matrix(self, values_matrix, idx, method_name, context_results_json,
+	                                                 context_fraction, mode, train_num_future_frame):
+		method_name = self.fetch_method_name_json(method_name)
+		values_matrix[idx, 0] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@10"])
+		values_matrix[idx, 1] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@20"])
+		values_matrix[idx, 2] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@50"])
+		values_matrix[idx, 3] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@10"])
+		values_matrix[idx, 4] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@20"])
+		values_matrix[idx, 5] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@50"])
+		values_matrix[idx, 6] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@10"])
+		values_matrix[idx, 7] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@20"])
+		values_matrix[idx, 8] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@50"])
+		values_matrix[idx, 9] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@10"])
+		values_matrix[idx, 10] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@20"])
+		values_matrix[idx, 11] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@50"])
+		return values_matrix
+	
+	def fill_combined_wn_context_fraction_values_matrix(self, values_matrix, idx, method_name, context_results_json,
+	                                                    context_fraction, mode, train_num_future_frame):
+		method_name = self.fetch_method_name_json(method_name)
+		values_matrix[idx, 0] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@10"])
+		values_matrix[idx, 1] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@20"])
+		values_matrix[idx, 2] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@50"])
+		values_matrix[idx, 3] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@10"])
+		values_matrix[idx, 4] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@20"])
+		values_matrix[idx, 5] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@50"])
+		values_matrix[idx, 6] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@10"])
+		values_matrix[idx, 7] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@20"])
+		values_matrix[idx, 8] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@50"])
+		values_matrix[idx, 9] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@10"])
+		values_matrix[idx, 10] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@20"])
+		values_matrix[idx, 11] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@50"])
+		return values_matrix

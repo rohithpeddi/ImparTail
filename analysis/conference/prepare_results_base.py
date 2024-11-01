@@ -30,9 +30,12 @@ class PrepareResultsBase:
 	def __init__(self):
 		self.db_service = FirebaseService()
 		self.database_name = "results_31_10"
+		
+		self.sga_database_name = "results_31_10_sga"
+		self.sgg_database_name = "results_31_10_sgg"
 	
 	def fetch_db_sgg_results(self):
-		results_dict = self.db_service.fetch_results_from_db(self.database_name)
+		results_dict = self.db_service.fetch_results_from_db(self.sgg_database_name)
 		sgg_db_result_list = []
 		for result_id, result_dict in results_dict.items():
 			result = Result.from_dict(result_dict)
@@ -41,7 +44,7 @@ class PrepareResultsBase:
 		return sgg_db_result_list
 	
 	def fetch_db_sga_results(self):
-		results_dict = self.db_service.fetch_results_from_db(self.database_name)
+		results_dict = self.db_service.fetch_results_from_db(self.sga_database_name)
 		sgg_db_result_list = []
 		for result_id, result_dict in results_dict.items():
 			result = Result.from_dict(result_dict)

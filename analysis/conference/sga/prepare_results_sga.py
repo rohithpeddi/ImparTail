@@ -68,9 +68,9 @@ class PrepareResultsSGA(PrepareResultsBase):
 		
 		return sga_results_json
 	
-	def generate_sga_results_csvs(self, sga_results_json):
+	def generate_sga_results_csvs_method_wise(self, sga_results_json):
 		for mode in self.mode_list:
-			csv_file_name = f"sga_combined_{mode}.csv"
+			csv_file_name = f"sga_combined_method_wise_{mode}.csv"
 			csv_file_path = os.path.join(os.path.dirname(__file__), "../../results_docs", "mode_results_csvs",
 			                             csv_file_name)
 			os.makedirs(os.path.dirname(csv_file_path), exist_ok=True)
@@ -178,9 +178,119 @@ class PrepareResultsSGA(PrepareResultsBase):
 											"mR@100"]
 									])
 	
+	def generate_sga_results_csvs_context_wise(self, sga_results_json):
+		for mode in self.mode_list:
+			csv_file_name = f"sga_combined_context_wise_{mode}.csv"
+			csv_file_path = os.path.join(os.path.dirname(__file__), "../../results_docs", "mode_results_csvs",
+			                             csv_file_name)
+			os.makedirs(os.path.dirname(csv_file_path), exist_ok=True)
+			with open(csv_file_path, "a", newline='') as csv_file:
+				writer = csv.writer(csv_file, quoting=csv.QUOTE_NONNUMERIC)
+				writer.writerow([
+					"Context Fraction", "Method Name", "Scenario Name", "Severity Level",
+					"R@10", "R@20", "R@50", "R@100",
+					"mR@10", "mR@20", "mR@50", "mR@100",
+					"R@10", "R@20", "R@50", "R@100",
+					"mR@10", "mR@20", "mR@50", "mR@100",
+					"R@10", "R@20", "R@50", "R@100",
+					"mR@10", "mR@20", "mR@50", "mR@100"
+				])
+				for cf in self.context_fraction_list:
+					for method_name in self.method_list:
+						for scenario_name in self.scenario_list:
+							if scenario_name == "full":
+								writer.writerow([
+									cf,
+									method_name,
+									scenario_name,
+									"-",
+									sga_results_json[mode][method_name][scenario_name][cf][0]["R@10"],
+									sga_results_json[mode][method_name][scenario_name][cf][0]["R@20"],
+									sga_results_json[mode][method_name][scenario_name][cf][0]["R@50"],
+									sga_results_json[mode][method_name][scenario_name][cf][0]["R@100"],
+									sga_results_json[mode][method_name][scenario_name][cf][0]["mR@10"],
+									sga_results_json[mode][method_name][scenario_name][cf][0]["mR@20"],
+									sga_results_json[mode][method_name][scenario_name][cf][0]["mR@50"],
+									sga_results_json[mode][method_name][scenario_name][cf][0]["mR@100"],
+									sga_results_json[mode][method_name][scenario_name][cf][1]["R@10"],
+									sga_results_json[mode][method_name][scenario_name][cf][1]["R@20"],
+									sga_results_json[mode][method_name][scenario_name][cf][1]["R@50"],
+									sga_results_json[mode][method_name][scenario_name][cf][1]["R@100"],
+									sga_results_json[mode][method_name][scenario_name][cf][1]["mR@10"],
+									sga_results_json[mode][method_name][scenario_name][cf][1]["mR@20"],
+									sga_results_json[mode][method_name][scenario_name][cf][1]["mR@50"],
+									sga_results_json[mode][method_name][scenario_name][cf][1]["mR@100"],
+									sga_results_json[mode][method_name][scenario_name][cf][2]["R@10"],
+									sga_results_json[mode][method_name][scenario_name][cf][2]["R@20"],
+									sga_results_json[mode][method_name][scenario_name][cf][2]["R@50"],
+									sga_results_json[mode][method_name][scenario_name][cf][2]["R@100"],
+									sga_results_json[mode][method_name][scenario_name][cf][2]["mR@10"],
+									sga_results_json[mode][method_name][scenario_name][cf][2]["mR@20"],
+									sga_results_json[mode][method_name][scenario_name][cf][2]["mR@50"],
+									sga_results_json[mode][method_name][scenario_name][cf][2]["mR@100"]
+								])
+							else:
+								percentage_list = self.partial_percentages if scenario_name == "partial" else self.label_noise_percentages
+								for percentage_num in percentage_list:
+									writer.writerow([
+										cf,
+										method_name,
+										scenario_name,
+										percentage_num,
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][0][
+											"R@10"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][0][
+											"R@20"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][0][
+											"R@50"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][0][
+											"R@100"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][0][
+											"mR@10"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][0][
+											"mR@20"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][0][
+											"mR@50"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][0][
+											"mR@100"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][1][
+											"R@10"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][1][
+											"R@20"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][1][
+											"R@50"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][1][
+											"R@100"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][1][
+											"mR@10"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][1][
+											"mR@20"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][1][
+											"mR@50"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][1][
+											"mR@100"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][2][
+											"R@10"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][2][
+											"R@20"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][2][
+											"R@50"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][2][
+											"R@100"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][2][
+											"mR@10"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][2][
+											"mR@20"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][2][
+											"mR@50"],
+										sga_results_json[mode][method_name][scenario_name][cf][percentage_num][2][
+											"mR@100"]
+									])
+	
 	def compile_sga_results(self):
 		sga_results_json = self.fetch_sga_results_json()
-		self.generate_sga_results_csvs(sga_results_json)
+		self.generate_sga_results_csvs_method_wise(sga_results_json)
+		self.generate_sga_results_csvs_context_wise(sga_results_json)
 
 
 def main():

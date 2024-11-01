@@ -221,11 +221,11 @@ class TestSTSGBase(STSGBase):
                     scenario_dir = os.path.join(task_dir, "corruptions")
                 elif self._conf.use_partial_annotations:
                     file_name = (f'{self._conf.method_name}_partial_{self._conf.partial_percentage}_'
-                                 f'{self._conf.mode}_{self._conf.max_window}_test_{future_frame_window}.csv')
+                                 f'{self._conf.mode}_train_{self._conf.max_window}_test_{future_frame_window}.csv')
                     scenario_dir = os.path.join(task_dir, "partial")
                 elif self._conf.use_label_noise:
                     file_name = (f'{self._conf.method_name}_label_noise_{self._conf.label_noise_percentage}_'
-                                 f'{self._conf.mode}_{self._conf.max_window}_test_{future_frame_window}.csv')
+                                 f'{self._conf.mode}_train_{self._conf.max_window}_test_{future_frame_window}.csv')
                     scenario_dir = os.path.join(task_dir, "labelnoise")
                 else:
                     file_name = f'{self._conf.method_name}_{self._conf.mode}_train_{self._conf.max_window}_test_{future_frame_window}.csv'

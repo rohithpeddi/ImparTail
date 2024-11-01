@@ -175,7 +175,7 @@ class Result:
 			result_dict[const.CORRUPTION_SEVERITY] = self.corruption_severity
 		
 		if self.label_noise_percentage is not None:
-			result_dict[const.LABEL_NOISE_PERCENTAGE] = self.label_noise_percentage
+			result_dict[const.LABELNOISE_PERCENTAGE] = self.label_noise_percentage
 		
 		if self.partial_percentage is not None:
 			result_dict[const.PARTIAL_PERCENTAGE] = self.partial_percentage
@@ -210,8 +210,8 @@ class Result:
 		if const.CORRUPTION_SEVERITY in result_dict:
 			result.corruption_severity = result_dict[const.CORRUPTION_SEVERITY]
 		
-		if const.LABEL_NOISE_PERCENTAGE in result_dict:
-			result.label_noise_percentage = result_dict[const.LABEL_NOISE_PERCENTAGE]
+		if const.LABELNOISE_PERCENTAGE in result_dict:
+			result.label_noise_percentage = result_dict[const.LABELNOISE_PERCENTAGE]
 		
 		if const.PARTIAL_PERCENTAGE in result_dict:
 			result.partial_percentage = result_dict[const.PARTIAL_PERCENTAGE]

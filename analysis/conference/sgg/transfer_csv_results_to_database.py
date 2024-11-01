@@ -41,14 +41,14 @@ def transfer_sgg(
 			if scenario_name == const.PARTIAL:
 				partial_percentage = 10
 				result.partial_percentage = partial_percentage
-			elif scenario_name == const.LABEL_NOISE:
+			elif scenario_name == const.LABELNOISE:
 				label_noise_percentage = 20
 				result.label_noise_percentage = label_noise_percentage
 			
 			result.add_result_details(result_details)
 			print("-----------------------------------------------------------------------------------")
 			print("Saving result: ", result.result_id)
-			db_service.update_result_to_db("results_31_10", result.result_id, result.to_dict())
+			db_service.update_result_to_db("results_31_10_sgg", result.result_id, result.to_dict())
 			print("Saved result: ", result.result_id)
 			print("-----------------------------------------------------------------------------------")
 
@@ -69,7 +69,7 @@ def transfer_results_from_directories_sgg():
 			
 			mode_name = (method_name_csv_file.split('.')[0]).split('_')[1]
 			assert mode_name in [const.SGCLS, const.SGDET, const.PREDCLS]
-			if task_name == const.SGG and scenario_name in [const.PARTIAL, const.LABEL_NOISE, const.FULL]:
+			if task_name == const.SGG and scenario_name in [const.PARTIAL, const.LABELNOISE, const.FULL]:
 				print(
 					f"[{task_name}][{scenario_name}][{mode_name}][{method_name_csv_file[:-4]}] Processing file: ",
 					method_name_csv_path)

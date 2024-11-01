@@ -342,8 +342,8 @@ class ResultConstants:
     PARTIAL_PERCENTAGE = "partial_percentage"
     FULL = "full"
     PARTIAL = "partial"
-    LABEL_NOISE = "labelnoise"
-    LABEL_NOISE_PERCENTAGE = "label_noise_percentage"
+    LABELNOISE = "labelnoise"
+    LABELNOISE_PERCENTAGE = "label_noise_percentage"
     CORRUPTION_SEVERITY = "corruption_severity"
     
     SCENARIO_NAME = "scenario_name"

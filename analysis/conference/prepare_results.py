@@ -4,8 +4,8 @@ from prepare_results_base import *
 from constants import CorruptionConstants as const
 
 
-def compile_image_based_corruption_results():
-	rob_sgg_results = fetch_rob_sgg_results()
+def compile_image_based_corruption_results(self):
+	rob_sgg_results = self.fetch_rob_sgg_results()
 	image_based_corruption_results_json = {}
 	for corruption_name in image_based_corruptions:
 		image_based_corruption_results_json[corruption_name] = {}

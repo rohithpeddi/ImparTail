@@ -1,0 +1,11 @@
+# -------------------------- Partial Annotations Percentage 10 --------------------------
+
+python train_easg_methods.py --task_name=easg --method_name=easg --use_partial_annotations --partial_percentage=10
+
+# -------------------------- Partial Annotations Percentage 20 --------------------------
+
+python train_easg_methods.py --task_name=easg --method_name=easg --use_partial_annotations --partial_percentage=40
+
+# -------------------------- Partial Annotations Percentage 30 --------------------------
+
+python train_easg_methods.py --task_name=easg --method_name=easg --use_partial_annotations --partial_percentage=70

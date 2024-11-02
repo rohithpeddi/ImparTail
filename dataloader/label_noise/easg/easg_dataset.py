@@ -1,3 +1,5 @@
+import random
+
 import torch
 
 from dataloader.base_easg_dataset import BaseEASGData
@@ -65,7 +67,12 @@ class LabelNoiseEASG(BaseEASGData):
         for graph in graphs:
             graph_batch = {}
             verb_idx = graph['verb_idx']
-            # TODO: Change this using label noise percentage
+            if self._conf.use_label_noise:
+                label_noise_percentage = self._conf.label_noise_percentage * 0.01
+                random_num = random.random()
+                if random_num <= label_noise_percentage:
+                    verb_idx = random.randint(0, len(self.verbs) - 1)
+
             graph_batch['verb_idx'] = torch.tensor([verb_idx], dtype=torch.long)
             graph_batch['clip_feat'] = graph['clip_feat']
             graph_batch['obj_indices'] = torch.zeros(0, dtype=torch.long)
@@ -74,19 +81,42 @@ class LabelNoiseEASG(BaseEASGData):
             graph_batch['triplets'] = torch.zeros((0, 3), dtype=torch.long)
 
             for obj_idx in graph['objs']:
-                graph_batch['obj_indices'] = torch.cat((graph_batch['obj_indices'], torch.tensor([obj_idx], dtype=torch.long)), dim=0)
-                graph_batch['obj_feats'] = torch.cat((graph_batch['obj_feats'], graph['objs'][obj_idx]['obj_feat'].unsqueeze(0)), dim=0)
+                graph_batch['obj_indices'] = torch.cat(
+                    (graph_batch['obj_indices'], torch.tensor([obj_idx], dtype=torch.long)), dim=0
+                )
+                graph_batch['obj_feats'] = torch.cat(
+                    (graph_batch['obj_feats'], graph['objs'][obj_idx]['obj_feat'].unsqueeze(0)), dim=0
+                )
 
                 rels_vec = graph['objs'][obj_idx]['rels_vec']
-                graph_batch['rels_vecs'] = torch.cat((graph_batch['rels_vecs'], rels_vec.unsqueeze(0)), dim=0)
+                graph_batch['rels_vecs'] = torch.cat(
+                    (graph_batch['rels_vecs'], rels_vec.unsqueeze(0)), dim=0
+                )
 
                 triplets = []
                 for rel_idx in torch.where(rels_vec)[0]:
                     triplets.append((verb_idx, obj_idx, rel_idx.item()))
-                graph_batch['triplets'] = torch.cat((graph_batch['triplets'], torch.tensor(triplets, dtype=torch.long)), dim=0)
+                graph_batch['triplets'] = torch.cat(
+                    (graph_batch['triplets'], torch.tensor(triplets, dtype=torch.long)), dim=0
+                )
 
-            # TODO: Change obj_indices using label noise percentage
-            # TODO: Change rels_vecs using label noise percentage
+            # Apply label noise to object indices and relationships
+            if self._conf.use_label_noise:
+                label_noise_percentage = self._conf.label_noise_percentage * 0.01
+
+                assert len(graph_batch['obj_indices'].shape) == 1
+
+                num_objs = graph_batch['obj_indices'].shape[0]
+                num_to_change = int(label_noise_percentage * num_objs)
+                if num_to_change > 0:
+                    # Randomly select indices to change
+                    indices_to_change = torch.randperm(num_objs)[:num_to_change]
+                    for idx in indices_to_change:
+                        # Replace with a random object index
+                        random_obj_idx = random.randint(0, len(self.objs) - 1)
+                        graph_batch['obj_indices'][idx] = random_obj_idx
+                        # Replace rels_vecs with the rels_vec of the new object index
+                        graph_batch['rels_vecs'][idx] = self.objs[random_obj_idx]['rels_vec']
 
             self.graphs.append(graph_batch)
 

@@ -23,6 +23,7 @@ class EASGBase:
         # Load checkpoint name
         self._checkpoint_name = None
         self._checkpoint_save_dir_path = None
+        self._corruption_name = None
 
         # Init Wandb
         self._enable_wandb = self._conf.use_wandb

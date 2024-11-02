@@ -1,3 +1,5 @@
+import csv
+import os
 from abc import abstractmethod
 
 import torch
@@ -7,6 +9,7 @@ from tqdm import tqdm
 from dataloader.standard.easg.easg_dataset import StandardEASG
 from easg_base import EASGBase
 from constants import EgoConstants as const
+
 
 class TestEASGBase(EASGBase):
 
@@ -26,7 +29,6 @@ class TestEASGBase(EASGBase):
     def _test_model(self):
         val_iter = iter(self._dataloader_val)
         self._model.eval()
-        # self._object_detector.is_train = False
         with torch.no_grad():
             for b in tqdm(range(len(self._dataloader_val))):
                 graph = next(val_iter)
@@ -57,6 +59,48 @@ class TestEASGBase(EASGBase):
         ]
         return collated_stats
 
+    def _publish_evaluation_results(self):
+        collated_stats = self._collate_evaluation_stats()
+        self._write_evaluation_statistics(collated_stats)
+
+    def _write_evaluation_statistics(self, collated_stats):
+        # Create the results directory
+        results_dir = os.path.join(os.getcwd(), 'results')
+        task_dir = os.path.join(results_dir, "easg")
+
+        if self._conf.use_input_corruptions:
+            scenario_dir = os.path.join(task_dir, "corruptions")
+            file_name = f'{self._conf.method_name}_{self._conf.mode}_{self._corruption_name}.csv'
+        elif self._conf.use_partial_annotations:
+            scenario_dir = os.path.join(task_dir, "partial")
+            file_name = f'{self._conf.method_name}_partial_{self._conf.partial_percentage}.csv'
+        elif self._conf.use_label_noise:
+            scenario_dir = os.path.join(task_dir, "labelnoise")
+            file_name = f'{self._conf.method_name}_label_noise_{self._conf.label_noise_percentage}.csv'
+        else:
+            scenario_dir = os.path.join(task_dir, "full")
+            file_name = f'{self._conf.method_name}_{self._conf.mode}.csv'
+
+        assert scenario_dir is not None, "Scenario directory is not set"
+        mode_results_dir = os.path.join(scenario_dir, self._conf.mode)
+        os.makedirs(mode_results_dir, exist_ok=True)
+        results_file_path = os.path.join(mode_results_dir, file_name)
+
+        with open(results_file_path, "a", newline='') as activity_idx_step_idx_annotation_csv_file:
+            writer = csv.writer(activity_idx_step_idx_annotation_csv_file, quoting=csv.QUOTE_NONNUMERIC)
+            # Write the header
+            if not os.path.isfile(results_file_path):
+                writer.writerow([
+                    "Method Name",
+                    "R@10", "R@20", "R@50", "R@100", "mR@10", "mR@20", "mR@50", "mR@100", "hR@10", "hR@20", "hR@50",
+                    "hR@100",
+                    "R@10", "R@20", "R@50", "R@100", "mR@10", "mR@20", "mR@50", "mR@100", "hR@10", "hR@20", "hR@50",
+                    "hR@100",
+                    "R@10", "R@20", "R@50", "R@100", "mR@10", "mR@20", "mR@50", "mR@100", "hR@10", "hR@20", "hR@50",
+                    "hR@100"
+                ])
+                # Write the results row
+            writer.writerow(collated_stats)
 
     @abstractmethod
     def init_model(self):

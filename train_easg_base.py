@@ -99,17 +99,6 @@ class TrainEASGBase(EASGBase):
                 self._optimizer.step()
 
                 tr.append(pd.Series({x: y.item() for x, y in losses.items()}))
-
-                # if counter % 1000 == 0 and counter >= 1000:
-                #     time_per_batch = (time.time() - start_time) / 1000
-                #     print(
-                #         "\ne{:2d}  b{:5d}/{:5d}  {:.3f}s/batch, {:.1f}m/epoch".format(epoch, counter,
-                #                                                                       len(self._dataloader_train),
-                #                                                                       time_per_batch,
-                #                                                                       len(self._dataloader_train) * time_per_batch / 60))
-                #     mn = pd.concat(tr[-1000:], axis=1).mean(1)
-                #     print(mn)
-                #     start_time = time.time()
                 counter += 1
 
             # val_iter = iter(self._dataloader_val)

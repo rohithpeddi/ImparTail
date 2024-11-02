@@ -11,45 +11,82 @@ class BasicEgoActionSceneGraphEvaluator:
         self.num_top_verb = 5
         self.num_top_rel_with = 1
         self.num_top_rel_no = 5
+        self.num_rel = 13
         self.list_k = [10, 20, 50]
+
+        self.mode_setting_keys = [
+            "predcls_with",
+            "predcls_no",
+            "sgcls_with",
+            "sgcls_no",
+            "easgcls_with",
+            "easgcls_no"
+        ]
+
+        self.recall_result_dict = {}
+        self.mean_recall_result_dict = {}
 
         self._init_recall_dicts()
 
     def _init_recall_dicts(self):
-        self.recall_predcls_with = {k: [] for k in self.list_k}
-        self.recall_predcls_no = {k: [] for k in self.list_k}
-        self.recall_sgcls_with = {k: [] for k in self.list_k}
-        self.recall_sgcls_no = {k: [] for k in self.list_k}
-        self.recall_easgcls_with = {k: [] for k in self.list_k}
-        self.recall_easgcls_no = {k: [] for k in self.list_k}
+        for key in self.mode_setting_keys:
+            self.recall_result_dict[key] = {k: [] for k in self.list_k}
+            self.mean_recall_result_dict[key] = {k: [[] for _ in range(self.num_rel)] for k in self.list_k}
 
-    def reset_result(self):
-        for k in self.list_k:
-            self.recall_predcls_with[k] = []
-            self.recall_predcls_no[k] = []
-            self.recall_sgcls_with[k] = []
-            self.recall_sgcls_no[k] = []
-            self.recall_easgcls_with[k] = []
-            self.recall_easgcls_no[k] = []
+    def _reset_recall_dicts(self):
+        for key in self.mode_setting_keys:
+            for k in self.list_k:
+                self.recall_result_dict[key][k] = []
+                self.mean_recall_result_dict[key][k] = [[] for _ in range(self.num_rel)]
+
+    def fetch_stats_json(self):
+        recall_dict = {}
+        mean_recall_dict = {}
+        harmonic_mean_recall_dict = {}
+
+        for key, mode_setting_dict in self.recall_result_dict.items():
+            recall_dict[key] = {}
+            for k, score_list in mode_setting_dict.items():
+                recall_value = sum(score_list) / len(score_list) * 100
+                recall_dict[key][k] = recall_value
+
+        for key, mode_setting_dict in self.mean_recall_result_dict.items():
+            mean_recall_dict[key] = {}
+            for k, all_rel_score_list in mode_setting_dict.items():
+                sum_recall = sum(
+                    [sum(rel_score_list) if rel_score_list else 0.0 for rel_score_list in all_rel_score_list])
+                mean_recall_value = sum_recall / float(self.num_rel)
+                mean_recall_dict[key][k] = mean_recall_value
+
+        for key, recall_dict in recall_dict.items():
+            mean_recall_dict = mean_recall_dict[key]
+            harmonic_mean_recall_dict[key] = {}
+            for k, recall_value in recall_dict.items():
+                mean_recall_value = mean_recall_dict[k]
+                harmonic_mean = 2 * mean_recall_value * recall_value / (mean_recall_value + recall_value)
+                harmonic_mean_recall_dict[key][k] = harmonic_mean
+
+        results_dict = {
+            "recall": recall_dict,
+            "mean_recall": mean_recall_dict,
+            "harmonic_mean_recall": harmonic_mean_recall_dict
+        }
+
+        return results_dict
 
     def print_stats(self):
-        for k in self.list_k:
-            self.recall_predcls_with[k] = sum(self.recall_predcls_with[k]) / len(self.recall_predcls_with[k]) * 100
-            self.recall_predcls_no[k] = sum(self.recall_predcls_no[k]) / len(self.recall_predcls_no[k]) * 100
-            self.recall_sgcls_with[k] = sum(self.recall_sgcls_with[k]) / len(self.recall_sgcls_with[k]) * 100
-            self.recall_sgcls_no[k] = sum(self.recall_sgcls_no[k]) / len(self.recall_sgcls_no[k]) * 100
-            self.recall_easgcls_with[k] = sum(self.recall_easgcls_with[k]) / len(self.recall_easgcls_with[k]) * 100
-            self.recall_easgcls_no[k] = sum(self.recall_easgcls_no[k]) / len(self.recall_easgcls_no[k]) * 100
+        results_dict = self.fetch_stats_json()
+        print("-----------------------------------------------")
+        print("Results:")
+        for k, score_dict in results_dict["recall"].items():
+            print(f"Recall@{k}:")
+            for key, score in score_dict.items():
+                print(f"  {key}: {score:.2f}")
 
-        for k in self.list_k:
-            print("Recall@{}:".format(k))
-            print("  PredCls with: {:.2f}".format(self.recall_predcls_with[k]))
-            print("  PredCls no: {:.2f}".format(self.recall_predcls_no[k]))
-            print("  SGCls with: {:.2f}".format(self.recall_sgcls_with[k]))
-            print("  SGCls no: {:.2f}".format(self.recall_sgcls_no[k]))
-            print("  EASGCls with: {:.2f}".format(self.recall_easgcls_with[k]))
-            print("  EASGCls no: {:.2f}".format(self.recall_easgcls_no[k]))
-
+        for k, score_dict in results_dict["mean_recall"].items():
+            print(f"Mean Recall@{k}:")
+            for key, score in score_dict.items():
+                print(f"  {key}: {score:.2f}")
 
     @staticmethod
     def intersect_2d(out, gt):

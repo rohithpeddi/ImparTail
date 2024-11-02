@@ -54,10 +54,9 @@ class LabelNoiseEASG(BaseEASGData):
                     graph[verb_idx]['objs'][obj_idx]['rels_vec'][rel_idx] = 1
 
                     for frameType in self.roi_feats[graph_uid][aid][i]:
-                        graph[verb_idx]['objs'][obj_idx]['obj_feat'] = torch.cat((graph[verb_idx]['objs'][obj_idx][
-                                                                                      'obj_feat'],
-                                                                                  self.roi_feats[graph_uid][aid][i][
-                                                                                      frameType]), dim=0)
+                        graph[verb_idx]['objs'][obj_idx]['obj_feat'] = torch.cat(
+                            (graph[verb_idx]['objs'][obj_idx]['obj_feat'],
+                             self.roi_feats[graph_uid][aid][i][frameType]), dim=0)
 
             for verb_idx in graph:
                 for obj_idx in graph[verb_idx]['objs']:
@@ -73,18 +72,35 @@ class LabelNoiseEASG(BaseEASGData):
             for graph in graphs:
                 total_num_objs += len(graph['objs'])
             total_num_obj_idx_changes = int(self._conf.label_noise_percentage * 0.01 * total_num_objs)
-            num_obj_idx_changes_remaining = 0
+
+            # Step 1: Create a new graph_masks object
+            graph_masks = []  # List of masks for each graph
+            for graph in graphs:
+                mask = {}  # Mask for objs in the current graph
+                for obj_idx in graph['objs']:
+                    mask[obj_idx] = False  # Initialize all masks to False
+                graph_masks.append(mask)
+
+            # Step 2: Create a graph_object_mask that masks the given total number among all graph objects
+            # Collect all (graph index, object index) pairs
+            all_graph_obj_indices = []
+            for graph_idx, graph in enumerate(graphs):
+                for obj_idx in graph['objs']:
+                    all_graph_obj_indices.append((graph_idx, obj_idx))
+
+            # Randomly select objects to change based on total_num_obj_idx_changes
+            selected_indices = random.sample(all_graph_obj_indices, total_num_obj_idx_changes)
+
+            # Update the masks for the selected objects
+            for graph_idx, obj_idx in selected_indices:
+                graph_masks[graph_idx][obj_idx] = True
+        else:
+            graph_masks = None  # No label noise; masks are not needed
 
         self.graphs = []
-        for graph in graphs:
+        for graph_idx, graph in enumerate(graphs):
             graph_batch = {}
             verb_idx = graph['verb_idx']
-
-            if self._conf.use_label_noise:
-                label_noise_percentage = self._conf.label_noise_percentage * 0.01
-                random_num = random.random()
-                if random_num <= label_noise_percentage:
-                    verb_idx = random.randint(0, len(self.verbs) - 1)
 
             graph_batch['verb_idx'] = torch.tensor([verb_idx], dtype=torch.long)
             graph_batch['clip_feat'] = graph['clip_feat']
@@ -93,15 +109,28 @@ class LabelNoiseEASG(BaseEASGData):
             graph_batch['rels_vecs'] = torch.zeros((0, len(self.rels)), dtype=torch.float32)
             graph_batch['triplets'] = torch.zeros((0, 3), dtype=torch.long)
 
+            # Retrieve the mask for the current graph
+            if graph_masks is not None:
+                mask = graph_masks[graph_idx]
+            else:
+                mask = None
+
             for obj_idx in graph['objs']:
+                original_obj_idx = obj_idx  # Keep the original object index
+
+                # Apply the mask to change the object index if necessary
+                if mask is not None and mask[obj_idx]:
+                    # Change the obj_idx to a random index
+                    obj_idx = random.randint(0, len(self.objs) - 1)
+
                 graph_batch['obj_indices'] = torch.cat(
                     (graph_batch['obj_indices'], torch.tensor([obj_idx], dtype=torch.long)), dim=0
                 )
                 graph_batch['obj_feats'] = torch.cat(
-                    (graph_batch['obj_feats'], graph['objs'][obj_idx]['obj_feat'].unsqueeze(0)), dim=0
+                    (graph_batch['obj_feats'], graph['objs'][original_obj_idx]['obj_feat'].unsqueeze(0)), dim=0
                 )
 
-                rels_vec = graph['objs'][obj_idx]['rels_vec']
+                rels_vec = graph['objs'][original_obj_idx]['rels_vec']
                 graph_batch['rels_vecs'] = torch.cat(
                     (graph_batch['rels_vecs'], rels_vec.unsqueeze(0)), dim=0
                 )
@@ -109,9 +138,10 @@ class LabelNoiseEASG(BaseEASGData):
                 triplets = []
                 for rel_idx in torch.where(rels_vec)[0]:
                     triplets.append((verb_idx, obj_idx, rel_idx.item()))
-                graph_batch['triplets'] = torch.cat(
-                    (graph_batch['triplets'], torch.tensor(triplets, dtype=torch.long)), dim=0
-                )
+                if triplets:
+                    graph_batch['triplets'] = torch.cat(
+                        (graph_batch['triplets'], torch.tensor(triplets, dtype=torch.long)), dim=0
+                    )
 
             self.graphs.append(graph_batch)
 

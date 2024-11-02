@@ -30,6 +30,7 @@ class LabelNoiseEASG(BaseEASGData):
         """
 
         print(f"[{self._conf.method_name}_{self._split}] PREPARING GT GRAPH DATA AND FEATURES ")
+
         graphs = []
         for graph_uid in self.annotations:
             graph = {}
@@ -53,20 +54,32 @@ class LabelNoiseEASG(BaseEASGData):
                     graph[verb_idx]['objs'][obj_idx]['rels_vec'][rel_idx] = 1
 
                     for frameType in self.roi_feats[graph_uid][aid][i]:
-                        graph[verb_idx]['objs'][obj_idx]['obj_feat'] = torch.cat((graph[verb_idx]['objs'][obj_idx]['obj_feat'], self.roi_feats[graph_uid][aid][i][frameType]), dim=0)
+                        graph[verb_idx]['objs'][obj_idx]['obj_feat'] = torch.cat((graph[verb_idx]['objs'][obj_idx][
+                                                                                      'obj_feat'],
+                                                                                  self.roi_feats[graph_uid][aid][i][
+                                                                                      frameType]), dim=0)
 
             for verb_idx in graph:
                 for obj_idx in graph[verb_idx]['objs']:
-                    graph[verb_idx]['objs'][obj_idx]['obj_feat'] = graph[verb_idx]['objs'][obj_idx]['obj_feat'].mean(dim=0)
+                    graph[verb_idx]['objs'][obj_idx]['obj_feat'] = graph[verb_idx]['objs'][obj_idx]['obj_feat'].mean(
+                        dim=0)
 
                 graphs.append(graph[verb_idx])
 
         print(f"[{self._conf.method_name}_{self._split}] PREPARING GT GRAPH BATCH DATA ")
 
+        if self._conf.use_label_noise:
+            total_num_objs = 0
+            for graph in graphs:
+                total_num_objs += len(graph['objs'])
+            total_num_obj_idx_changes = int(self._conf.label_noise_percentage * 0.01 * total_num_objs)
+            num_obj_idx_changes_remaining = 0
+
         self.graphs = []
         for graph in graphs:
             graph_batch = {}
             verb_idx = graph['verb_idx']
+
             if self._conf.use_label_noise:
                 label_noise_percentage = self._conf.label_noise_percentage * 0.01
                 random_num = random.random()
@@ -99,24 +112,6 @@ class LabelNoiseEASG(BaseEASGData):
                 graph_batch['triplets'] = torch.cat(
                     (graph_batch['triplets'], torch.tensor(triplets, dtype=torch.long)), dim=0
                 )
-
-            # Apply label noise to object indices and relationships
-            if self._conf.use_label_noise:
-                label_noise_percentage = self._conf.label_noise_percentage * 0.01
-
-                assert len(graph_batch['obj_indices'].shape) == 1
-
-                num_objs = graph_batch['obj_indices'].shape[0]
-                num_to_change = int(label_noise_percentage * num_objs)
-                if num_to_change > 0:
-                    # Randomly select indices to change
-                    indices_to_change = torch.randperm(num_objs)[:num_to_change]
-                    for idx in indices_to_change:
-                        # Replace with a random object index
-                        random_obj_idx = random.randint(0, len(self.objs) - 1)
-                        graph_batch['obj_indices'][idx] = random_obj_idx
-                        # Replace rels_vecs with the rels_vec of the new object index
-                        graph_batch['rels_vecs'][idx] = self.objs[random_obj_idx]['rels_vec']
 
             self.graphs.append(graph_batch)
 

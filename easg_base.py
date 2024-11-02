@@ -79,25 +79,23 @@ class EASGBase:
 
         if self._conf.ckpt is not None:
             if self._conf.task_name == const.EASG:
-                # Checkpoint name format for model trained with full annotations: easg_sgcls_epoch_1.tar
-                # Checkpoint name format for model trained with partial annotations: easg_partial_10_sgdet_epoch_1.tar
-                # Checkpoint name format for model trained with label noise: easg_label_noise_10_sgdet_epoch_1.tar
+                # Checkpoint name format for model trained with full annotations: easg_epoch_1.tar
+                # Checkpoint name format for model trained with partial annotations: easg_partial_10_epoch_1.tar
+                # Checkpoint name format for model trained with label noise: easg_label_noise_10_epoch_1.tar
                 self._checkpoint_name_with_epoch = os.path.basename(self._conf.ckpt).split('.')[0]
                 self._checkpoint_name = "_".join(self._checkpoint_name_with_epoch.split('_')[:-2])
-                self._conf.mode = self._checkpoint_name.split('_')[-1]
                 print("--------------------------------------------------------")
                 print(f"Loading checkpoint with name: {self._checkpoint_name}")
-                print(f"Mode: {self._conf.mode}")
                 print("--------------------------------------------------------")
         else:
             # Set the checkpoint name and save path details
             if self._conf.task_name == const.EASG:
                 if self._conf.use_partial_annotations:
-                    self._checkpoint_name = f"{self._conf.method_name}_partial_{self._conf.partial_percentage}_{self._conf.mode}"
+                    self._checkpoint_name = f"{self._conf.method_name}_partial_{self._conf.partial_percentage}"
                 elif self._conf.use_label_noise:
-                    self._checkpoint_name = f"{self._conf.method_name}_label_noise_{self._conf.label_noise_percentage}_{self._conf.mode}"
+                    self._checkpoint_name = f"{self._conf.method_name}_labelnoise_{self._conf.label_noise_percentage}"
                 else:
-                    self._checkpoint_name = f"{self._conf.method_name}_{self._conf.mode}"
+                    self._checkpoint_name = f"{self._conf.method_name}"
                 print("--------------------------------------------------------")
                 print(f"Training model with name: {self._checkpoint_name}")
                 print("--------------------------------------------------------")

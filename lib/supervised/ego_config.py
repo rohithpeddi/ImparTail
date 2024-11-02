@@ -6,7 +6,6 @@ import torch
 class EgoConfig(object):
 
     def __init__(self):
-        self.mode = None
         self.save_path = None
         self.data_path = None
         self.ckpt = None
@@ -44,12 +43,12 @@ class EgoConfig(object):
         self.args = vars(self.parser.parse_args())
         self.__dict__.update(self.args)
 
-
     def setup_parser(self):
         parser = ArgumentParser(description='training code')
 
         parser.add_argument('--method_name', type=str, default='easg', help='method name')
-        parser.add_argument('--save_path', type=str, default='/data/rohith/easg/checkpoints', help='path to save the model')
+        parser.add_argument('--save_path', type=str, default='/data/rohith/easg/checkpoints',
+                            help='path to save the model')
         parser.add_argument('--data_path', type=str, default='/data/rohith/easg/features', help='path to data')
         parser.add_argument('--ckpt', type=str, default=None, help='path to load the model')
         parser.add_argument('--optimizer', type=str, default='adam', help='optimizer')
@@ -83,4 +82,3 @@ class EgoConfig(object):
         parser.add_argument("--use_wandb", action="store_true")
 
         return parser
-

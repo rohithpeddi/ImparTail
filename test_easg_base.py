@@ -40,67 +40,88 @@ class TestEASGBase(EASGBase):
                 self._evaluator.evaluate_scene_graph(out_verb, out_objs, out_rels, graph)
 
     def _collate_evaluation_stats(self):
-        with_constraint_evaluator_stats = self._evaluator.fetch_stats_json()
+        stats_json = self._evaluator.fetch_stats_json()
 
-        collated_stats = [
-            self._conf.method_name,
-            with_constraint_evaluator_stats["recall"][10],
-            with_constraint_evaluator_stats["recall"][20],
-            with_constraint_evaluator_stats["recall"][50],
-            with_constraint_evaluator_stats["recall"][100],
-            with_constraint_evaluator_stats["mean_recall"][10],
-            with_constraint_evaluator_stats["mean_recall"][20],
-            with_constraint_evaluator_stats["mean_recall"][50],
-            with_constraint_evaluator_stats["mean_recall"][100],
-            with_constraint_evaluator_stats["harmonic_mean_recall"][10],
-            with_constraint_evaluator_stats["harmonic_mean_recall"][20],
-            with_constraint_evaluator_stats["harmonic_mean_recall"][50],
-            with_constraint_evaluator_stats["harmonic_mean_recall"][100],
-        ]
-        return collated_stats
+        def evaluator_stats_to_list(with_constraint_evaluator_stats, no_constraint_evaluator_stats):
+            collated_stats = [
+                self._conf.method_name,
+                with_constraint_evaluator_stats["recall"][10],
+                with_constraint_evaluator_stats["recall"][20],
+                with_constraint_evaluator_stats["recall"][50],
+                with_constraint_evaluator_stats["recall"][100],
+                with_constraint_evaluator_stats["mean_recall"][10],
+                with_constraint_evaluator_stats["mean_recall"][20],
+                with_constraint_evaluator_stats["mean_recall"][50],
+                with_constraint_evaluator_stats["mean_recall"][100],
+                with_constraint_evaluator_stats["harmonic_mean_recall"][10],
+                with_constraint_evaluator_stats["harmonic_mean_recall"][20],
+                with_constraint_evaluator_stats["harmonic_mean_recall"][50],
+                with_constraint_evaluator_stats["harmonic_mean_recall"][100],
+                no_constraint_evaluator_stats["recall"][10],
+                no_constraint_evaluator_stats["recall"][20],
+                no_constraint_evaluator_stats["recall"][50],
+                no_constraint_evaluator_stats["recall"][100],
+                no_constraint_evaluator_stats["mean_recall"][10],
+                no_constraint_evaluator_stats["mean_recall"][20],
+                no_constraint_evaluator_stats["mean_recall"][50],
+                no_constraint_evaluator_stats["mean_recall"][100],
+                no_constraint_evaluator_stats["harmonic_mean_recall"][10],
+                no_constraint_evaluator_stats["harmonic_mean_recall"][20],
+                no_constraint_evaluator_stats["harmonic_mean_recall"][50],
+                no_constraint_evaluator_stats["harmonic_mean_recall"][100],
+            ]
+
+            return collated_stats
+
+        mode_evaluator_stats_dict = {
+            "predcls": evaluator_stats_to_list(stats_json["predcls_with"], stats_json["predcls_no"]),
+            "sgcls": evaluator_stats_to_list(stats_json["sgcls_with"], stats_json["sgcls_no"]),
+            "easg": evaluator_stats_to_list(stats_json["easg_with"], stats_json["easg_no"])
+        }
+
+        return mode_evaluator_stats_dict
 
     def _publish_evaluation_results(self):
-        collated_stats = self._collate_evaluation_stats()
-        self._write_evaluation_statistics(collated_stats)
+        mode_evaluator_stats_dict = self._collate_evaluation_stats()
+        self._write_evaluation_statistics(mode_evaluator_stats_dict)
 
-    def _write_evaluation_statistics(self, collated_stats):
+    def _write_evaluation_statistics(self, mode_evaluator_stats_dict):
         # Create the results directory
         results_dir = os.path.join(os.getcwd(), 'results')
         task_dir = os.path.join(results_dir, "easg")
 
-        if self._conf.use_input_corruptions:
-            scenario_dir = os.path.join(task_dir, "corruptions")
-            file_name = f'{self._conf.method_name}_{self._conf.mode}_{self._corruption_name}.csv'
-        elif self._conf.use_partial_annotations:
-            scenario_dir = os.path.join(task_dir, "partial")
-            file_name = f'{self._conf.method_name}_partial_{self._conf.partial_percentage}.csv'
-        elif self._conf.use_label_noise:
-            scenario_dir = os.path.join(task_dir, "labelnoise")
-            file_name = f'{self._conf.method_name}_label_noise_{self._conf.label_noise_percentage}.csv'
-        else:
-            scenario_dir = os.path.join(task_dir, "full")
-            file_name = f'{self._conf.method_name}_{self._conf.mode}.csv'
+        for mode in mode_evaluator_stats_dict.keys():
+            if self._conf.use_input_corruptions:
+                scenario_dir = os.path.join(task_dir, "corruptions")
+                file_name = f'{self._conf.method_name}_{mode}_{self._corruption_name}.csv'
+            elif self._conf.use_partial_annotations:
+                scenario_dir = os.path.join(task_dir, "partial")
+                file_name = f'{self._conf.method_name}_partial_{self._conf.partial_percentage}_{mode}.csv'
+            elif self._conf.use_label_noise:
+                scenario_dir = os.path.join(task_dir, "labelnoise")
+                file_name = f'{self._conf.method_name}_labelnoise_{self._conf.label_noise_percentage}_{mode}.csv'
+            else:
+                scenario_dir = os.path.join(task_dir, "full")
+                file_name = f'{self._conf.method_name}_{mode}.csv'
 
-        assert scenario_dir is not None, "Scenario directory is not set"
-        mode_results_dir = os.path.join(scenario_dir, self._conf.mode)
-        os.makedirs(mode_results_dir, exist_ok=True)
-        results_file_path = os.path.join(mode_results_dir, file_name)
+            assert scenario_dir is not None, "Scenario directory is not set"
+            mode_results_dir = os.path.join(scenario_dir, mode)
+            os.makedirs(mode_results_dir, exist_ok=True)
+            results_file_path = os.path.join(mode_results_dir, file_name)
 
-        with open(results_file_path, "a", newline='') as activity_idx_step_idx_annotation_csv_file:
-            writer = csv.writer(activity_idx_step_idx_annotation_csv_file, quoting=csv.QUOTE_NONNUMERIC)
-            # Write the header
-            if not os.path.isfile(results_file_path):
-                writer.writerow([
-                    "Method Name",
-                    "R@10", "R@20", "R@50", "R@100", "mR@10", "mR@20", "mR@50", "mR@100", "hR@10", "hR@20", "hR@50",
-                    "hR@100",
-                    "R@10", "R@20", "R@50", "R@100", "mR@10", "mR@20", "mR@50", "mR@100", "hR@10", "hR@20", "hR@50",
-                    "hR@100",
-                    "R@10", "R@20", "R@50", "R@100", "mR@10", "mR@20", "mR@50", "mR@100", "hR@10", "hR@20", "hR@50",
-                    "hR@100"
-                ])
-                # Write the results row
-            writer.writerow(collated_stats)
+            with open(results_file_path, "a", newline='') as activity_idx_step_idx_annotation_csv_file:
+                writer = csv.writer(activity_idx_step_idx_annotation_csv_file, quoting=csv.QUOTE_NONNUMERIC)
+                # Use this as the reference knowing what we write in the csv file
+
+                # if not os.path.isfile(results_file_path):
+                #     writer.writerow([
+                #         "Method Name",
+                #         "R@10", "R@20", "R@50", "R@100", "mR@10", "mR@20", "mR@50", "mR@100", "hR@10", "hR@20", "hR@50",
+                #         "hR@100",
+                #         "R@10", "R@20", "R@50", "R@100", "mR@10", "mR@20", "mR@50", "mR@100", "hR@10", "hR@20", "hR@50",
+                #         "hR@100"
+                #     ])
+                writer.writerow(mode_evaluator_stats_dict[mode])
 
     @abstractmethod
     def init_model(self):

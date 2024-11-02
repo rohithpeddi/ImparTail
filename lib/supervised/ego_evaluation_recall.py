@@ -188,9 +188,37 @@ class BasicEgoActionSceneGraphEvaluator:
 
         num_gt = triplets_gt.shape[0]
         for k in self.list_k:
-            self.recall_predcls_with[k].append(out_to_gt_pred_with[:, :k].any(dim=1).sum().item() / num_gt)
-            self.recall_predcls_no[k].append(out_to_gt_pred_no[:, :k].any(dim=1).sum().item() / num_gt)
-            self.recall_sgcls_with[k].append(out_to_gt_sg_with[:, :k].any(dim=1).sum().item() / num_gt)
-            self.recall_sgcls_no[k].append(out_to_gt_sg_no[:, :k].any(dim=1).sum().item() / num_gt)
-            self.recall_easgcls_with[k].append(out_to_gt_easg_with[:, :k].any(dim=1).sum().item() / num_gt)
-            self.recall_easgcls_no[k].append(out_to_gt_easg_no[:, :k].any(dim=1).sum().item() / num_gt)
+            self.recall_result_dict["predcls_with"][k].append(out_to_gt_pred_with[:, :k].any(dim=1).sum().item() / num_gt)
+            self.recall_result_dict["predcls_no"][k].append(out_to_gt_pred_no[:, :k].any(dim=1).sum().item() / num_gt)
+            self.recall_result_dict["sgcls_with"][k].append(out_to_gt_sg_with[:, :k].any(dim=1).sum().item() / num_gt)
+            self.recall_result_dict["sgcls_no"][k].append(out_to_gt_sg_no[:, :k].any(dim=1).sum().item() / num_gt)
+            self.recall_result_dict["easgcls_with"][k].append(out_to_gt_easg_with[:, :k].any(dim=1).sum().item() / num_gt)
+            self.recall_result_dict["easgcls_no"][k].append(out_to_gt_easg_no[:, :k].any(dim=1).sum().item() / num_gt)
+
+            for rel_idx in range(self.num_rel):
+                out_to_gt_rel_pred_with = self.intersect_2d(triplets_gt[triplets_gt[:, 2] == rel_idx],
+                                                            triplets_pred_with[triplets_pred_with[:, 2] == rel_idx])
+                out_to_gt_rel_pred_no = self.intersect_2d(triplets_gt[triplets_gt[:, 2] == rel_idx],
+                                                          triplets_pred_no[triplets_pred_no[:, 2] == rel_idx])
+                out_to_gt_rel_sg_with = self.intersect_2d(triplets_gt[triplets_gt[:, 2] == rel_idx],
+                                                          triplets_sg_with[triplets_sg_with[:, 2] == rel_idx])
+                out_to_gt_rel_sg_no = self.intersect_2d(triplets_gt[triplets_gt[:, 2] == rel_idx],
+                                                        triplets_sg_no[triplets_sg_no[:, 2] == rel_idx])
+                out_to_gt_rel_easg_with = self.intersect_2d(triplets_gt[triplets_gt[:, 2] == rel_idx],
+                                                            triplets_easg_with[triplets_easg_with[:, 2] == rel_idx])
+                out_to_gt_rel_easg_no = self.intersect_2d(triplets_gt[triplets_gt[:, 2] == rel_idx],
+                                                          triplets_easg_no[triplets_easg_no[:, 2] == rel_idx])
+                num_rel_gt = triplets_gt[triplets_gt[:, 2] == rel_idx].shape[0]
+
+                self.mean_recall_result_dict["predcls_with"][k][rel_idx].append(
+                    out_to_gt_rel_pred_with[:, :k].any(dim=1).sum().item() / num_rel_gt)
+                self.mean_recall_result_dict["predcls_no"][k][rel_idx].append(
+                    out_to_gt_rel_pred_no[:, :k].any(dim=1).sum().item() / num_rel_gt)
+                self.mean_recall_result_dict["sgcls_with"][k][rel_idx].append(
+                    out_to_gt_rel_sg_with[:, :k].any(dim=1).sum().item() / num_rel_gt)
+                self.mean_recall_result_dict["sgcls_no"][k][rel_idx].append(
+                    out_to_gt_rel_sg_no[:, :k].any(dim=1).sum().item() / num_rel_gt)
+                self.mean_recall_result_dict["easgcls_with"][k][rel_idx].append(
+                    out_to_gt_rel_easg_with[:, :k].any(dim=1).sum().item() / num_rel_gt)
+                self.mean_recall_result_dict["easgcls_no"][k][rel_idx].append(
+                    out_to_gt_rel_easg_no[:, :k].any(dim=1).sum().item() / num_rel_gt)

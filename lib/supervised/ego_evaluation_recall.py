@@ -65,7 +65,7 @@ class BasicEgoActionSceneGraphEvaluator:
             for k, mode_k_recall_value in mode_recall_dict.items():
                 mode_k_mean_recall_value = mode_mean_recall_dict[k]
                 harmonic_mean = 2 * mode_k_mean_recall_value * mode_k_recall_value / (
-                            mode_k_mean_recall_value + mode_k_recall_value)
+                        mode_k_mean_recall_value + mode_k_recall_value)
                 harmonic_mean_recall_dict[mode_key][k] = harmonic_mean
 
         results_dict = {
@@ -181,6 +181,7 @@ class BasicEgoActionSceneGraphEvaluator:
         triplets_easg_with = triplets_easg_with[torch.argsort(torch.tensor(scores_easg_with), descending=True)]
         triplets_easg_no = triplets_easg_no[torch.argsort(torch.tensor(scores_easg_no), descending=True)]
 
+        num_gt = triplets_gt.shape[0]
         out_to_gt_pred_with = self.intersect_2d(triplets_gt, triplets_pred_with)
         out_to_gt_pred_no = self.intersect_2d(triplets_gt, triplets_pred_no)
         out_to_gt_sg_with = self.intersect_2d(triplets_gt, triplets_sg_with)
@@ -188,7 +189,51 @@ class BasicEgoActionSceneGraphEvaluator:
         out_to_gt_easg_with = self.intersect_2d(triplets_gt, triplets_easg_with)
         out_to_gt_easg_no = self.intersect_2d(triplets_gt, triplets_easg_no)
 
+        # Mask creation logic to identify which of the output triplets correspond to a particular relationship triplet
+        # This mask is later added to the output to calculate relationship-wise mean recall
         num_gt = triplets_gt.shape[0]
+        num_pred_with = triplets_pred_with.shape[0]
+        num_pred_no = triplets_pred_no.shape[0]
+        num_sg_with = triplets_sg_with.shape[0]
+        num_sg_no = triplets_sg_no.shape[0]
+        num_easg_with = triplets_easg_with.shape[0]
+        num_easg_no = triplets_easg_no.shape[0]
+
+        assert out_to_gt_pred_with.shape == (num_gt, num_pred_with)
+        assert out_to_gt_pred_no.shape == (num_gt, num_pred_no)
+        assert out_to_gt_sg_with.shape == (num_gt, num_sg_with)
+        assert out_to_gt_sg_no.shape == (num_gt, num_sg_no)
+        assert out_to_gt_easg_with.shape == (num_gt, num_easg_with)
+        assert out_to_gt_easg_no.shape == (num_gt, num_easg_no)
+
+        mask_out_to_gt_pred_with = torch.zeros((self.num_rel, num_gt, num_pred_with), dtype=torch.bool)
+        mask_out_to_gt_pred_no = torch.zeros((self.num_rel, num_gt, num_pred_no), dtype=torch.bool)
+        mask_out_to_gt_sg_with = torch.zeros((self.num_rel, num_gt, num_sg_with), dtype=torch.bool)
+        mask_out_to_gt_sg_no = torch.zeros((self.num_rel, num_gt, num_sg_no), dtype=torch.bool)
+        mask_out_to_gt_easg_with = torch.zeros((self.num_rel, num_gt, num_easg_with), dtype=torch.bool)
+        mask_out_to_gt_easg_no = torch.zeros((self.num_rel, num_gt, num_easg_no), dtype=torch.bool)
+
+        # Mask updation logic
+        for rel_idx in range(self.num_rel):
+            # Ground truth relationship mask
+            gt_rel_mask = (triplets_gt[:, 2] == rel_idx)  # Shape: (num_gt,)
+
+            # Predicted relationship masks for different cases
+            pred_with_rel_mask = (triplets_pred_with[:, 2] == rel_idx)  # Shape: (num_pred_with,)
+            pred_no_rel_mask = (triplets_pred_no[:, 2] == rel_idx)  # Shape: (num_pred_no,)
+            sg_with_rel_mask = (triplets_sg_with[:, 2] == rel_idx)  # Shape: (num_sg_with,)
+            sg_no_rel_mask = (triplets_sg_no[:, 2] == rel_idx)  # Shape: (num_sg_no,)
+            easg_with_rel_mask = (triplets_easg_with[:, 2] == rel_idx)  # Shape: (num_easg_with,)
+            easg_no_rel_mask = (triplets_easg_no[:, 2] == rel_idx)  # Shape: (num_easg_no,)
+
+            # Compute masks via outer product to align ground truth and predictions
+            mask_out_to_gt_pred_with[rel_idx] = gt_rel_mask[:, None] & pred_with_rel_mask[None, :]
+            mask_out_to_gt_pred_no[rel_idx] = gt_rel_mask[:, None] & pred_no_rel_mask[None, :]
+            mask_out_to_gt_sg_with[rel_idx] = gt_rel_mask[:, None] & sg_with_rel_mask[None, :]
+            mask_out_to_gt_sg_no[rel_idx] = gt_rel_mask[:, None] & sg_no_rel_mask[None, :]
+            mask_out_to_gt_easg_with[rel_idx] = gt_rel_mask[:, None] & easg_with_rel_mask[None, :]
+            mask_out_to_gt_easg_no[rel_idx] = gt_rel_mask[:, None] & easg_no_rel_mask[None, :]
+
         for k in self.list_k:
             self.recall_result_dict["predcls_with"][k].append(
                 out_to_gt_pred_with[:, :k].any(dim=1).sum().item() / num_gt)
@@ -200,35 +245,22 @@ class BasicEgoActionSceneGraphEvaluator:
             self.recall_result_dict["easgcls_no"][k].append(out_to_gt_easg_no[:, :k].any(dim=1).sum().item() / num_gt)
 
             for rel_idx in range(self.num_rel):
-                num_rel_gt = triplets_gt[triplets_gt[:, 2] == rel_idx].shape[0]
-
-                if num_rel_gt == 0:
-                    continue
-
-                rel_triplets_gt = triplets_gt[triplets_gt[:, 2] == rel_idx]
-                rel_triplets_pred_with = triplets_pred_with[triplets_pred_with[:, 2] == rel_idx]
-                rel_triplets_pred_no = triplets_pred_no[triplets_pred_no[:, 2] == rel_idx]
-                rel_triplets_sg_with = triplets_sg_with[triplets_sg_with[:, 2] == rel_idx]
-                rel_triplets_sg_no = triplets_sg_no[triplets_sg_no[:, 2] == rel_idx]
-                rel_triplets_easg_with = triplets_easg_with[triplets_easg_with[:, 2] == rel_idx]
-                rel_triplets_easg_no = triplets_easg_no[triplets_easg_no[:, 2] == rel_idx]
-
-                out_to_gt_rel_pred_with = self.intersect_2d(rel_triplets_gt, rel_triplets_pred_with)
-                out_to_gt_rel_pred_no = self.intersect_2d(rel_triplets_gt, rel_triplets_pred_no)
-                out_to_gt_rel_sg_with = self.intersect_2d(rel_triplets_gt, rel_triplets_sg_with)
-                out_to_gt_rel_sg_no = self.intersect_2d(rel_triplets_gt, rel_triplets_sg_no)
-                out_to_gt_rel_easg_with = self.intersect_2d(rel_triplets_gt, rel_triplets_easg_with)
-                out_to_gt_rel_easg_no = self.intersect_2d(rel_triplets_gt, rel_triplets_easg_no)
+                rel_out_to_gt_pred_with = out_to_gt_pred_with * mask_out_to_gt_pred_with[rel_idx]
+                rel_out_to_gt_pred_no = out_to_gt_pred_no * mask_out_to_gt_pred_no[rel_idx]
+                rel_out_to_gt_sg_with = out_to_gt_sg_with * mask_out_to_gt_sg_with[rel_idx]
+                rel_out_to_gt_sg_no = out_to_gt_sg_no * mask_out_to_gt_sg_no[rel_idx]
+                rel_out_to_gt_easg_with = out_to_gt_easg_with * mask_out_to_gt_easg_with[rel_idx]
+                rel_out_to_gt_easg_no = out_to_gt_easg_no * mask_out_to_gt_easg_no[rel_idx]
 
                 self.mean_recall_result_dict["predcls_with"][k][rel_idx].append(
-                    out_to_gt_rel_pred_with[:, :k].any(dim=1).sum().item() / num_rel_gt)
+                    rel_out_to_gt_pred_with[:, :k].any(dim=1).sum().item() / num_gt)
                 self.mean_recall_result_dict["predcls_no"][k][rel_idx].append(
-                    out_to_gt_rel_pred_no[:, :k].any(dim=1).sum().item() / num_rel_gt)
+                    rel_out_to_gt_pred_no[:, :k].any(dim=1).sum().item() / num_gt)
                 self.mean_recall_result_dict["sgcls_with"][k][rel_idx].append(
-                    out_to_gt_rel_sg_with[:, :k].any(dim=1).sum().item() / num_rel_gt)
+                    rel_out_to_gt_sg_with[:, :k].any(dim=1).sum().item() / num_gt)
                 self.mean_recall_result_dict["sgcls_no"][k][rel_idx].append(
-                    out_to_gt_rel_sg_no[:, :k].any(dim=1).sum().item() / num_rel_gt)
+                    rel_out_to_gt_sg_no[:, :k].any(dim=1).sum().item() / num_gt)
                 self.mean_recall_result_dict["easgcls_with"][k][rel_idx].append(
-                    out_to_gt_rel_easg_with[:, :k].any(dim=1).sum().item() / num_rel_gt)
+                    rel_out_to_gt_easg_with[:, :k].any(dim=1).sum().item() / num_gt)
                 self.mean_recall_result_dict["easgcls_no"][k][rel_idx].append(
-                    out_to_gt_rel_easg_no[:, :k].any(dim=1).sum().item() / num_rel_gt)
+                    rel_out_to_gt_easg_no[:, :k].any(dim=1).sum().item() / num_gt)

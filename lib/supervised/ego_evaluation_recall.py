@@ -56,7 +56,7 @@ class BasicEgoActionSceneGraphEvaluator:
                 sum_recall = sum(
                     [sum(rel_score_list) / len(rel_score_list) if rel_score_list else 0.0 for rel_score_list in
                      all_rel_score_list])
-                mean_recall_value = sum_recall / float(self.num_rel)
+                mean_recall_value = (sum_recall / float(self.num_rel)) * 100
                 mean_recall_dict[key][k] = mean_recall_value
 
         for mode_key, mode_recall_dict in recall_dict.items():

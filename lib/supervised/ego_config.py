@@ -61,7 +61,7 @@ class EgoConfig(object):
         parser.add_argument('--path_to_output', default='/data/rohith/easg/checkpoints', type=str)
         parser.add_argument('--lr', type=float, default=1e-3, help='learning rate')
         parser.add_argument('--sch_param', type=int, default=10, help='parameter for lr scheduler')
-        parser.add_argument('--num_epoch', type=int, default=100, help='total number of epochs')
+        parser.add_argument('--num_epoch', type=int, default=10, help='total number of epochs')
         parser.add_argument('--random_guess', action='store_true', help='for random guessing')
         parser.add_argument('--split', type=str, default='train', help='train or test')
 

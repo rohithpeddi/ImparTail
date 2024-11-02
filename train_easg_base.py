@@ -74,7 +74,7 @@ class TrainEASGBase(EASGBase):
             list_index = list(range(len(self._train_dataset)))
             random.shuffle(list_index)
             # self._object_detector.is_train = True
-            for train_idx in tqdm(range(len(list_index))):
+            for train_idx in tqdm(range(len(list_index)), desc=f"Training Epoch {epoch}"):
                 graph = self._train_dataset[list_index[train_idx]]
                 self._optimizer.zero_grad()
 
@@ -105,7 +105,7 @@ class TrainEASGBase(EASGBase):
             self._model.eval()
             # self._object_detector.is_train = False
             with torch.no_grad():
-                for val_idx in tqdm(range(len(list_index))):
+                for val_idx in tqdm(range(len(list_index)), desc=f"Validation Epoch {epoch}"):
                     graph = self._val_dataset[list_index[val_idx]]
 
                     clip_feat = graph['clip_feat'].unsqueeze(0).to(self._device)

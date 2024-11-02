@@ -32,12 +32,12 @@ class TrainEASGBase(EASGBase):
             print("-----------------------------------------------------")
             print("Loading the partial annotations dataset with percentage:", self._conf.partial_percentage)
             print("-----------------------------------------------------")
-            self._train_dataset = PartialEASG(conf=self._conf, split = const.TRAIN)
+            self._train_dataset = PartialEASG(conf=self._conf, split=const.TRAIN)
         elif self._conf.use_label_noise:
             print("-----------------------------------------------------")
             print("Loading the dataset with label noise percentage:", self._conf.label_noise_percentage)
             print("-----------------------------------------------------")
-            self._train_dataset = LabelNoiseEASG(conf=self._conf, split = const.TRAIN)
+            self._train_dataset = LabelNoiseEASG(conf=self._conf, split=const.TRAIN)
         else:
             print("-----------------------------------------------------")
             print("Loading the standard dataset")
@@ -47,7 +47,6 @@ class TrainEASGBase(EASGBase):
         self._val_dataset = StandardEASG(conf=self._conf, split=const.VAL)
         self._dataloader_train = DataLoader(self._train_dataset, shuffle=True)
         self._dataloader_val = DataLoader(self._val_dataset, shuffle=False)
-
 
     @abstractmethod
     def init_model(self):
@@ -117,6 +116,13 @@ class TrainEASGBase(EASGBase):
 
             if epoch % 10 == 0:
                 self._evaluator.print_stats()
+                self._save_model(
+                    model=self._model,
+                    epoch=epoch,
+                    checkpoint_save_file_path=self._checkpoint_save_dir_path,
+                    checkpoint_name=self._checkpoint_name,
+                    method_name=self._conf.method_name
+                )
 
             self._evaluator.reset_result()
             self._scheduler.step()

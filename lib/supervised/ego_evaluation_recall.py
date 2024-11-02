@@ -33,7 +33,7 @@ class BasicEgoActionSceneGraphEvaluator:
             self.recall_result_dict[key] = {k: [] for k in self.list_k}
             self.mean_recall_result_dict[key] = {k: [[] for _ in range(self.num_rel)] for k in self.list_k}
 
-    def _reset_recall_dicts(self):
+    def reset_result(self):
         for key in self.mode_setting_keys:
             for k in self.list_k:
                 self.recall_result_dict[key][k] = []
@@ -54,17 +54,19 @@ class BasicEgoActionSceneGraphEvaluator:
             mean_recall_dict[key] = {}
             for k, all_rel_score_list in mode_setting_dict.items():
                 sum_recall = sum(
-                    [sum(rel_score_list) if rel_score_list else 0.0 for rel_score_list in all_rel_score_list])
+                    [sum(rel_score_list) / len(rel_score_list) if rel_score_list else 0.0 for rel_score_list in
+                     all_rel_score_list])
                 mean_recall_value = sum_recall / float(self.num_rel)
                 mean_recall_dict[key][k] = mean_recall_value
 
-        for key, recall_dict in recall_dict.items():
-            mean_recall_dict = mean_recall_dict[key]
-            harmonic_mean_recall_dict[key] = {}
-            for k, recall_value in recall_dict.items():
-                mean_recall_value = mean_recall_dict[k]
-                harmonic_mean = 2 * mean_recall_value * recall_value / (mean_recall_value + recall_value)
-                harmonic_mean_recall_dict[key][k] = harmonic_mean
+        for mode_key, mode_recall_dict in recall_dict.items():
+            mode_mean_recall_dict = mean_recall_dict[mode_key]
+            harmonic_mean_recall_dict[mode_key] = {}
+            for k, mode_k_recall_value in mode_recall_dict.items():
+                mode_k_mean_recall_value = mode_mean_recall_dict[k]
+                harmonic_mean = 2 * mode_k_mean_recall_value * mode_k_recall_value / (
+                            mode_k_mean_recall_value + mode_k_recall_value)
+                harmonic_mean_recall_dict[mode_key][k] = harmonic_mean
 
         results_dict = {
             "recall": recall_dict,
@@ -188,27 +190,35 @@ class BasicEgoActionSceneGraphEvaluator:
 
         num_gt = triplets_gt.shape[0]
         for k in self.list_k:
-            self.recall_result_dict["predcls_with"][k].append(out_to_gt_pred_with[:, :k].any(dim=1).sum().item() / num_gt)
+            self.recall_result_dict["predcls_with"][k].append(
+                out_to_gt_pred_with[:, :k].any(dim=1).sum().item() / num_gt)
             self.recall_result_dict["predcls_no"][k].append(out_to_gt_pred_no[:, :k].any(dim=1).sum().item() / num_gt)
             self.recall_result_dict["sgcls_with"][k].append(out_to_gt_sg_with[:, :k].any(dim=1).sum().item() / num_gt)
             self.recall_result_dict["sgcls_no"][k].append(out_to_gt_sg_no[:, :k].any(dim=1).sum().item() / num_gt)
-            self.recall_result_dict["easgcls_with"][k].append(out_to_gt_easg_with[:, :k].any(dim=1).sum().item() / num_gt)
+            self.recall_result_dict["easgcls_with"][k].append(
+                out_to_gt_easg_with[:, :k].any(dim=1).sum().item() / num_gt)
             self.recall_result_dict["easgcls_no"][k].append(out_to_gt_easg_no[:, :k].any(dim=1).sum().item() / num_gt)
 
             for rel_idx in range(self.num_rel):
-                out_to_gt_rel_pred_with = self.intersect_2d(triplets_gt[triplets_gt[:, 2] == rel_idx],
-                                                            triplets_pred_with[triplets_pred_with[:, 2] == rel_idx])
-                out_to_gt_rel_pred_no = self.intersect_2d(triplets_gt[triplets_gt[:, 2] == rel_idx],
-                                                          triplets_pred_no[triplets_pred_no[:, 2] == rel_idx])
-                out_to_gt_rel_sg_with = self.intersect_2d(triplets_gt[triplets_gt[:, 2] == rel_idx],
-                                                          triplets_sg_with[triplets_sg_with[:, 2] == rel_idx])
-                out_to_gt_rel_sg_no = self.intersect_2d(triplets_gt[triplets_gt[:, 2] == rel_idx],
-                                                        triplets_sg_no[triplets_sg_no[:, 2] == rel_idx])
-                out_to_gt_rel_easg_with = self.intersect_2d(triplets_gt[triplets_gt[:, 2] == rel_idx],
-                                                            triplets_easg_with[triplets_easg_with[:, 2] == rel_idx])
-                out_to_gt_rel_easg_no = self.intersect_2d(triplets_gt[triplets_gt[:, 2] == rel_idx],
-                                                          triplets_easg_no[triplets_easg_no[:, 2] == rel_idx])
                 num_rel_gt = triplets_gt[triplets_gt[:, 2] == rel_idx].shape[0]
+
+                if num_rel_gt == 0:
+                    continue
+
+                rel_triplets_gt = triplets_gt[triplets_gt[:, 2] == rel_idx]
+                rel_triplets_pred_with = triplets_pred_with[triplets_pred_with[:, 2] == rel_idx]
+                rel_triplets_pred_no = triplets_pred_no[triplets_pred_no[:, 2] == rel_idx]
+                rel_triplets_sg_with = triplets_sg_with[triplets_sg_with[:, 2] == rel_idx]
+                rel_triplets_sg_no = triplets_sg_no[triplets_sg_no[:, 2] == rel_idx]
+                rel_triplets_easg_with = triplets_easg_with[triplets_easg_with[:, 2] == rel_idx]
+                rel_triplets_easg_no = triplets_easg_no[triplets_easg_no[:, 2] == rel_idx]
+
+                out_to_gt_rel_pred_with = self.intersect_2d(rel_triplets_gt, rel_triplets_pred_with)
+                out_to_gt_rel_pred_no = self.intersect_2d(rel_triplets_gt, rel_triplets_pred_no)
+                out_to_gt_rel_sg_with = self.intersect_2d(rel_triplets_gt, rel_triplets_sg_with)
+                out_to_gt_rel_sg_no = self.intersect_2d(rel_triplets_gt, rel_triplets_sg_no)
+                out_to_gt_rel_easg_with = self.intersect_2d(rel_triplets_gt, rel_triplets_easg_with)
+                out_to_gt_rel_easg_no = self.intersect_2d(rel_triplets_gt, rel_triplets_easg_no)
 
                 self.mean_recall_result_dict["predcls_with"][k][rel_idx].append(
                     out_to_gt_rel_pred_with[:, :k].any(dim=1).sum().item() / num_rel_gt)

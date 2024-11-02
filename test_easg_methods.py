@@ -1,5 +1,5 @@
 from lib.supervised.ego_config import EgoConfig
-from lib.supervised.easg import EASG
+from lib.supervised.easg.easg import EASG
 from test_easg_base import TestEASGBase
 
 

@@ -12,6 +12,13 @@ def formatted_metric_num(metric_num):
 		return metric_num
 	else:
 		return round(float(metric_num) * 100, 2)
+	
+	
+def formatted_easg_metric_num(metric_num):
+	if metric_num == "-":
+		return metric_num
+	else:
+		return round(float(metric_num), 2)
 
 
 def fetch_value(value_string):
@@ -33,6 +40,7 @@ class PrepareResultsBase:
 		
 		self.sga_database_name = "results_31_10_sga_v2"
 		self.sgg_database_name = "results_31_10_sgg"
+		self.easg_database_name = "results_2_11_easg"
 	
 	def fetch_db_sgg_results(self):
 		results_dict = self.db_service.fetch_results_from_db(self.sgg_database_name)
@@ -53,13 +61,13 @@ class PrepareResultsBase:
 		return sgg_db_result_list
 	
 	def fetch_db_easg_results(self):
-		results_dict = self.db_service.fetch_results_from_db(self.database_name)
-		sgg_db_result_list = []
+		results_dict = self.db_service.fetch_results_from_db(self.easg_database_name)
+		easg_db_result_list = []
 		for result_id, result_dict in results_dict.items():
 			result = Result.from_dict(result_dict)
 			if result.task_name == const.EASG:
-				sgg_db_result_list.append(result)
-		return sgg_db_result_list
+				easg_db_result_list.append(result)
+		return easg_db_result_list
 	
 	# 0 - With constraint evaluator
 	# 1 - No constraint evaluator
@@ -68,6 +76,26 @@ class PrepareResultsBase:
 	def fetch_empty_metrics_json():
 		metrics_json = {}
 		for i in range(3):
+			metrics_json[i] = {
+				"R@10": "-",
+				"R@20": "-",
+				"R@50": "-",
+				"R@100": "-",
+				"mR@10": "-",
+				"mR@20": "-",
+				"mR@50": "-",
+				"mR@100": "-",
+				"hR@10": "-",
+				"hR@20": "-",
+				"hR@50": "-",
+				"hR@100": "-"
+			}
+		return metrics_json
+	
+	@staticmethod
+	def fetch_easg_empty_metrics_json():
+		metrics_json = {}
+		for i in range(2):
 			metrics_json[i] = {
 				"R@10": "-",
 				"R@20": "-",
@@ -146,6 +174,44 @@ class PrepareResultsBase:
 				"hR@20": formatted_metric_num(semi_constraint_metrics.harmonic_recall_20),
 				"hR@50": formatted_metric_num(semi_constraint_metrics.harmonic_recall_50),
 				"hR@100": formatted_metric_num(semi_constraint_metrics.harmonic_recall_100)
+			}
+		}
+		
+		return metrics_json
+	
+	@staticmethod
+	def fetch_easg_completed_metrics_json(
+			with_constraint_metrics,
+			no_constraint_metrics
+	):
+		metrics_json = {
+			0: {
+				"R@10": formatted_easg_metric_num(with_constraint_metrics.recall_10),
+				"R@20": formatted_easg_metric_num(with_constraint_metrics.recall_20),
+				"R@50": formatted_easg_metric_num(with_constraint_metrics.recall_50),
+				"R@100": formatted_easg_metric_num(with_constraint_metrics.recall_100),
+				"mR@10": formatted_easg_metric_num(with_constraint_metrics.mean_recall_10),
+				"mR@20": formatted_easg_metric_num(with_constraint_metrics.mean_recall_20),
+				"mR@50": formatted_easg_metric_num(with_constraint_metrics.mean_recall_50),
+				"mR@100": formatted_easg_metric_num(with_constraint_metrics.mean_recall_100),
+				"hR@10": formatted_easg_metric_num(with_constraint_metrics.harmonic_recall_10),
+				"hR@20": formatted_easg_metric_num(with_constraint_metrics.harmonic_recall_20),
+				"hR@50": formatted_easg_metric_num(with_constraint_metrics.harmonic_recall_50),
+				"hR@100": formatted_easg_metric_num(with_constraint_metrics.harmonic_recall_100)
+			},
+			1: {
+				"R@10": formatted_easg_metric_num(no_constraint_metrics.recall_10),
+				"R@20": formatted_easg_metric_num(no_constraint_metrics.recall_20),
+				"R@50": formatted_easg_metric_num(no_constraint_metrics.recall_50),
+				"R@100": formatted_easg_metric_num(no_constraint_metrics.recall_100),
+				"mR@10": formatted_easg_metric_num(no_constraint_metrics.mean_recall_10),
+				"mR@20": formatted_easg_metric_num(no_constraint_metrics.mean_recall_20),
+				"mR@50": formatted_easg_metric_num(no_constraint_metrics.mean_recall_50),
+				"mR@100": formatted_easg_metric_num(no_constraint_metrics.mean_recall_100),
+				"hR@10": formatted_easg_metric_num(no_constraint_metrics.harmonic_recall_10),
+				"hR@20": formatted_easg_metric_num(no_constraint_metrics.harmonic_recall_20),
+				"hR@50": formatted_easg_metric_num(no_constraint_metrics.harmonic_recall_50),
+				"hR@100": formatted_easg_metric_num(no_constraint_metrics.harmonic_recall_100)
 			}
 		}
 		

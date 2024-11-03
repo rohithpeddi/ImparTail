@@ -169,8 +169,6 @@ class TestEASGBase(EASGBase):
                     result.label_noise_percentage = 20
                 elif "30" in self._checkpoint_name:
                     result.label_noise_percentage = 30
-            else:
-                scenario_name = "full"
 
             result_details = ResultDetails()
             for constraint in constraint_list:

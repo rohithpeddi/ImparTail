@@ -116,21 +116,22 @@ class LabelNoiseEASG(BaseEASGData):
                 mask = None
 
             for obj_idx in graph['objs']:
-                original_obj_idx = obj_idx  # Keep the original object index
-
-                # Apply the mask to change the object index if necessary
-                if mask is not None and mask[obj_idx]:
-                    # Change the obj_idx to a random index
-                    obj_idx = random.randint(0, len(self.objs) - 1)
-
                 graph_batch['obj_indices'] = torch.cat(
                     (graph_batch['obj_indices'], torch.tensor([obj_idx], dtype=torch.long)), dim=0
                 )
                 graph_batch['obj_feats'] = torch.cat(
-                    (graph_batch['obj_feats'], graph['objs'][original_obj_idx]['obj_feat'].unsqueeze(0)), dim=0
+                    (graph_batch['obj_feats'], graph['objs'][obj_idx]['obj_feat'].unsqueeze(0)), dim=0
                 )
 
-                rels_vec = graph['objs'][original_obj_idx]['rels_vec']
+                # Apply the mask to change the object index if necessary
+                if mask is not None and mask[obj_idx]:
+                    rels_vec = torch.zeros(len(self.rels), dtype=torch.float32)
+                    # Randomly select a rel_index to change
+                    rel_idx = random.randint(0, len(self.rels) - 1)
+                    rels_vec[rel_idx] = 1
+                else:
+                    rels_vec = graph['objs'][obj_idx]['rels_vec']
+
                 graph_batch['rels_vecs'] = torch.cat(
                     (graph_batch['rels_vecs'], rels_vec.unsqueeze(0)), dim=0
                 )

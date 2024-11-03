@@ -88,9 +88,17 @@ class TrainEASGBase(EASGBase):
 
                 losses = {
                     'verb_loss': self._criterion(out_verb, verb_idx),
-                    'obj_loss': self._criterion(out_objs, obj_indices),
-                    'rel_loss': self._criterion_rel(out_rels, rels_vecs)
+                    'obj_loss': self._criterion(out_objs, obj_indices)
                 }
+
+                if self._conf.use_partial_annotations:
+                    rel_mask = graph['rel_mask'].to(self._device)
+                    out_rels = out_rels[rel_mask == 1, :]
+                    rels_vecs = rels_vecs[rel_mask == 1, :]
+                    if not len(out_rels) == 0:
+                        losses['rel_loss'] = self._criterion_rel(out_rels, rels_vecs)
+                else:
+                    losses['rel_loss'] = self._criterion_rel(out_rels, rels_vecs)
 
                 loss = sum(losses.values())
                 loss.backward()

@@ -100,7 +100,7 @@ class PartialEASG(BaseEASGData):
             graph_masks = None  # No label noise; masks are not needed
 
         self.graphs = []
-        for graph in graphs:
+        for graph_idx, graph in enumerate(graphs):
             graph_batch = {}
             verb_idx = graph['verb_idx']
             graph_batch['verb_idx'] = torch.tensor([verb_idx], dtype=torch.long)
@@ -109,6 +109,9 @@ class PartialEASG(BaseEASGData):
             graph_batch['obj_feats'] = torch.zeros((0, 1024), dtype=torch.float32)
             graph_batch['rels_vecs'] = torch.zeros((0, len(self.rels)), dtype=torch.float32)
             graph_batch['triplets'] = torch.zeros((0, 3), dtype=torch.long)
+
+            if graph_masks is not None:
+                graph_batch["rel_mask"] = torch.zeros(0, dtype=torch.long)
 
             for obj_idx in graph['objs']:
                 graph_batch['obj_indices'] = torch.cat(
@@ -119,12 +122,19 @@ class PartialEASG(BaseEASGData):
                 rels_vec = graph['objs'][obj_idx]['rels_vec']
                 graph_batch['rels_vecs'] = torch.cat((graph_batch['rels_vecs'], rels_vec.unsqueeze(0)), dim=0)
 
+                if graph_masks is not None:
+                    if graph_masks[graph_idx][obj_idx]:
+                        graph_batch["rel_mask"] = torch.cat(
+                            (graph_batch["rel_mask"], torch.tensor([1], dtype=torch.long)), dim=0)
+                    else:
+                        graph_batch["rel_mask"] = torch.cat(
+                            (graph_batch["rel_mask"], torch.tensor([0], dtype=torch.long)), dim=0)
+
                 triplets = []
                 for rel_idx in torch.where(rels_vec)[0]:
                     triplets.append((verb_idx, obj_idx, rel_idx.item()))
                 graph_batch['triplets'] = torch.cat((graph_batch['triplets'], torch.tensor(triplets, dtype=torch.long)),
                                                     dim=0)
-
             self.graphs.append(graph_batch)
 
         print(f"[{self._conf.method_name}_{self._split}] Finished processing graph data ")

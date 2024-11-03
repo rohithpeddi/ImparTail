@@ -250,6 +250,11 @@ class TestSGGBase(STSGBase):
 
     def _test_model(self):
         start_time = time.time()
+        print('-----------------------------------------------------------------------------------', flush=True)
+        print(f"Testing the model: {self._conf.method_name} on {self._conf.mode} mode", flush=True)
+        print(f"Starting testing at: {start_time}", flush=True)
+        if self._conf.use_input_corruptions:
+            print(f"Testing the model on corruption: {self._corruption_name}", flush=True)
         test_iter = iter(self._dataloader_test)
         self._model.eval()
         self._object_detector.is_train = False
@@ -301,6 +306,11 @@ class TestSGGBase(STSGBase):
 
             self._corruption_name = (f"{self._conf.dataset_corruption_mode}_{self._conf.video_corruption_mode}_"
                                      f"{self._conf.dataset_corruption_type}_{self._conf.corruption_severity_level}")
+
+            print("---------------------------------------------------------------------------")
+            print(f"Initializing corrupted dataset with corruption name: {self._corruption_name}")
+            print("---------------------------------------------------------------------------")
+
         else:
             from dataloader.standard.action_genome.ag_dataset import StandardAG
             from dataloader.standard.action_genome.ag_dataset import cuda_collate_fn as ag_data_cuda_collate_fn
@@ -314,6 +324,10 @@ class TestSGGBase(STSGBase):
                 filter_nonperson_box_frame=True,
                 filter_small_box=False if self._conf.mode == 'predcls' else True
             )
+
+            print("---------------------------------------------------------------------------")
+            print("Initializing standard dataset")
+            print("---------------------------------------------------------------------------")
 
         self._object_classes = self._test_dataset.object_classes
 

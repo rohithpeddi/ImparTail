@@ -6,6 +6,8 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
+from analysis.results.FirebaseService import FirebaseService
+from analysis.results.Result import Result, ResultDetails, Metrics
 from dataloader.standard.easg.easg_dataset import StandardEASG
 from easg_base import EASGBase
 from constants import EgoConstants as const
@@ -27,11 +29,11 @@ class TestEASGBase(EASGBase):
         self._dataloader_val = DataLoader(self._val_dataset, shuffle=False)
 
     def _test_model(self):
-        val_iter = iter(self._dataloader_val)
+        list_index = list(range(len(self._val_dataset)))
         self._model.eval()
         with torch.no_grad():
-            for b in tqdm(range(len(self._dataloader_val))):
-                graph = next(val_iter)
+            for val_idx in tqdm(range(len(list_index))):
+                graph = self._val_dataset[list_index[val_idx]]
 
                 clip_feat = graph['clip_feat'].unsqueeze(0).to(self._device)
                 obj_feats = graph['obj_feats'].to(self._device)
@@ -41,6 +43,25 @@ class TestEASGBase(EASGBase):
 
     def _collate_evaluation_stats(self):
         stats_json = self._evaluator.fetch_stats_json()
+
+        # Stats json has the following syntax:
+        # 1. recall: { predcls_with, predcls_no, sgcls_with, sgcls_no, easg_with, easg_no }
+        # 2. mean_recall: { predcls_with, predcls_no, sgcls_with, sgcls_no, easg_with, easg_no }
+        # 3. harmonic_mean_recall: { predcls_with, predcls_no, sgcls_with, sgcls_no, easg_with, easg_no }
+        # Invert the structure to have the following:
+        # 1. predcls_with : { recall, mean_recall, harmonic_mean_recall }
+        # 2. predcls_no : { recall, mean_recall, harmonic_mean_recall }
+        # 3. sgcls_with : { recall, mean_recall, harmonic_mean_recall }
+        # 4. sgcls_no : { recall, mean_recall, harmonic_mean_recall }
+        # 5. easgcls_with : { recall, mean_recall, harmonic_mean_recall }
+        # 6. easgcls_no : { recall, mean_recall, harmonic_mean_recall }
+
+        inverted_stats_json = {}
+        for eval_type in stats_json.keys():
+            for mode in stats_json[eval_type].keys():
+                if mode not in inverted_stats_json:
+                    inverted_stats_json[mode] = {}
+                inverted_stats_json[mode][eval_type] = stats_json[eval_type][mode]
 
         def evaluator_stats_to_list(with_constraint_evaluator_stats, no_constraint_evaluator_stats):
             collated_stats = [
@@ -74,16 +95,100 @@ class TestEASGBase(EASGBase):
             return collated_stats
 
         mode_evaluator_stats_dict = {
-            "predcls": evaluator_stats_to_list(stats_json["predcls_with"], stats_json["predcls_no"]),
-            "sgcls": evaluator_stats_to_list(stats_json["sgcls_with"], stats_json["sgcls_no"]),
-            "easg": evaluator_stats_to_list(stats_json["easg_with"], stats_json["easg_no"])
+            "predcls": evaluator_stats_to_list(inverted_stats_json["predcls_with"], inverted_stats_json["predcls_no"]),
+            "sgcls": evaluator_stats_to_list(inverted_stats_json["sgcls_with"], inverted_stats_json["sgcls_no"]),
+            "easgcls": evaluator_stats_to_list(inverted_stats_json["easgcls_with"], inverted_stats_json["easgcls_no"])
         }
 
-        return mode_evaluator_stats_dict
+        return mode_evaluator_stats_dict, inverted_stats_json
+
+    @staticmethod
+    def _prepare_metrics_from_stats(evaluator_stats):
+        metrics = Metrics(
+            evaluator_stats["recall"][10],
+            evaluator_stats["recall"][20],
+            evaluator_stats["recall"][50],
+            evaluator_stats["recall"][100],
+            evaluator_stats["mean_recall"][10],
+            evaluator_stats["mean_recall"][20],
+            evaluator_stats["mean_recall"][50],
+            evaluator_stats["mean_recall"][100],
+            evaluator_stats["harmonic_mean_recall"][10],
+            evaluator_stats["harmonic_mean_recall"][20],
+            evaluator_stats["harmonic_mean_recall"][50],
+            evaluator_stats["harmonic_mean_recall"][100]
+        )
+        return metrics
 
     def _publish_evaluation_results(self):
-        mode_evaluator_stats_dict = self._collate_evaluation_stats()
+        mode_evaluator_stats_dict, inverted_stats_json = self._collate_evaluation_stats()
         self._write_evaluation_statistics(mode_evaluator_stats_dict)
+        result_dict = self._publish_results_to_firebase(inverted_stats_json)
+        return result_dict
+
+    def _publish_results_to_firebase(self, inverted_stats_json):
+        db_service = FirebaseService()
+
+        if self._conf.use_input_corruptions:
+            scenario_name = "corruption"
+        else:
+            if "partial" in self._checkpoint_name:
+                scenario_name = "partial"
+            elif "label" in self._checkpoint_name:
+                scenario_name = "labelnoise"
+            else:
+                scenario_name = "full"
+
+        mode_list = ["predcls", "sgcls", "easgcls"]
+        constraint_list = ["with", "no"]
+
+        result_dict = {}
+
+        for mode in mode_list:
+            result = Result(
+                task_name=self._conf.task_name,
+                scenario_name=scenario_name,
+                method_name=self._conf.method_name,
+                mode=mode
+            )
+
+            if self._conf.use_input_corruptions:
+                result.corruption_type = self._corruption_name
+
+            if "partial" in self._checkpoint_name:
+                if "10" in self._checkpoint_name:
+                    result.partial_percentage = 10
+                elif "40" in self._checkpoint_name:
+                    result.partial_percentage = 40
+                elif "70" in self._checkpoint_name:
+                    result.partial_percentage = 70
+            elif "label" in self._checkpoint_name:
+                if "10" in self._checkpoint_name:
+                    result.label_noise_percentage = 10
+                elif "20" in self._checkpoint_name:
+                    result.label_noise_percentage = 20
+                elif "30" in self._checkpoint_name:
+                    result.label_noise_percentage = 30
+            else:
+                scenario_name = "full"
+
+            result_details = ResultDetails()
+            for constraint in constraint_list:
+                constraint_metrics = self._prepare_metrics_from_stats(inverted_stats_json[f"{mode}_{constraint}"])
+                if constraint == "with":
+                    result_details.add_with_constraint_metrics(constraint_metrics)
+                else:
+                    result_details.add_no_constraint_metrics(constraint_metrics)
+
+            result.add_result_details(result_details)
+
+            print("Saving result: ", result.result_id)
+            db_service.update_result_to_db("results_2_11_easg", result.result_id, result.to_dict())
+            print("Saved result: ", result.result_id)
+
+            result_dict[mode] = result
+
+        return result_dict
 
     def _write_evaluation_statistics(self, mode_evaluator_stats_dict):
         # Create the results directory
@@ -93,16 +198,16 @@ class TestEASGBase(EASGBase):
         for mode in mode_evaluator_stats_dict.keys():
             if self._conf.use_input_corruptions:
                 scenario_dir = os.path.join(task_dir, "corruptions")
-                file_name = f'{self._conf.method_name}_{mode}_{self._corruption_name}.csv'
-            elif self._conf.use_partial_annotations:
-                scenario_dir = os.path.join(task_dir, "partial")
-                file_name = f'{self._conf.method_name}_partial_{self._conf.partial_percentage}_{mode}.csv'
-            elif self._conf.use_label_noise:
-                scenario_dir = os.path.join(task_dir, "labelnoise")
-                file_name = f'{self._conf.method_name}_labelnoise_{self._conf.label_noise_percentage}_{mode}.csv'
+                file_name = f'{self._checkpoint_name}_{self._corruption_name}.csv'
             else:
-                scenario_dir = os.path.join(task_dir, "full")
-                file_name = f'{self._conf.method_name}_{mode}.csv'
+                if "partial" in self._checkpoint_name:
+                    scenario_dir = os.path.join(task_dir, "partial")
+                elif "label" in self._checkpoint_name:
+                    scenario_dir = os.path.join(task_dir, "labelnoise")
+                else:
+                    scenario_dir = os.path.join(task_dir, "full")
+
+                file_name = f'{self._checkpoint_name}_{mode}.csv'
 
             assert scenario_dir is not None, "Scenario directory is not set"
             mode_results_dir = os.path.join(scenario_dir, mode)

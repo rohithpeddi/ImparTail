@@ -12,7 +12,7 @@ class BasicEgoActionSceneGraphEvaluator:
         self.num_top_rel_with = 1
         self.num_top_rel_no = 5
         self.num_rel = 13
-        self.list_k = [10, 20, 50]
+        self.list_k = [10, 20, 50, 100]
 
         self.mode_setting_keys = [
             "predcls_with",

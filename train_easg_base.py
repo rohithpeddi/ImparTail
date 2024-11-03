@@ -122,7 +122,7 @@ class TrainEASGBase(EASGBase):
 
                     self._evaluator.evaluate_scene_graph(out_verb, out_objs, out_rels, graph)
 
-            if epoch % 10 == 0:
+            if epoch % 9 == 0:
                 self._evaluator.print_stats()
                 self._save_model(
                     model=self._model,

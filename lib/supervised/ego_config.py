@@ -6,7 +6,6 @@ import torch
 class EgoConfig(object):
 
     def __init__(self):
-        self.mode = None
         self.save_path = None
         self.data_path = None
         self.ckpt = None
@@ -44,12 +43,12 @@ class EgoConfig(object):
         self.args = vars(self.parser.parse_args())
         self.__dict__.update(self.args)
 
-
     def setup_parser(self):
         parser = ArgumentParser(description='training code')
 
         parser.add_argument('--method_name', type=str, default='easg', help='method name')
-        parser.add_argument('--save_path', type=str, default='/data/rohith/easg/checkpoints', help='path to save the model')
+        parser.add_argument('--save_path', type=str, default='/data/rohith/easg/checkpoints',
+                            help='path to save the model')
         parser.add_argument('--data_path', type=str, default='/data/rohith/easg/features', help='path to data')
         parser.add_argument('--ckpt', type=str, default=None, help='path to load the model')
         parser.add_argument('--optimizer', type=str, default='adam', help='optimizer')
@@ -62,7 +61,7 @@ class EgoConfig(object):
         parser.add_argument('--path_to_output', default='/data/rohith/easg/checkpoints', type=str)
         parser.add_argument('--lr', type=float, default=1e-3, help='learning rate')
         parser.add_argument('--sch_param', type=int, default=10, help='parameter for lr scheduler')
-        parser.add_argument('--num_epoch', type=int, default=100, help='total number of epochs')
+        parser.add_argument('--num_epoch', type=int, default=10, help='total number of epochs')
         parser.add_argument('--random_guess', action='store_true', help='for random guessing')
         parser.add_argument('--split', type=str, default='train', help='train or test')
 
@@ -83,4 +82,3 @@ class EgoConfig(object):
         parser.add_argument("--use_wandb", action="store_true")
 
         return parser
-

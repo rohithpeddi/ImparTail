@@ -6,13 +6,13 @@ from constants import ResultConstants as const
 logger = get_logger(__name__)
 
 firebaseProdConfig = {
-	"apiKey": "AIzaSyCyn-mmp-ZLkk2wEKLjEE9gxm7a8Ewx7bw",
-	"authDomain": "robsgg-e1f74.firebaseapp.com",
-	"databaseURL": "https://robsgg-e1f74-default-rtdb.firebaseio.com",
-	"projectId": "robsgg-e1f74",
-	"storageBucket": "robsgg-e1f74.appspot.com",
-	"messagingSenderId": "223334572997",
-	"appId": "1:223334572997:web:b33fbc61caa53af345a1ac"
+	"apiKey": "AIzaSyBQXMnvEQtsdIJYDW49__bRIb1FoSZjCGM",
+	"authDomain": "legal-af5a5.firebaseapp.com",
+	"databaseURL": "https://legal-af5a5-default-rtdb.firebaseio.com/",
+	"projectId": "legal-af5a5",
+	"storageBucket": "legal-af5a5.appspot.com",
+	"messagingSenderId": "992959199823",
+	"appId": "1:992959199823:web:a6641f936071b1cf49483a"
 }
 
 firebase = pyrebase.initialize_app(firebaseProdConfig)

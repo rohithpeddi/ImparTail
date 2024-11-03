@@ -1,0 +1,11 @@
+# -------------------------- Label Noise Percentage 10 --------------------------
+
+python train_easg_methods.py --task_name=easg --method_name=easg --use_label_noise --label_noise_percentage=10
+
+# -------------------------- Label Noise Percentage 20 --------------------------
+
+python train_easg_methods.py --task_name=easg --method_name=easg --use_label_noise --label_noise_percentage=20
+
+# -------------------------- Label Noise Percentage 30 --------------------------
+
+python train_easg_methods.py --task_name=easg --method_name=easg --use_label_noise --label_noise_percentage=30

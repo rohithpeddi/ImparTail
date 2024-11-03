@@ -152,17 +152,24 @@ class TestSGGBase(STSGBase):
     def _write_evaluation_statistics(self):
         # Create the results directory
         results_dir = os.path.join(os.getcwd(), 'results')
-        mode_results_dir = os.path.join(results_dir, self._conf.mode)
-        os.makedirs(mode_results_dir, exist_ok=True)
+        task_dir = os.path.join(results_dir, "sgg")
 
         if self._conf.use_input_corruptions:
-            # Create the results file
-            results_file_path = os.path.join(mode_results_dir,
-                                         f'{self._conf.method_name}_{self._conf.mode}_{self._corruption_name}.csv')
+            scenario_dir = os.path.join(task_dir, "corruptions")
+            file_name = f'{self._conf.method_name}_{self._conf.mode}_{self._corruption_name}.csv'
         else:
-            # Create the results file
-            results_file_path = os.path.join(mode_results_dir, f'{self._conf.method_name}_{self._conf.mode}.csv')
+            if "partial" in self._checkpoint_name:
+                scenario_dir = os.path.join(task_dir, "partial")
+            elif "label" in self._checkpoint_name:
+                scenario_dir = os.path.join(task_dir, "labelnoise")
+            else:
+                scenario_dir = os.path.join(task_dir, "full")
+            file_name = f'{self._checkpoint_name}.csv'
 
+        assert scenario_dir is not None, "Scenario directory is not set"
+        mode_results_dir = os.path.join(scenario_dir, self._conf.mode)
+        os.makedirs(mode_results_dir, exist_ok=True)
+        results_file_path = os.path.join(mode_results_dir, file_name)
 
         with open(results_file_path, "a", newline='') as activity_idx_step_idx_annotation_csv_file:
             writer = csv.writer(activity_idx_step_idx_annotation_csv_file, quoting=csv.QUOTE_NONNUMERIC)
@@ -202,13 +209,25 @@ class TestSGGBase(STSGBase):
     def _publish_results_to_firebase(self):
         db_service = FirebaseService()
 
+        if self._conf.use_input_corruptions:
+            scenario_name = "corruption"
+        else:
+            if "partial" in self._checkpoint_name:
+                scenario_name = "partial"
+            elif "label" in self._checkpoint_name:
+                scenario_name = "labelnoise"
+            else:
+                scenario_name = "full"
+
         result = Result(
             task_name=self._conf.task_name,
+            scenario_name=scenario_name,
             method_name=self._conf.method_name,
-            mode=self._conf.mode,
-            partial_percentage=self._conf.partial_percentage,
-            corruption_type=self._corruption_name,
+            mode=self._conf.mode
         )
+
+        if self._conf.use_input_corruptions:
+            result.corruption_type = self._corruption_name
 
         result_details = ResultDetails()
         with_constraint_metrics = self._prepare_metrics_from_stats(self._evaluators[0].fetch_stats_json())
@@ -297,7 +316,6 @@ class TestSGGBase(STSGBase):
             collate_fn=ag_data_cuda_collate_fn,
             pin_memory=False
         )
-
 
     def init_method_evaluation(self):
         # 0. Init config

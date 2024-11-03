@@ -32,12 +32,12 @@ class TrainEASGBase(EASGBase):
             print("-----------------------------------------------------")
             print("Loading the partial annotations dataset with percentage:", self._conf.partial_percentage)
             print("-----------------------------------------------------")
-            self._train_dataset = PartialEASG(conf=self._conf, split = const.TRAIN)
+            self._train_dataset = PartialEASG(conf=self._conf, split=const.TRAIN)
         elif self._conf.use_label_noise:
             print("-----------------------------------------------------")
             print("Loading the dataset with label noise percentage:", self._conf.label_noise_percentage)
             print("-----------------------------------------------------")
-            self._train_dataset = LabelNoiseEASG(conf=self._conf, split = const.TRAIN)
+            self._train_dataset = LabelNoiseEASG(conf=self._conf, split=const.TRAIN)
         else:
             print("-----------------------------------------------------")
             print("Loading the standard dataset")
@@ -47,7 +47,6 @@ class TrainEASGBase(EASGBase):
         self._val_dataset = StandardEASG(conf=self._conf, split=const.VAL)
         self._dataloader_train = DataLoader(self._train_dataset, shuffle=True)
         self._dataloader_val = DataLoader(self._val_dataset, shuffle=False)
-
 
     @abstractmethod
     def init_model(self):
@@ -75,7 +74,7 @@ class TrainEASGBase(EASGBase):
             list_index = list(range(len(self._train_dataset)))
             random.shuffle(list_index)
             # self._object_detector.is_train = True
-            for train_idx in tqdm(range(len(list_index))):
+            for train_idx in tqdm(range(len(list_index)), desc=f"Training Epoch {epoch}"):
                 graph = self._train_dataset[list_index[train_idx]]
                 self._optimizer.zero_grad()
 
@@ -89,9 +88,17 @@ class TrainEASGBase(EASGBase):
 
                 losses = {
                     'verb_loss': self._criterion(out_verb, verb_idx),
-                    'obj_loss': self._criterion(out_objs, obj_indices),
-                    'rel_loss': self._criterion_rel(out_rels, rels_vecs)
+                    'obj_loss': self._criterion(out_objs, obj_indices)
                 }
+
+                if self._conf.use_partial_annotations:
+                    rel_mask = graph['rel_mask'].to(self._device)
+                    out_rels = out_rels[rel_mask == 1, :]
+                    rels_vecs = rels_vecs[rel_mask == 1, :]
+                    if not len(out_rels) == 0:
+                        losses['rel_loss'] = self._criterion_rel(out_rels, rels_vecs)
+                else:
+                    losses['rel_loss'] = self._criterion_rel(out_rels, rels_vecs)
 
                 loss = sum(losses.values())
                 loss.backward()
@@ -99,17 +106,6 @@ class TrainEASGBase(EASGBase):
                 self._optimizer.step()
 
                 tr.append(pd.Series({x: y.item() for x, y in losses.items()}))
-
-                # if counter % 1000 == 0 and counter >= 1000:
-                #     time_per_batch = (time.time() - start_time) / 1000
-                #     print(
-                #         "\ne{:2d}  b{:5d}/{:5d}  {:.3f}s/batch, {:.1f}m/epoch".format(epoch, counter,
-                #                                                                       len(self._dataloader_train),
-                #                                                                       time_per_batch,
-                #                                                                       len(self._dataloader_train) * time_per_batch / 60))
-                #     mn = pd.concat(tr[-1000:], axis=1).mean(1)
-                #     print(mn)
-                #     start_time = time.time()
                 counter += 1
 
             # val_iter = iter(self._dataloader_val)
@@ -117,7 +113,7 @@ class TrainEASGBase(EASGBase):
             self._model.eval()
             # self._object_detector.is_train = False
             with torch.no_grad():
-                for val_idx in tqdm(range(len(list_index))):
+                for val_idx in tqdm(range(len(list_index)), desc=f"Validation Epoch {epoch}"):
                     graph = self._val_dataset[list_index[val_idx]]
 
                     clip_feat = graph['clip_feat'].unsqueeze(0).to(self._device)
@@ -126,8 +122,15 @@ class TrainEASGBase(EASGBase):
 
                     self._evaluator.evaluate_scene_graph(out_verb, out_objs, out_rels, graph)
 
-            if epoch % 10 == 0:
+            if epoch % 9 == 0:
                 self._evaluator.print_stats()
+                self._save_model(
+                    model=self._model,
+                    epoch=epoch,
+                    checkpoint_save_file_path=self._checkpoint_save_dir_path,
+                    checkpoint_name=self._checkpoint_name,
+                    method_name=self._conf.method_name
+                )
 
             self._evaluator.reset_result()
             self._scheduler.step()

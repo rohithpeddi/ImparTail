@@ -201,68 +201,77 @@ class TestSTSGBase(STSGBase):
                 evaluators[2].evaluate_scene_graph(gt, pred)
 
     def _publish_evaluation_results(self, is_future_frame=True):
-        # 1. Collate the evaluation statistics
-        # self._collated_stats = self._collate_evaluation_stats()
         # 2. Write to the CSV File
         self._write_evaluation_statistics(is_future_frame=is_future_frame)
         # 3. Publish the results to Firebase
         # self._publish_results_to_firebase()
 
-    def _write_evaluation_statistics(self, is_future_frame=True):
+    def _write_evaluation_statistics(self, is_future_frame=False):
         # Create the results directory
         results_dir = os.path.join(os.getcwd(), 'results')
-        mode_results_dir = os.path.join(results_dir, self._conf.mode)
-        os.makedirs(mode_results_dir, exist_ok=True)
+        task_dir = os.path.join(results_dir, "sga")
 
-        if is_future_frame:
-            # Create the results file
-            for i, future_frame_window in enumerate(self._future_frame_windows):
-                if self._conf.use_input_corruptions:
-                    file_name = f'{self._conf.method_name}_{self._conf.mode}_train_{self._conf.max_window}_test_{future_frame_window}_{self._corruption_name}.csv'
-                elif self._conf.use_partial_annotations:
-                    file_name = (f'{self._conf.method_name}_partial_{self._conf.partial_percentage}_'
-                                 f'{self._conf.mode}_{self._conf.max_window}_test_{future_frame_window}.csv')
-                elif self._conf.use_label_noise:
-                    file_name = (f'{self._conf.method_name}_label_noise_{self._conf.label_noise_percentage}_'
-                                 f'{self._conf.mode}_{self._conf.max_window}_test_{future_frame_window}.csv')
-                else:
-                    file_name = f'{self._conf.method_name}_{self._conf.mode}_train_{self._conf.max_window}_test_{future_frame_window}.csv'
-
-                results_file_path = os.path.join(mode_results_dir, file_name)
-
-                with open(results_file_path, "a", newline='') as activity_idx_step_idx_annotation_csv_file:
-                    writer = csv.writer(activity_idx_step_idx_annotation_csv_file, quoting=csv.QUOTE_NONNUMERIC)
-                    collated_stats = self._collate_evaluation_stats(future_frame_window, True)
-                    # Write the header if the file is empty
-                    if not os.path.isfile(results_file_path):
-                        writer.writerow([
-                            "Method Name",
-                            "R@10", "R@20", "R@50", "R@100", "mR@10", "mR@20", "mR@50", "mR@100", "hR@10", "hR@20",
-                            "hR@50",
-                            "hR@100"
-                            "R@10", "R@20", "R@50", "R@100", "mR@10", "mR@20", "mR@50", "mR@100", "hR@10", "hR@20",
-                            "hR@50",
-                            "hR@100",
-                            "R@10", "R@20", "R@50", "R@100", "mR@10", "mR@20", "mR@50", "mR@100", "hR@10", "hR@20",
-                            "hR@50",
-                            "hR@100"
-                        ])
-                        # Write the results row
-                    writer.writerow(collated_stats)
+        # if is_future_frame:
+        #     # Create the results file
+        #     for i, future_frame_window in enumerate(self._future_frame_windows):
+        #         if self._conf.use_input_corruptions:
+        #             file_name = f'{self._conf.method_name}_{self._conf.mode}_train_{self._conf.max_window}_test_{future_frame_window}_{self._corruption_name}.csv'
+        #             scenario_dir = os.path.join(task_dir, "corruptions")
+        #         elif self._conf.use_partial_annotations:
+        #             file_name = (f'{self._conf.method_name}_partial_{self._conf.partial_percentage}_'
+        #                          f'{self._conf.mode}_train_{self._conf.max_window}_test_{future_frame_window}.csv')
+        #             scenario_dir = os.path.join(task_dir, "partial")
+        #         elif self._conf.use_label_noise:
+        #             file_name = (f'{self._conf.method_name}_label_noise_{self._conf.label_noise_percentage}_'
+        #                          f'{self._conf.mode}_train_{self._conf.max_window}_test_{future_frame_window}.csv')
+        #             scenario_dir = os.path.join(task_dir, "labelnoise")
+        #         else:
+        #             file_name = f'{self._conf.method_name}_{self._conf.mode}_train_{self._conf.max_window}_test_{future_frame_window}.csv'
+        #             scenario_dir = os.path.join(task_dir, "full")
+        #
+        #         assert scenario_dir is not None
+        #         mode_results_dir = os.path.join(scenario_dir, self._conf.mode)
+        #         os.makedirs(mode_results_dir, exist_ok=True)
+        #         results_file_path = os.path.join(mode_results_dir, file_name)
+        #
+        #         with open(results_file_path, "a", newline='') as activity_idx_step_idx_annotation_csv_file:
+        #             writer = csv.writer(activity_idx_step_idx_annotation_csv_file, quoting=csv.QUOTE_NONNUMERIC)
+        #             collated_stats = self._collate_evaluation_stats(future_frame_window, True)
+        #             # Write the header if the file is empty
+        #             if not os.path.isfile(results_file_path):
+        #                 writer.writerow([
+        #                     "Method Name",
+        #                     "R@10", "R@20", "R@50", "R@100", "mR@10", "mR@20", "mR@50", "mR@100", "hR@10", "hR@20",
+        #                     "hR@50",
+        #                     "hR@100"
+        #                     "R@10", "R@20", "R@50", "R@100", "mR@10", "mR@20", "mR@50", "mR@100", "hR@10", "hR@20",
+        #                     "hR@50",
+        #                     "hR@100",
+        #                     "R@10", "R@20", "R@50", "R@100", "mR@10", "mR@20", "mR@50", "mR@100", "hR@10", "hR@20",
+        #                     "hR@50",
+        #                     "hR@100"
+        #                 ])
+        #                 # Write the results row
+        #             writer.writerow(collated_stats)
 
         if not is_future_frame:
             for i, context_fraction in enumerate(self._context_fractions):
                 if self._conf.use_input_corruptions:
                     file_name = f'{self._conf.method_name}_{self._conf.mode}_train_{self._conf.max_window}_test_{context_fraction}_{self._corruption_name}.csv'
-                elif self._conf.use_partial_annotations:
-                    file_name = (f'{self._conf.method_name}_partial_{self._conf.partial_percentage}_'
-                                 f'{self._conf.mode}_{self._conf.max_window}_test_{context_fraction}.csv')
-                elif self._conf.use_label_noise:
-                    file_name = (f'{self._conf.method_name}_label_noise_{self._conf.label_noise_percentage}_'
-                                 f'{self._conf.mode}_{self._conf.max_window}_test_{context_fraction}.csv')
+                    scenario_dir = os.path.join(task_dir, "corruptions")
                 else:
-                    file_name = f'{self._conf.method_name}_{self._conf.mode}_train_{self._conf.max_window}_test_{context_fraction}.csv'
+                    if "partial" in self._checkpoint_name:
+                        scenario_dir = os.path.join(task_dir, "partial")
+                    elif "label" in self._checkpoint_name:
+                        scenario_dir = os.path.join(task_dir, "labelnoise")
+                    else:
+                        scenario_dir = os.path.join(task_dir, "full")
 
+                    file_name = f'{self._checkpoint_name}_test_{context_fraction}.csv'
+
+                assert scenario_dir is not None
+                mode_results_dir = os.path.join(scenario_dir, self._conf.mode)
+                os.makedirs(mode_results_dir, exist_ok=True)
                 results_file_path = os.path.join(mode_results_dir, file_name)
 
                 with open(results_file_path, "a", newline='') as activity_idx_step_idx_annotation_csv_file:
@@ -307,31 +316,31 @@ class TestSTSGBase(STSGBase):
     def _publish_results_to_firebase(self, evaluators):
         db_service = FirebaseService()
 
-        for i, future_frame_window in enumerate(self._future_frame_windows):
-            result = Result(
-                task_name=self._conf.task_name,
-                method_name=self._conf.method_name,
-                mode=self._conf.mode,
-                train_future_frames=self._conf.max_window,
-                test_future_frames=future_frame_window
-            )
-
-            result_details = ResultDetails()
-            with_constraint_metrics = self._prepare_metrics_from_stats(evaluators[0].fetch_stats_json())
-            no_constraint_metrics = self._prepare_metrics_from_stats(evaluators[1].fetch_stats_json())
-            semi_constraint_metrics = self._prepare_metrics_from_stats(evaluators[2].fetch_stats_json())
-
-            result_details.add_with_constraint_metrics(with_constraint_metrics)
-            result_details.add_no_constraint_metrics(no_constraint_metrics)
-            result_details.add_semi_constraint_metrics(semi_constraint_metrics)
-
-            result.add_result_details(result_details)
-
-            print(
-                f"Saving result for train {self._conf.max_window} and test {future_frame_window} with result id {result.result_id}")
-            db_service.update_result(result.result_id, result.to_dict())
-            print(
-                f"Saved result for train {self._conf.max_window} and test {future_frame_window} with result id {result.result_id}")
+        # for i, future_frame_window in enumerate(self._future_frame_windows):
+        #     result = Result(
+        #         task_name=self._conf.task_name,
+        #         method_name=self._conf.method_name,
+        #         mode=self._conf.mode,
+        #         train_future_frames=self._conf.max_window,
+        #         test_future_frames=future_frame_window
+        #     )
+        #
+        #     result_details = ResultDetails()
+        #     with_constraint_metrics = self._prepare_metrics_from_stats(evaluators[0].fetch_stats_json())
+        #     no_constraint_metrics = self._prepare_metrics_from_stats(evaluators[1].fetch_stats_json())
+        #     semi_constraint_metrics = self._prepare_metrics_from_stats(evaluators[2].fetch_stats_json())
+        #
+        #     result_details.add_with_constraint_metrics(with_constraint_metrics)
+        #     result_details.add_no_constraint_metrics(no_constraint_metrics)
+        #     result_details.add_semi_constraint_metrics(semi_constraint_metrics)
+        #
+        #     result.add_result_details(result_details)
+        #
+        #     print(
+        #         f"Saving result for train {self._conf.max_window} and test {future_frame_window} with result id {result.result_id}")
+        #     db_service.update_result(result.result_id, result.to_dict())
+        #     print(
+        #         f"Saved result for train {self._conf.max_window} and test {future_frame_window} with result id {result.result_id}")
 
         for i, context_fraction in enumerate(self._context_fractions):
             result = Result(
@@ -503,32 +512,32 @@ class TestSTSGBase(STSGBase):
         self._model.eval()
         self._object_detector.is_train = False
         with torch.no_grad():
-            print("--------------------------------------------------------")
-            print("Evaluating the model for future frames predictions")
-            print("--------------------------------------------------------")
-
-            for num_video_id in tqdm(range(len(self._dataloader_test)), desc="Testing Progress (Future Frames)",
-                                     ascii=True):
-                data = next(test_iter)
-                im_data, im_info, gt_boxes, num_boxes = [copy.deepcopy(d.cuda(0)) for d in data[:4]]
-                gt_annotation = self._test_dataset.gt_annotations[data[4]]
-                frame_size = (im_info[0][:2] / im_info[0, 2]).cpu().data
-
-                entry = self._object_detector(im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all=None)
-                entry["gt_annotation"] = gt_annotation
-
-                # ----------------- Process the video (Method Specific) ---------------------
-                pred = self.process_test_video_future_frame(entry, frame_size, gt_annotation)
-                # ---------------------------------------------------------------------------
-
-                # ----------------- Process evaluation score (Method Specific)-----------------
-                self.compute_test_video_future_frame_score(pred, frame_size, gt_annotation)
-                # ----------------------------------------------------------------------------
-
-            print('-----------------------------------------------------------------------------------', flush=True)
-
-            # 5. Publish the evaluation results
-            self._publish_evaluation_results(is_future_frame=True)
+            # print("--------------------------------------------------------")
+            # print("Evaluating the model for future frames predictions")
+            # print("--------------------------------------------------------")
+            #
+            # for num_video_id in tqdm(range(len(self._dataloader_test)), desc="Testing Progress (Future Frames)",
+            #                          ascii=True):
+            #     data = next(test_iter)
+            #     im_data, im_info, gt_boxes, num_boxes = [copy.deepcopy(d.cuda(0)) for d in data[:4]]
+            #     gt_annotation = self._test_dataset.gt_annotations[data[4]]
+            #     frame_size = (im_info[0][:2] / im_info[0, 2]).cpu().data
+            #
+            #     entry = self._object_detector(im_data, im_info, gt_boxes, num_boxes, gt_annotation, im_all=None)
+            #     entry["gt_annotation"] = gt_annotation
+            #
+            #     # ----------------- Process the video (Method Specific) ---------------------
+            #     pred = self.process_test_video_future_frame(entry, frame_size, gt_annotation)
+            #     # ---------------------------------------------------------------------------
+            #
+            #     # ----------------- Process evaluation score (Method Specific)-----------------
+            #     self.compute_test_video_future_frame_score(pred, frame_size, gt_annotation)
+            #     # ----------------------------------------------------------------------------
+            #
+            # print('-----------------------------------------------------------------------------------', flush=True)
+            #
+            # # 5. Publish the evaluation results
+            # self._publish_evaluation_results(is_future_frame=True)
 
             for i, context_fraction in enumerate(self._context_fractions):
                 print("--------------------------------------------------------")

@@ -307,7 +307,6 @@ class ObjectClassifier(nn.Module):
             return entry
 
 
-
 class STTran(nn.Module):
 
     def __init__(

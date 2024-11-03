@@ -11,45 +11,84 @@ class BasicEgoActionSceneGraphEvaluator:
         self.num_top_verb = 5
         self.num_top_rel_with = 1
         self.num_top_rel_no = 5
-        self.list_k = [10, 20, 50]
+        self.num_rel = 13
+        self.list_k = [10, 20, 50, 100]
+
+        self.mode_setting_keys = [
+            "predcls_with",
+            "predcls_no",
+            "sgcls_with",
+            "sgcls_no",
+            "easgcls_with",
+            "easgcls_no"
+        ]
+
+        self.recall_result_dict = {}
+        self.mean_recall_result_dict = {}
 
         self._init_recall_dicts()
 
     def _init_recall_dicts(self):
-        self.recall_predcls_with = {k: [] for k in self.list_k}
-        self.recall_predcls_no = {k: [] for k in self.list_k}
-        self.recall_sgcls_with = {k: [] for k in self.list_k}
-        self.recall_sgcls_no = {k: [] for k in self.list_k}
-        self.recall_easgcls_with = {k: [] for k in self.list_k}
-        self.recall_easgcls_no = {k: [] for k in self.list_k}
+        for key in self.mode_setting_keys:
+            self.recall_result_dict[key] = {k: [] for k in self.list_k}
+            self.mean_recall_result_dict[key] = {k: [[] for _ in range(self.num_rel)] for k in self.list_k}
 
     def reset_result(self):
-        for k in self.list_k:
-            self.recall_predcls_with[k] = []
-            self.recall_predcls_no[k] = []
-            self.recall_sgcls_with[k] = []
-            self.recall_sgcls_no[k] = []
-            self.recall_easgcls_with[k] = []
-            self.recall_easgcls_no[k] = []
+        for key in self.mode_setting_keys:
+            for k in self.list_k:
+                self.recall_result_dict[key][k] = []
+                self.mean_recall_result_dict[key][k] = [[] for _ in range(self.num_rel)]
+
+    def fetch_stats_json(self):
+        recall_dict = {}
+        mean_recall_dict = {}
+        harmonic_mean_recall_dict = {}
+
+        for key, mode_setting_dict in self.recall_result_dict.items():
+            recall_dict[key] = {}
+            for k, score_list in mode_setting_dict.items():
+                recall_value = sum(score_list) / len(score_list) * 100
+                recall_dict[key][k] = recall_value
+
+        for key, mode_setting_dict in self.mean_recall_result_dict.items():
+            mean_recall_dict[key] = {}
+            for k, all_rel_score_list in mode_setting_dict.items():
+                sum_recall = sum(
+                    [sum(rel_score_list) / len(rel_score_list) if rel_score_list else 0.0 for rel_score_list in
+                     all_rel_score_list])
+                mean_recall_value = (sum_recall / float(self.num_rel)) * 100
+                mean_recall_dict[key][k] = mean_recall_value
+
+        for mode_key, mode_recall_dict in recall_dict.items():
+            mode_mean_recall_dict = mean_recall_dict[mode_key]
+            harmonic_mean_recall_dict[mode_key] = {}
+            for k, mode_k_recall_value in mode_recall_dict.items():
+                mode_k_mean_recall_value = mode_mean_recall_dict[k]
+                harmonic_mean = 2 * mode_k_mean_recall_value * mode_k_recall_value / (
+                        mode_k_mean_recall_value + mode_k_recall_value)
+                harmonic_mean_recall_dict[mode_key][k] = harmonic_mean
+
+        results_dict = {
+            "recall": recall_dict,
+            "mean_recall": mean_recall_dict,
+            "harmonic_mean_recall": harmonic_mean_recall_dict
+        }
+
+        return results_dict
 
     def print_stats(self):
-        for k in self.list_k:
-            self.recall_predcls_with[k] = sum(self.recall_predcls_with[k]) / len(self.recall_predcls_with[k]) * 100
-            self.recall_predcls_no[k] = sum(self.recall_predcls_no[k]) / len(self.recall_predcls_no[k]) * 100
-            self.recall_sgcls_with[k] = sum(self.recall_sgcls_with[k]) / len(self.recall_sgcls_with[k]) * 100
-            self.recall_sgcls_no[k] = sum(self.recall_sgcls_no[k]) / len(self.recall_sgcls_no[k]) * 100
-            self.recall_easgcls_with[k] = sum(self.recall_easgcls_with[k]) / len(self.recall_easgcls_with[k]) * 100
-            self.recall_easgcls_no[k] = sum(self.recall_easgcls_no[k]) / len(self.recall_easgcls_no[k]) * 100
+        results_dict = self.fetch_stats_json()
+        print("-----------------------------------------------")
+        print("Results:")
+        for k, score_dict in results_dict["recall"].items():
+            print(f"Recall@{k}:")
+            for key, score in score_dict.items():
+                print(f"  {key}: {score:.2f}")
 
-        for k in self.list_k:
-            print("Recall@{}:".format(k))
-            print("  PredCls with: {:.2f}".format(self.recall_predcls_with[k]))
-            print("  PredCls no: {:.2f}".format(self.recall_predcls_no[k]))
-            print("  SGCls with: {:.2f}".format(self.recall_sgcls_with[k]))
-            print("  SGCls no: {:.2f}".format(self.recall_sgcls_no[k]))
-            print("  EASGCls with: {:.2f}".format(self.recall_easgcls_with[k]))
-            print("  EASGCls no: {:.2f}".format(self.recall_easgcls_no[k]))
-
+        for k, score_dict in results_dict["mean_recall"].items():
+            print(f"Mean Recall@{k}:")
+            for key, score in score_dict.items():
+                print(f"  {key}: {score:.2f}")
 
     @staticmethod
     def intersect_2d(out, gt):
@@ -142,6 +181,7 @@ class BasicEgoActionSceneGraphEvaluator:
         triplets_easg_with = triplets_easg_with[torch.argsort(torch.tensor(scores_easg_with), descending=True)]
         triplets_easg_no = triplets_easg_no[torch.argsort(torch.tensor(scores_easg_no), descending=True)]
 
+        num_gt = triplets_gt.shape[0]
         out_to_gt_pred_with = self.intersect_2d(triplets_gt, triplets_pred_with)
         out_to_gt_pred_no = self.intersect_2d(triplets_gt, triplets_pred_no)
         out_to_gt_sg_with = self.intersect_2d(triplets_gt, triplets_sg_with)
@@ -149,11 +189,78 @@ class BasicEgoActionSceneGraphEvaluator:
         out_to_gt_easg_with = self.intersect_2d(triplets_gt, triplets_easg_with)
         out_to_gt_easg_no = self.intersect_2d(triplets_gt, triplets_easg_no)
 
+        # Mask creation logic to identify which of the output triplets correspond to a particular relationship triplet
+        # This mask is later added to the output to calculate relationship-wise mean recall
         num_gt = triplets_gt.shape[0]
+        num_pred_with = triplets_pred_with.shape[0]
+        num_pred_no = triplets_pred_no.shape[0]
+        num_sg_with = triplets_sg_with.shape[0]
+        num_sg_no = triplets_sg_no.shape[0]
+        num_easg_with = triplets_easg_with.shape[0]
+        num_easg_no = triplets_easg_no.shape[0]
+
+        assert out_to_gt_pred_with.shape == (num_gt, num_pred_with)
+        assert out_to_gt_pred_no.shape == (num_gt, num_pred_no)
+        assert out_to_gt_sg_with.shape == (num_gt, num_sg_with)
+        assert out_to_gt_sg_no.shape == (num_gt, num_sg_no)
+        assert out_to_gt_easg_with.shape == (num_gt, num_easg_with)
+        assert out_to_gt_easg_no.shape == (num_gt, num_easg_no)
+
+        mask_out_to_gt_pred_with = torch.zeros((self.num_rel, num_gt, num_pred_with), dtype=torch.bool)
+        mask_out_to_gt_pred_no = torch.zeros((self.num_rel, num_gt, num_pred_no), dtype=torch.bool)
+        mask_out_to_gt_sg_with = torch.zeros((self.num_rel, num_gt, num_sg_with), dtype=torch.bool)
+        mask_out_to_gt_sg_no = torch.zeros((self.num_rel, num_gt, num_sg_no), dtype=torch.bool)
+        mask_out_to_gt_easg_with = torch.zeros((self.num_rel, num_gt, num_easg_with), dtype=torch.bool)
+        mask_out_to_gt_easg_no = torch.zeros((self.num_rel, num_gt, num_easg_no), dtype=torch.bool)
+
+        # Mask updation logic
+        for rel_idx in range(self.num_rel):
+            # Ground truth relationship mask
+            gt_rel_mask = (triplets_gt[:, 2] == rel_idx)  # Shape: (num_gt,)
+
+            # Predicted relationship masks for different cases
+            pred_with_rel_mask = (triplets_pred_with[:, 2] == rel_idx)  # Shape: (num_pred_with,)
+            pred_no_rel_mask = (triplets_pred_no[:, 2] == rel_idx)  # Shape: (num_pred_no,)
+            sg_with_rel_mask = (triplets_sg_with[:, 2] == rel_idx)  # Shape: (num_sg_with,)
+            sg_no_rel_mask = (triplets_sg_no[:, 2] == rel_idx)  # Shape: (num_sg_no,)
+            easg_with_rel_mask = (triplets_easg_with[:, 2] == rel_idx)  # Shape: (num_easg_with,)
+            easg_no_rel_mask = (triplets_easg_no[:, 2] == rel_idx)  # Shape: (num_easg_no,)
+
+            # Compute masks via outer product to align ground truth and predictions
+            mask_out_to_gt_pred_with[rel_idx] = gt_rel_mask[:, None] & pred_with_rel_mask[None, :]
+            mask_out_to_gt_pred_no[rel_idx] = gt_rel_mask[:, None] & pred_no_rel_mask[None, :]
+            mask_out_to_gt_sg_with[rel_idx] = gt_rel_mask[:, None] & sg_with_rel_mask[None, :]
+            mask_out_to_gt_sg_no[rel_idx] = gt_rel_mask[:, None] & sg_no_rel_mask[None, :]
+            mask_out_to_gt_easg_with[rel_idx] = gt_rel_mask[:, None] & easg_with_rel_mask[None, :]
+            mask_out_to_gt_easg_no[rel_idx] = gt_rel_mask[:, None] & easg_no_rel_mask[None, :]
+
         for k in self.list_k:
-            self.recall_predcls_with[k].append(out_to_gt_pred_with[:, :k].any(dim=1).sum().item() / num_gt)
-            self.recall_predcls_no[k].append(out_to_gt_pred_no[:, :k].any(dim=1).sum().item() / num_gt)
-            self.recall_sgcls_with[k].append(out_to_gt_sg_with[:, :k].any(dim=1).sum().item() / num_gt)
-            self.recall_sgcls_no[k].append(out_to_gt_sg_no[:, :k].any(dim=1).sum().item() / num_gt)
-            self.recall_easgcls_with[k].append(out_to_gt_easg_with[:, :k].any(dim=1).sum().item() / num_gt)
-            self.recall_easgcls_no[k].append(out_to_gt_easg_no[:, :k].any(dim=1).sum().item() / num_gt)
+            self.recall_result_dict["predcls_with"][k].append(
+                out_to_gt_pred_with[:, :k].any(dim=1).sum().item() / num_gt)
+            self.recall_result_dict["predcls_no"][k].append(out_to_gt_pred_no[:, :k].any(dim=1).sum().item() / num_gt)
+            self.recall_result_dict["sgcls_with"][k].append(out_to_gt_sg_with[:, :k].any(dim=1).sum().item() / num_gt)
+            self.recall_result_dict["sgcls_no"][k].append(out_to_gt_sg_no[:, :k].any(dim=1).sum().item() / num_gt)
+            self.recall_result_dict["easgcls_with"][k].append(
+                out_to_gt_easg_with[:, :k].any(dim=1).sum().item() / num_gt)
+            self.recall_result_dict["easgcls_no"][k].append(out_to_gt_easg_no[:, :k].any(dim=1).sum().item() / num_gt)
+
+            for rel_idx in range(self.num_rel):
+                rel_out_to_gt_pred_with = out_to_gt_pred_with * mask_out_to_gt_pred_with[rel_idx]
+                rel_out_to_gt_pred_no = out_to_gt_pred_no * mask_out_to_gt_pred_no[rel_idx]
+                rel_out_to_gt_sg_with = out_to_gt_sg_with * mask_out_to_gt_sg_with[rel_idx]
+                rel_out_to_gt_sg_no = out_to_gt_sg_no * mask_out_to_gt_sg_no[rel_idx]
+                rel_out_to_gt_easg_with = out_to_gt_easg_with * mask_out_to_gt_easg_with[rel_idx]
+                rel_out_to_gt_easg_no = out_to_gt_easg_no * mask_out_to_gt_easg_no[rel_idx]
+
+                self.mean_recall_result_dict["predcls_with"][k][rel_idx].append(
+                    rel_out_to_gt_pred_with[:, :k].any(dim=1).sum().item() / num_gt)
+                self.mean_recall_result_dict["predcls_no"][k][rel_idx].append(
+                    rel_out_to_gt_pred_no[:, :k].any(dim=1).sum().item() / num_gt)
+                self.mean_recall_result_dict["sgcls_with"][k][rel_idx].append(
+                    rel_out_to_gt_sg_with[:, :k].any(dim=1).sum().item() / num_gt)
+                self.mean_recall_result_dict["sgcls_no"][k][rel_idx].append(
+                    rel_out_to_gt_sg_no[:, :k].any(dim=1).sum().item() / num_gt)
+                self.mean_recall_result_dict["easgcls_with"][k][rel_idx].append(
+                    rel_out_to_gt_easg_with[:, :k].any(dim=1).sum().item() / num_gt)
+                self.mean_recall_result_dict["easgcls_no"][k][rel_idx].append(
+                    rel_out_to_gt_easg_no[:, :k].any(dim=1).sum().item() / num_gt)

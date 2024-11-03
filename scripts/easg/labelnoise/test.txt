@@ -3,11 +3,11 @@
 python test_easg_methods.py --task_name=easg --method_name=easg --ckpt=/data/rohith/easg/checkpoints/easg/easg/easg_labelnoise_10_epoch_9.tar
 
 
-# -------------------------- Label Noise Percentage 40 --------------------------
+# -------------------------- Label Noise Percentage 20 --------------------------
 
-python test_easg_methods.py --task_name=easg --method_name=easg --ckpt=/data/rohith/easg/checkpoints/easg/easg/easg_labelnoise_40_epoch_9.tar
+python test_easg_methods.py --task_name=easg --method_name=easg --ckpt=/data/rohith/easg/checkpoints/easg/easg/easg_labelnoise_20_epoch_9.tar
 
 
-# -------------------------- Label Noise Percentage 70 --------------------------
+# -------------------------- Label Noise Percentage 30 --------------------------
 
-python test_easg_methods.py --task_name=easg --method_name=easg --ckpt=/data/rohith/easg/checkpoints/easg/easg/easg_labelnoise_70_epoch_9.tar
+python test_easg_methods.py --task_name=easg --method_name=easg --ckpt=/data/rohith/easg/checkpoints/easg/easg/easg_labelnoise_30_epoch_9.tar

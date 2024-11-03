@@ -37,6 +37,14 @@ class Config(object):
 
         # ---------------- Corruptions ----------------
         self.use_input_corruptions = False
+        self.dataset_corruption_mode = "fixed"
+        self.corruption_severity_level = 1
+
+        self.video_corruption_mode = "fixed"
+        self.dataset_corruption_type = None
+
+        self.is_video_based_corruption = False
+        self.corruption_frames_directory = None
 
         # ---------------- Partial Annotations --------------------
         self.use_partial_annotations = False
@@ -92,6 +100,15 @@ class Config(object):
 
         # ---------------- Corruptions ----------------
         parser.add_argument("--use_input_corruptions", action="store_true")
+
+        # ---------------- Corruption Related Parameters ----------------
+        parser.add_argument('--dataset_corruption_mode', default='fixed', type=str)
+        parser.add_argument('--corruption_severity_level', default=1, type=int)
+        parser.add_argument('--video_corruption_mode', default='fixed', type=str)
+        parser.add_argument('--dataset_corruption_type', default=None, type=str)
+
+        parser.add_argument('--is_video_based_corruption', action='store_true')
+        parser.add_argument('--corruption_frames_directory', default=None, type=str)
 
         # =============================================================================
         # Settings where the ground truth is modified either in the form of missing labels or noisy labels

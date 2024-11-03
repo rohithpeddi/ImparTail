@@ -1,6 +1,8 @@
 import copy
 import csv
 import os
+import time
+
 import torch
 from abc import abstractmethod
 
@@ -247,6 +249,7 @@ class TestSGGBase(STSGBase):
         return result
 
     def _test_model(self):
+        start_time = time.time()
         test_iter = iter(self._dataloader_test)
         self._model.eval()
         self._object_detector.is_train = False
@@ -272,7 +275,11 @@ class TestSGGBase(STSGBase):
                 # ----------------------------------------------------------------------
 
                 self._evaluate_predictions(gt_annotation, prediction)
-            print('-----------------------------------------------------------------------------------', flush=True)
+
+
+        end_time = time.time()
+        print(f"Time taken for testing: {end_time - start_time} seconds")
+        print('-----------------------------------------------------------------------------------', flush=True)
 
     def _init_dataset(self):
         if self._conf.use_input_corruptions:

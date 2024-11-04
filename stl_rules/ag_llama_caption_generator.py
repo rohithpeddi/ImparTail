@@ -1,12 +1,11 @@
 import json
 import os
-from typing import List
 
-import requests
 import torch
 from PIL import Image
 from tqdm import tqdm
 from transformers import MllamaForConditionalGeneration, AutoProcessor
+
 
 class AgLLamaCaptionGenerator:
 
@@ -36,15 +35,15 @@ class AgLLamaCaptionGenerator:
                 {"role": "user", "content": [
                     {"type": "image"},
                     {"type": "text",
-                     "text": "You are an expert in describing objects and relationships in images."
-                             "Can you describe the image and make sure to focus only on the objects "
-                             "from the following categories: [person, bag, bed, blanket, book, box, broom, chair, closet/cabinet, clothes, "
+                     "text": "You are an expert in describing objects and relationships between the person and the observed objects."
+                             "Can you describe the given image by focussing only on the objects from the following categories: [person, bag, bed, blanket, book, box, broom, chair, closet/cabinet, clothes, "
                              "cup/glass/bottle, dish, door, doorknob, doorway, floor, food, groceries, laptop, light, medicine, mirror, "
                              "paper/notebook, phone/camera, picture, pillow, refrigerator, sandwich, shelf, shoe, sofa/couch, "
-                             "table, television, towel, vacuum, window] and for each pair of the observed "
-                             "objects describe relationships between them from the following categories : [looking at, not looking at, unsure, above, beneath, in front of, behind, on the side of, "
+                             "table, television, towel, vacuum, window] and relationships between the person and the object categories"
+                             " from the following categories : [looking at, not looking at, unsure, above, beneath, in front of, behind, on the side of, "
                              "in, carrying, covered by, drinking from, eating, have it on the back, "
-                             "holding, leaning on, lyingon, not contacting, other relationship, sitting on, standing on, touching, twisting, wearing, wiping, writingon]"}
+                             "holding, leaning on, lyingon, not contacting, other relationship, sitting on, standing on, touching, twisting, wearing, wiping, writingon]"
+                             "Along with description, provide the relationship triplets <subject, relationship, object> observed in the frames."}
                 ]}
             ]
             input_text = self.processor.apply_chat_template(messages, add_generation_prompt=True)
@@ -55,7 +54,7 @@ class AgLLamaCaptionGenerator:
                 return_tensors="pt"
             ).to(self.model.device)
 
-            output = self.model.generate(**inputs, max_new_tokens=384)
+            output = self.model.generate(**inputs, max_new_tokens=512)
             video_image_caption_json[video_frame[:-4]] = self.processor.decode(output[0])
 
         video_caption_path = os.path.join(self.captions_dir, f"{video_id[:-4]}.json")
@@ -65,7 +64,10 @@ class AgLLamaCaptionGenerator:
     def generate_video_captions(self):
         video_ids = os.listdir(self.video_frames_dir)
         for video_id in tqdm(video_ids):
-            self.generate_video_frame_captions(video_id)
+            if not os.path.exists(os.path.join(self.captions_dir, f"{video_id[:-4]}.json")):
+                self.generate_video_frame_captions(video_id)
+            else:
+                print(f"Skipping {video_id}")
 
 
 def main():

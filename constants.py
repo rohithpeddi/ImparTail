@@ -283,6 +283,9 @@ class DataloaderConstants:
 
 
 class ResultConstants:
+    FIXED = "fixed"
+    MIXED = "mixed"
+    
     SGG = None
     RECALL_10 = "recall_10"
     RECALL_20 = "recall_20"
@@ -337,12 +340,16 @@ class ResultConstants:
     PERCENTAGE_EVALUATION = "percentage_evaluation"
     GENERATION_IMPACT = "generation_impact"
 
-    CORRUPTION_TYPE = "corruption_type"
-    CORRUPTION_LEVEL = "corruption_level"
+    DATASET_CORRUPTION_TYPE = "dataset_corruption_type"
+    CORRUPTION_SEVERITY_LEVEL = "corruption_severity_level"
+    DATASET_CORRUPTION_MODE = "dataset_corruption_mode"
+    VIDEO_CORRUPTION_MODE = "video_corruption_mode"
+    
     PARTIAL_PERCENTAGE = "partial_percentage"
     FULL = "full"
     PARTIAL = "partial"
     LABELNOISE = "labelnoise"
+    CORRUPTION = "corruption"
     LABELNOISE_PERCENTAGE = "label_noise_percentage"
     CORRUPTION_SEVERITY = "corruption_severity"
     

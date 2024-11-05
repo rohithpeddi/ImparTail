@@ -119,8 +119,10 @@ class Result:
 			scenario_name,  # corruption, labelnoise, partial, full
 			method_name,
 			mode,
-			corruption_type=None,
-			corruption_severity=None,
+			dataset_corruption_mode=None,
+			video_corruption_mode=None,
+			dataset_corruption_type=None,
+			corruption_severity_level=None,
 			label_noise_percentage=None,
 			partial_percentage=None,
 			result_id=None,
@@ -135,8 +137,10 @@ class Result:
 		self.mode = mode
 		
 		# Scenario Specific Attributes
-		self.corruption_type = corruption_type
-		self.corruption_severity = corruption_severity
+		self.dataset_corruption_mode = dataset_corruption_mode
+		self.video_corruption_mode = video_corruption_mode
+		self.dataset_corruption_type = dataset_corruption_type
+		self.corruption_severity_level = corruption_severity_level
 		self.label_noise_percentage = label_noise_percentage
 		self.partial_percentage = partial_percentage
 		
@@ -168,11 +172,11 @@ class Result:
 			const.DATE: self.result_date
 		}
 		
-		if self.corruption_type is not None:
-			result_dict[const.CORRUPTION_TYPE] = self.corruption_type
+		if self.dataset_corruption_type is not None:
+			result_dict[const.DATASET_CORRUPTION_TYPE] = self.dataset_corruption_type
 		
-		if self.corruption_severity is not None:
-			result_dict[const.CORRUPTION_SEVERITY] = self.corruption_severity
+		if self.corruption_severity_level is not None:
+			result_dict[const.CORRUPTION_SEVERITY] = self.corruption_severity_level
 		
 		if self.label_noise_percentage is not None:
 			result_dict[const.LABELNOISE_PERCENTAGE] = self.label_noise_percentage
@@ -204,11 +208,11 @@ class Result:
 			result_id=result_dict[const.RESULT_ID]
 		)
 		
-		if const.CORRUPTION_TYPE in result_dict:
-			result.corruption_type = result_dict[const.CORRUPTION_TYPE]
+		if const.DATASET_CORRUPTION_TYPE in result_dict:
+			result.dataset_corruption_type = result_dict[const.DATASET_CORRUPTION_TYPE]
 		
 		if const.CORRUPTION_SEVERITY in result_dict:
-			result.corruption_severity = result_dict[const.CORRUPTION_SEVERITY]
+			result.corruption_severity_level = result_dict[const.CORRUPTION_SEVERITY]
 		
 		if const.LABELNOISE_PERCENTAGE in result_dict:
 			result.label_noise_percentage = result_dict[const.LABELNOISE_PERCENTAGE]

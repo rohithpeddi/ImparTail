@@ -1,7 +1,8 @@
 import csv
 import os
 
-from analysis.conference.transfer_base import process_result_details_from_csv_row
+from analysis.conference.transfer_base import process_result_details_from_csv_row, \
+	process_result_details_from_csv_row_no_method
 from analysis.results.FirebaseService import FirebaseService
 from analysis.results.Result import Result
 from constants import ResultConstants as const
@@ -53,6 +54,91 @@ def transfer_sgg(
 			print("-----------------------------------------------------------------------------------")
 
 
+def transfer_sgg_corruptions(
+		mode,
+		result_file_path,
+		scenario_name,
+		task_name=const.SGG
+):
+	base_file_name = os.path.basename(result_file_path)
+	details = (base_file_name.split('.')[0]).split('_')
+	
+	method_name = None
+	assert mode == details[1]
+	if mode is None:
+		mode = details[1]
+	
+	dataset_corruption_mode = details[2]
+	video_corruption_mode = details[3]
+	corruption_severity_level = details[-1]
+	
+	assert mode in [const.SGCLS, const.SGDET, const.PREDCLS]
+	
+	with open(result_file_path, 'r') as read_obj:
+		# pass the file object to reader() to get the reader object
+		csv_reader = csv.reader(read_obj)
+		for row in csv_reader:
+			
+			if corruption_severity_level == "1":
+				result_details = process_result_details_from_csv_row_no_method(row)
+				if method_name is None:
+					method_name = row[0]
+			else:
+				result_details, method_name = process_result_details_from_csv_row(row)
+				
+			result = Result(
+				task_name=task_name,
+				scenario_name=scenario_name,
+				method_name=method_name,
+				mode=mode,
+			)
+			
+			result.dataset_corruption_mode = dataset_corruption_mode
+			result.video_corruption_mode = video_corruption_mode
+			result.corruption_severity_level = corruption_severity_level
+			
+			if dataset_corruption_mode == const.FIXED:
+				dataset_corruption_type = "_".join(details[4:-1])
+				result.dataset_corruption_type = dataset_corruption_type
+			else:
+				dataset_corruption_type = details[4]
+				result.dataset_corruption_type = dataset_corruption_type
+			
+			result.add_result_details(result_details)
+			print("-----------------------------------------------------------------------------------")
+			print("Saving result: ", result.result_id)
+			db_service.update_result_to_db("results_5_11_sgg_corruptions", result.result_id, result.to_dict())
+			print("Saved result: ", result.result_id)
+			print("-----------------------------------------------------------------------------------")
+
+
+def transfer_corruption_results_from_directories_sgg():
+	# results_parent_directory = os.path.join(os.path.dirname(__file__), "..", "docs", "csvs", "new")
+	task_directory_path = r"E:\results\legal\sgg"
+	task_name = const.SGG
+	for scenario_name in os.listdir(task_directory_path):
+		scenario_name_path = os.path.join(task_directory_path, scenario_name)
+		# Convert the scenario name to lowercase
+		scenario_name = scenario_name.lower()
+		print(f"[{task_name}][{scenario_name}] Processing files for scenario: ", scenario_name)
+		for method_name_csv_file in os.listdir(scenario_name_path):
+			method_name_csv_path = os.path.join(scenario_name_path, method_name_csv_file)
+			# Convert the method name to lowercase
+			method_name_csv_file = method_name_csv_file.lower()
+			
+			mode_name = (method_name_csv_file.split('.')[0]).split('_')[1]
+			assert mode_name in [const.SGCLS, const.SGDET, const.PREDCLS]
+			if task_name == const.SGG and scenario_name == const.CORRUPTION:
+				print(
+					f"[{task_name}][{scenario_name}][{mode_name}][{method_name_csv_file[:-4]}] Processing file: ",
+					method_name_csv_path)
+				transfer_sgg_corruptions(
+					mode=mode_name,
+					result_file_path=method_name_csv_path,
+					scenario_name=scenario_name
+				)
+
+
 def transfer_results_from_directories_sgg():
 	# results_parent_directory = os.path.join(os.path.dirname(__file__), "..", "docs", "csvs", "new")
 	task_directory_path = r"E:\results\legal\sgg"
@@ -82,4 +168,4 @@ def transfer_results_from_directories_sgg():
 
 if __name__ == '__main__':
 	db_service = FirebaseService()
-	transfer_results_from_directories_sgg()
+	transfer_corruption_results_from_directories_sgg()

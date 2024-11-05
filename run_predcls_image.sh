@@ -29,7 +29,7 @@ generate_run_scripts() {
                         for severity_level in "${SEVERITY_LEVELS[@]}"; do
                             for video_corruption_mode in "${VIDEO_CORRUPTION_MODES[@]}"; do
                                 # Execute Python script directly for each combination
-                                python test_sgg_methods.py --task_name $task --method_name $method_name --ckpt $CKPT_DIRECTORY_PATH/${task}/${method_name}/${method_name}_${mode}_epoch_3.tar --use_input_corruptions --dataset_corruption_mode $dataset_corruption_mode --video_corruption_mode $video_corruption_mode --corruption_severity_level $severity_level
+                                python test_sgg_methods.py --task_name $task --method_name $method_name --ckpt $CKPT_DIRECTORY_PATH/${task}/${method_name}/${method_name}_${mode}_epoch_3.tar --use_input_corruptions --dataset_corruption_mode $dataset_corruption_mode --video_corruption_mode $video_corruption_mode --dataset_corruption_type $video_corruption_mode --corruption_severity_level $severity_level
                                 echo "-----------------------------------------------------------------------------"
                             done
                         done

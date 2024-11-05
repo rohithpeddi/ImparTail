@@ -153,7 +153,7 @@ class TestEASGBase(EASGBase):
             )
 
             if self._conf.use_input_corruptions:
-                result.corruption_type = self._corruption_name
+                result.dataset_corruption_type = self._corruption_name
 
             if "partial" in self._checkpoint_name:
                 if "10" in self._checkpoint_name:

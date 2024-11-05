@@ -18,7 +18,7 @@ def store_versioned_results(version):
 		json_file_path = os.path.join(results_directory, "firebase", f"v{version}", result_id + ".json")
 		os.makedirs(os.path.dirname(json_file_path), exist_ok=True)
 		print("------------------------------------------------------------------------------------------")
-		print(f"Saving result:{result.task_name}, {result.method_name}, {result.mode}, {result.corruption_type} ")
+		print(f"Saving result:{result.task_name}, {result.method_name}, {result.mode}, {result.dataset_corruption_type} ")
 		print("------------------------------------------------------------------------------------------")
 		with open(json_file_path, "w") as json_file:
 			json.dump(result.to_dict(), json_file)
@@ -30,7 +30,7 @@ def store_filtered_results(version):
 		result = Result.from_dict(result_dict)
 		if result.method_name in ["NeuralSDE", "NeuralODE", "ode", "sde"]:
 			print("------------------------------------------------------------------------------------------")
-			print(f"Saving result:{result.task_name}, {result.method_name}, {result.mode}, {result.corruption_type} ")
+			print(f"Saving result:{result.task_name}, {result.method_name}, {result.mode}, {result.dataset_corruption_type} ")
 			print("------------------------------------------------------------------------------------------")
 			results_directory = os.path.join(os.path.dirname(__file__), "docs")
 			os.makedirs(results_directory, exist_ok=True)

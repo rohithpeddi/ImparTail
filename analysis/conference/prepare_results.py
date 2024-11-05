@@ -20,7 +20,7 @@ def compile_image_based_corruption_results(self):
 	
 	image_based_corruption_rob_sgg_list = []
 	for result in rob_sgg_results:
-		corruption_name, severity_level = fetch_corruption_name(result.corruption_type)
+		corruption_name, severity_level = fetch_corruption_name(result.dataset_corruption_type)
 		print(f"Corruption Name: {corruption_name}, Severity Level: {severity_level}")
 		if corruption_name in image_based_corruptions:
 			image_based_corruption_rob_sgg_list.append(result)
@@ -28,7 +28,7 @@ def compile_image_based_corruption_results(self):
 	for result in image_based_corruption_rob_sgg_list:
 		mode = result.mode
 		method_name = fetch_method_name_json(result.method_name)
-		corruption_name, severity_level = fetch_corruption_name(result.corruption_type)
+		corruption_name, severity_level = fetch_corruption_name(result.dataset_corruption_type)
 		severity_level = str(severity_level)
 		
 		with_constraint_metrics = result.result_details.with_constraint_metrics

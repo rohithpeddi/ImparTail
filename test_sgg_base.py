@@ -229,7 +229,7 @@ class TestSGGBase(STSGBase):
         )
 
         if self._conf.use_input_corruptions:
-            result.corruption_type = self._corruption_name
+            result.dataset_corruption_type = self._corruption_name
 
         result_details = ResultDetails()
         with_constraint_metrics = self._prepare_metrics_from_stats(self._evaluators[0].fetch_stats_json())

@@ -1,23 +1,23 @@
 import json
 import os
+import random
 
 import torch
 from tqdm import tqdm
-from transformers import MllamaForConditionalGeneration, AutoProcessor
+from transformers import pipeline
 
 
 class MultiAgentVideoCapSummarizer:
 	
 	def __init__(self):
 		self.captions = None
-		self.model_id = "meta-llama/Llama-3.2-11B-Vision-Instruct"
-		
-		self.model = MllamaForConditionalGeneration.from_pretrained(
-			self.model_id,
+		self.model_id = "meta-llama/Llama-3.2-3B-Instruct"
+		self.pipe = pipeline(
+			"text-generation",
+			model=self.model_id,
 			torch_dtype=torch.bfloat16,
 			device_map="auto",
 		)
-		self.processor = AutoProcessor.from_pretrained(self.model_id)
 		
 		self.captions_dir = "/data/rohith/ag/captions/summarized/"
 		os.makedirs(self.captions_dir, exist_ok=True)
@@ -27,13 +27,14 @@ class MultiAgentVideoCapSummarizer:
 	
 	def construct_video_summary(self, video_id):
 		# Construct the prompt
-		prompt = f'''
+		system_prompt = f'''
 		You are an expert at synthesizing information from multiple sources.
 		When provided with three different video captions describing the same video, your task is to construct a
 		coherent and chronological video summary. Pay close attention to temporal cues such as "then", "while",
 		"before" and "after" to determine the sequence of events.
 		Ensure that you specify the objects for any pronouns used to maintain clarity.
-		
+		'''
+		input_content = f'''		
 		Input:
 		Source Caption 1: The video shows a man cleaning the floor with a mop. He starts by putting the mop in a bucket, then proceeds to clean the floor. After finishing, he puts the mop back in the bucket. In the first scene, the man is seen putting the mop in the bucket, indicating that he is preparing to clean the floor. The second scene shows him cleaning the floor, using the mop to remove dirt and debris. The final scene shows him putting the mop back in the bucket, indicating that he has finished cleaning. The video provides a simple yet satisfying visual of a man completing a task, and the use of the mop as a tool to clean the floor. The repetitive actions of the man, such as putting the mop in the bucket and cleaning the floor, add to the sense of satisfaction and completion. Overall, the video is a simple yet effective representation of a mundane task being completed with care and attention to detail.
 		Source Caption 2: The video captures a sequence of events in a domestic setting, focusing on a person engaged in cleaning activities. Initially, the individual is seen bending over a dining table, seemingly picking up or organizing items on the table. The room is well-lit, with a domestic environment featuring a dining table, chairs, a cabinet with various items, and a wall adorned with decorative elements including a tree decal and a framed picture. A black bucket and a broom are also visible, indicating cleaning activities. As the video progresses, the person's actions evolve from bending over the table to standing and engaging in different cleaning tasks. They are observed picking up an orange object from the table, then proceeding to clean the floor with a broom. The individual's movements are methodical, shifting from one cleaning task to another, including sweeping the floor and later, cleaning the baseboard and floor near a doorway. The person's attire, a blue and white striped shirt and dark pants, remains consistent throughout the video, as does the domestic setting.\n\nThe camera's perspective shifts slightly throughout the video, at times focusing more closely on the person's actions, particularly when they are bending over or cleaning the floor. Despite these changes in perspective, the overall setting remains unchanged, with the room's layout and the positioning of objects like the cabinet, table, and the black bucket staying constant. Towards the end of the video, the individual's activities continue to revolve around cleaning, with the final scenes showing them engaging in tasks such as sweeping the floor and interacting with the black bucket, possibly disposing of debris or cleaning materials. The video concludes with the person standing upright, facing the camera, suggesting a pause or completion of their cleaning task. Throughout the video, the camera maintains a steady focus on the individual's actions, with no significant movement or change in the environment, allowing for a clear observation of the cleaning process within a domestic setting.
@@ -53,12 +54,24 @@ class MultiAgentVideoCapSummarizer:
 		Source Caption 2: {self.captions[video_id]["longvu"]}.
 		Source Caption 3: {self.captions[video_id]["charades"]}.
 		'''
-		output = ""
+
+		messages = [
+			{"role": "system", "content": system_prompt},
+			{"role": "user", "content": input_content},
+		]
+		outputs = self.pipe(
+			messages,
+			max_new_tokens=256,
+		)
+
+		summary = outputs[0]["generated_text"][-1]
 		summarized_video_file_path = os.path.join(self.captions_dir, f"{video_id[:-4]}.txt")
 		with open(summarized_video_file_path, "w") as f:
-			f.write(output)
-	
+			f.write(summary)
+
 	def generate_video_captions(self):
+		video_id_list = self.captions.keys()
+		random.shuffle(video_id_list)
 		for video_id in tqdm(self.captions.keys()):
 			self.construct_video_summary(video_id)
 			

@@ -14,8 +14,10 @@ class CaptionSegmenter(BaseInstructLLama):
 		
 		self.captions_dir = "/data/rohith/ag/captions/segmented/"
 		os.makedirs(self.captions_dir, exist_ok=True)
-		
-		with open("summary_captions.json", "r") as f:
+
+		summary_caption_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "summary_captions.json")
+
+		with open(summary_caption_path, "r") as f:
 			self.captions = json.load(f)
 	
 	def construct_prompts(self, video_id):

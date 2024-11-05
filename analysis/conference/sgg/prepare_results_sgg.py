@@ -62,7 +62,7 @@ class PrepareResultsSGG(PrepareResultsBase):
 					no_constraint_metrics,
 					semi_constraint_metrics
 				)
-
+				
 				sgg_results_json[mode][method_name][scenario_name][percentage_num] = completed_metrics_json
 		
 		return sgg_results_json
@@ -174,7 +174,7 @@ class PrepareResultsSGG(PrepareResultsBase):
 									sgg_results_json[mode][method_name][scenario_name][percentage_num][2]["mR@50"],
 									sgg_results_json[mode][method_name][scenario_name][percentage_num][2]["mR@100"]
 								])
-							
+	
 	def generate_sgg_combined_results_csvs_method_wise(self, sgg_results_json):
 		for mode in self.mode_list:
 			csv_file_name = f"sgg_combined_{mode}.csv"
@@ -268,7 +268,8 @@ class PrepareResultsSGG(PrepareResultsBase):
 def main():
 	prepare_results_sgg = PrepareResultsSGG()
 	prepare_results_sgg.compile_sgg_method_wise_results()
-	
+
+
 def combine_results():
 	prepare_results_sgg = PrepareResultsSGG()
 	prepare_results_sgg.combine_csv_to_excel(

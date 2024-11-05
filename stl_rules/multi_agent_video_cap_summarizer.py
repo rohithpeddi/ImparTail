@@ -121,6 +121,18 @@ class MultiAgentVideoCapSummarizer:
 				continue
 
 			self.construct_video_summary(video_id)
+
+
+def compile_captions():
+	captions = {}
+	captions_dir = "/data/rohith/ag/captions/summarized/"
+	for file in os.listdir(captions_dir):
+		video_id = file.split(".")[0]
+		with open(os.path.join(captions_dir, file), "r") as f:
+			caption = f.read()
+			captions[video_id] = caption
+	with open("summary_captions.json", "w") as f:
+		json.dump(captions, f)
 			
 			
 def main():
@@ -128,5 +140,6 @@ def main():
 	multi_agent_video_cap_summarizer.generate_video_captions()
 	
 
-if __name__ == "__main__":
-	main()
+if __name__ == "__main__":	# main()
+
+	compile_captions()

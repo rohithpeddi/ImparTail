@@ -5,10 +5,10 @@ CKPT_DIRECTORY_PATH="/data/rohith/ag/checkpoints"
 METHODS=("dsgdetr")
 TASKS=("sgg")
 MODES=("predcls")
-CORRUPTION_TYPES=("gaussian_noise" "shot_noise" "impulse_noise" "speckle_noise" "gaussian_blur" "defocus_blur" "motion_blur" "zoom_blur" "fog" "frost" "snow" "spatter" "contrast" "brightness" "elastic_transform" "pixelate" "jpeg_compression" "sun_glare" "rain" "dust" "wildfire_smoke" "saturate")
+CORRUPTION_TYPES=("gaussian_noise" "shot_noise" "impulse_noise" "speckle_noise" "gaussian_blur" "defocus_blur" "fog" "frost" "spatter" "contrast" "brightness" "pixelate" "jpeg_compression" "sun_glare" "dust" "saturate")
 DATASET_CORRUPTION_MODES=("fixed" "mixed")
 VIDEO_CORRUPTION_MODES=("fixed" "mixed")
-SEVERITY_LEVELS=(5)
+SEVERITY_LEVELS=(3)
 
 # Main function to execute commands iteratively
 generate_run_scripts() {

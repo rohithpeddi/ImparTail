@@ -82,7 +82,7 @@ def transfer_sgg_corruptions(
 			if corruption_severity_level == "1":
 				result_details = process_result_details_from_csv_row_no_method(row)
 				if method_name is None:
-					method_name = row[0]
+					method_name = details[0]
 			else:
 				result_details, method_name = process_result_details_from_csv_row(row)
 				

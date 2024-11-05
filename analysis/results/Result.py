@@ -172,6 +172,12 @@ class Result:
 			const.DATE: self.result_date
 		}
 		
+		if self.dataset_corruption_mode is not None:
+			result_dict[const.DATASET_CORRUPTION_MODE] = self.dataset_corruption_mode
+			
+		if self.video_corruption_mode is not None:
+			result_dict[const.VIDEO_CORRUPTION_MODE] = self.video_corruption_mode
+		
 		if self.dataset_corruption_type is not None:
 			result_dict[const.DATASET_CORRUPTION_TYPE] = self.dataset_corruption_type
 		
@@ -207,6 +213,12 @@ class Result:
 			mode=result_dict[const.MODE],
 			result_id=result_dict[const.RESULT_ID]
 		)
+		
+		if const.DATASET_CORRUPTION_MODE in result_dict:
+			result.dataset_corruption_mode = result_dict[const.DATASET_CORRUPTION_MODE]
+			
+		if const.VIDEO_CORRUPTION_MODE in result_dict:
+			result.video_corruption_mode = result_dict[const.VIDEO_CORRUPTION_MODE]
 		
 		if const.DATASET_CORRUPTION_TYPE in result_dict:
 			result.dataset_corruption_type = result_dict[const.DATASET_CORRUPTION_TYPE]

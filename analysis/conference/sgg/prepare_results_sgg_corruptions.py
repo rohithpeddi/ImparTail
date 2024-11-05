@@ -16,11 +16,11 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 			const.NO_CORRUPTION, const.GAUSSIAN_NOISE, const.SHOT_NOISE, const.IMPULSE_NOISE, const.SPECKLE_NOISE,
 			const.GAUSSIAN_BLUR, const.DEFOCUS_BLUR, const.MOTION_BLUR, const.ZOOM_BLUR, const.FOG, const.FROST,
 			const.SNOW, const.SPATTER, const.CONTRAST, const.BRIGHTNESS, const.ELASTIC_TRANSFORM, const.PIXELATE,
-			const.JPEG_COMPRESSION, const.SUN_GLARE, const.RAIN, const.DUST, const.WILDFIRE_SMOKE, const.SATURATE
+			const.JPEG_COMPRESSION, const.SUN_GLARE, const.RAIN, const.DUST, const.WILDFIRE_SMOKE, const.SATURATE, const.GLASS_BLUR
 		]
 		self.dataset_corruption_modes = [const.FIXED, const.MIXED]
 		self.video_corruption_modes = [const.FIXED, const.MIXED]
-		self.severity_levels = [1, 5]
+		self.severity_levels = ["1", "5"]
 		
 		self.task_name = "sgg"
 	

@@ -140,6 +140,6 @@ def main():
 	multi_agent_video_cap_summarizer.generate_video_captions()
 	
 
-if __name__ == "__main__":	# main()
-
+if __name__ == "__main__":
+	# main()
 	compile_captions()

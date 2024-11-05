@@ -15,13 +15,13 @@ class CaptionSegmenter(BaseInstructLLama):
 		self.captions_dir = "/data/rohith/ag/captions/segmented/"
 		os.makedirs(self.captions_dir, exist_ok=True)
 		
-		with open("segment_ag_captions.json", "r") as f:
+		with open("summary_captions.json", "r") as f:
 			self.captions = json.load(f)
 	
 	def construct_prompts(self, video_id):
 		# Remove any new lines in the text file and combine the text into a single paragraph
 		caption = self.captions[video_id].replace("\n", " ")
-		stripped_caption = self.captions[video_id].strip()
+		stripped_caption = caption.strip()
 		
 		system_prompt = f'''
 		In this task, you are given a video caption describing a video.
@@ -31,6 +31,7 @@ class CaptionSegmenter(BaseInstructLLama):
 		'''
 		
 		input_content = f'''
+		Following are a few examples of video captions and their segmented sentences:
 		Input: The person is turning on the stove. They then begin to stir some food and after that they pick up a camera and look at it.
         Output: The person is turning on the stove. >> The person stirs some food. >> The person picks up a camera. >> The person looks at a camera.
         Input: A person is sitting in bed texting on a phone while holding a blanket. The person puts the phone down and pulls the blanket up.
@@ -53,7 +54,9 @@ class CaptionSegmenter(BaseInstructLLama):
 		Output: The video begins with a person walking into the frame. >> A person sits down on a bed. >> A person puts on a pair of shoes. >> A person stands up. >> A person walks towards a door and enters the room. >> A person moves towards a closed door. >> A person turns around and exits the room. >> A person re-enters the room. >> A person sits in a chair. >> A person puts keys on a table. >> A person exits the room again.
 		Input: The video shows a person cleaning the kitchen floor. The person first picks up a mop and puts it in a bucket, then begins to mop the floor in a back-and-forth motion, thoroughly cleaning the entire area. Before starting, the person is not seen in the kitchen, but in the living room, where they are holding a broom and dustpan. The person then moves towards the kitchen, bends over a cabinet to reach into it, and stands up to engage with the kitchen counter. They are then seen interacting with the kitchen counter, possibly cooking or preparing food. The person's actions suggest a sequence of domestic tasks, including cleaning and cooking. The video captures a simple yet satisfying task of cleaning the kitchen floor, highlighting the importance of maintaining cleanliness in our daily lives.
 		Output: The person is holding a broom and dustpan in the living room. >> The person walks towards the kitchen. >> The person bends over a cabinet to reach into it. >> The person stands up to engage with the kitchen counter. >> The person interacts with the kitchen counter, possibly cooking or preparing food. >> The person picks up a mop. >> The person puts the mop in a bucket. >> The person begins to mop the floor in a back-and-forth motion, thoroughly cleaning the kitchen floor.
-		Input: {stripped_caption}
+		
+		Follow the same format to segment the video caption for the given video input and make sure to include only the output response. 
+		Input: {stripped_caption}.
 		'''
 		
 		return system_prompt, input_content

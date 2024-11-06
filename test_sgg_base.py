@@ -158,7 +158,7 @@ class TestSGGBase(STSGBase):
 
         if self._conf.use_input_corruptions:
             scenario_dir = os.path.join(task_dir, "corruptions")
-            file_name = f'{self._conf.method_name}_{self._conf.mode}_{self._corruption_name}.csv'
+            file_name = f'{self._checkpoint_name}_{self._corruption_name}.csv'
         else:
             if "partial" in self._checkpoint_name:
                 scenario_dir = os.path.join(task_dir, "partial")

@@ -257,7 +257,7 @@ class TestSTSGBase(STSGBase):
         if not is_future_frame:
             for i, context_fraction in enumerate(self._context_fractions):
                 if self._conf.use_input_corruptions:
-                    file_name = f'{self._conf.method_name}_{self._conf.mode}_train_{self._conf.max_window}_test_{context_fraction}_{self._corruption_name}.csv'
+                    file_name = f'{self._checkpoint_name}_test_{context_fraction}_{self._corruption_name}.csv'
                     scenario_dir = os.path.join(task_dir, "corruptions")
                 else:
                     if "partial" in self._checkpoint_name:

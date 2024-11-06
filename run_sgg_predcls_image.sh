@@ -2,9 +2,9 @@
 
 # Constants
 CKPT_DIRECTORY_PATH="/data/rohith/ag/checkpoints"
-METHODS=("sttran")
+METHODS=("sttran_partial_10" "dsgdetr_partial_10")
 TASKS=("sgg")
-MODES=("sgdet")
+MODES=("predcls")
 CORRUPTION_TYPES=("gaussian_noise" "shot_noise" "impulse_noise" "speckle_noise" "gaussian_blur" "defocus_blur" "fog" "frost" "spatter" "contrast" "brightness" "pixelate" "jpeg_compression" "sun_glare" "dust" "saturate")
 DATASET_CORRUPTION_MODES=("fixed" "mixed")
 VIDEO_CORRUPTION_MODES=("fixed" "mixed")

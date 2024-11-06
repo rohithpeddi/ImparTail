@@ -2,9 +2,9 @@
 
 # Constants
 CKPT_DIRECTORY_PATH="/data/rohith/ag/checkpoints"
-METHODS=("sttran")
-TASKS=("sgg")
-MODES=("sgcls")
+METHODS=("sttran_ant_partial_40" "dsgdetr_partial_10")
+TASKS=("sga")
+MODES=("predcls")
 CORRUPTION_TYPES=("gaussian_noise" "shot_noise" "impulse_noise" "speckle_noise" "gaussian_blur" "defocus_blur" "fog" "frost" "spatter" "contrast" "brightness" "pixelate" "jpeg_compression" "sun_glare" "dust" "saturate")
 DATASET_CORRUPTION_MODES=("fixed" "mixed")
 VIDEO_CORRUPTION_MODES=("fixed" "mixed")
@@ -21,7 +21,7 @@ generate_run_scripts() {
                         for severity_level in "${SEVERITY_LEVELS[@]}"; do
                             for corruption_type in "${CORRUPTION_TYPES[@]}"; do
                                 # Execute Python script directly for each combination
-                                python test_sgg_methods.py --task_name $task --method_name $method_name --ckpt $CKPT_DIRECTORY_PATH/${task}/${method_name}/${method_name}_${mode}_epoch_3.tar --use_input_corruptions --dataset_corruption_mode $dataset_corruption_mode --dataset_corruption_type $corruption_type --corruption_severity_level $severity_level
+                                python test_sgg_methods.py --task_name $task --method_name $method_name --ckpt $CKPT_DIRECTORY_PATH/${task}/${method_name}/${method_name}_${mode}_future_3_epoch_3.tar --use_input_corruptions --dataset_corruption_mode $dataset_corruption_mode --dataset_corruption_type $corruption_type --corruption_severity_level $severity_level
                                 echo "-----------------------------------------------------------------------------"
                             done
                         done
@@ -29,7 +29,7 @@ generate_run_scripts() {
                         for severity_level in "${SEVERITY_LEVELS[@]}"; do
                             for video_corruption_mode in "${VIDEO_CORRUPTION_MODES[@]}"; do
                                 # Execute Python script directly for each combination
-                                python test_sgg_methods.py --task_name $task --method_name $method_name --ckpt $CKPT_DIRECTORY_PATH/${task}/${method_name}/${method_name}_${mode}_epoch_3.tar --use_input_corruptions --dataset_corruption_mode $dataset_corruption_mode --video_corruption_mode $video_corruption_mode --dataset_corruption_type $video_corruption_mode --corruption_severity_level $severity_level
+                                python test_sgg_methods.py --task_name $task --method_name $method_name --ckpt $CKPT_DIRECTORY_PATH/${task}/${method_name}/${method_name}_${mode}_future_3_epoch_3.tar --use_input_corruptions --dataset_corruption_mode $dataset_corruption_mode --video_corruption_mode $video_corruption_mode --dataset_corruption_type $video_corruption_mode --corruption_severity_level $severity_level
                                 echo "-----------------------------------------------------------------------------"
                             done
                         done

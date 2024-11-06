@@ -1,24 +1,16 @@
 import json
 import os
 
-import torch
 from PIL import Image
 from tqdm import tqdm
-from transformers import MllamaForConditionalGeneration, AutoProcessor
+
+from stl_rules.base_llama import BaseInstructLLama
 
 
-class AgLLamaCaptionGenerator:
+class GenerateAgLlamaCaptions(BaseInstructLLama):
 	
 	def __init__(self):
-		self.model_id = "meta-llama/Llama-3.2-11B-Vision-Instruct"
-		
-		self.model = MllamaForConditionalGeneration.from_pretrained(
-			self.model_id,
-			torch_dtype=torch.bfloat16,
-			device_map="auto",
-		)
-		self.processor = AutoProcessor.from_pretrained(self.model_id)
-		
+		super(GenerateAgLlamaCaptions).__init__()
 		self.video_frames_dir = "/data/rohith/ag/frames_annotated/"
 		self.captions_dir = "/data/rohith/ag/captions/llame_3_2_11B/"
 		os.makedirs(self.captions_dir, exist_ok=True)
@@ -71,7 +63,7 @@ class AgLLamaCaptionGenerator:
 
 
 def main():
-	ag_llama_caption_generator = AgLLamaCaptionGenerator()
+	ag_llama_caption_generator = GenerateAgLlamaCaptions()
 	ag_llama_caption_generator.generate_video_captions()
 
 

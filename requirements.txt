@@ -76,3 +76,4 @@ Wand
 arcade==2.4.3
 pyglet==1.4.9
 pymunk==5.7.0
+ipython

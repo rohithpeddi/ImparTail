@@ -84,7 +84,7 @@ def compile_multi_agent_captions_to_json():
         multi_agent_json[key]["charades"] = charades_json[key]
 
     # Write the json to a file
-    json_file_path = "multi_agent_cap.json"
+    json_file_path = "captions/multi_agent_cap.json"
     with open(json_file_path, "w") as f:
         json.dump(multi_agent_json, f)
 

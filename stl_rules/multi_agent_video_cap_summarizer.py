@@ -17,7 +17,7 @@ class MultiAgentVideoCapSummarizer:
 		self.captions_dir = "/data/rohith/ag/captions/summarized/"
 		os.makedirs(self.captions_dir, exist_ok=True)
 
-		with open("multi_agent_cap.json", "r") as f:
+		with open("captions/multi_agent_cap.json", "r") as f:
 			self.captions = json.load(f)
 
 	def init_llama_3_1(self):
@@ -131,7 +131,7 @@ def compile_captions():
 		with open(os.path.join(captions_dir, file), "r") as f:
 			caption = f.read()
 			captions[video_id] = caption
-	with open("summary_captions.json", "w") as f:
+	with open("captions/summary_captions.json", "w") as f:
 		json.dump(captions, f)
 			
 			

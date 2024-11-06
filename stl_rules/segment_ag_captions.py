@@ -105,10 +105,15 @@ def compile_captions():
 		with open(os.path.join(captions_dir, file), "r") as f:
 			caption = f.read()
 			captions[video_id] = caption
-	with open("segmented_captions.json", "w") as f:
+
+	store_file_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "captions")
+	os.makedirs(store_file_dir, exist_ok=True)
+
+	store_file_path = os.path.join(store_file_dir, "segmented_captions.json")
+	with open(store_file_path, "w") as f:
 		json.dump(captions, f)
 
 
 if __name__ == "__main__":
-	main()
-# compile_captions()
+	# main()
+	compile_captions()

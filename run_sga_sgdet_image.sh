@@ -4,7 +4,7 @@
 CKPT_DIRECTORY_PATH="/data/rohith/ag/checkpoints"
 METHODS=("sttran_ant_partial_40" "sttran_gen_ant_partial_40")
 TASKS=("sga")
-MODES=("predcls")
+MODES=("sgdet")
 CORRUPTION_TYPES=("gaussian_noise" "shot_noise" "impulse_noise" "speckle_noise" "gaussian_blur" "defocus_blur" "fog" "frost" "spatter" "contrast" "brightness" "pixelate" "jpeg_compression" "sun_glare" "dust" "saturate")
 DATASET_CORRUPTION_MODES=("fixed" "mixed")
 VIDEO_CORRUPTION_MODES=("fixed" "mixed")

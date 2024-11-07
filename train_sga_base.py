@@ -45,6 +45,9 @@ class TrainSTSGBase(STSGBase):
         self._enable_ant_bb_object_loss = False
         self._enable_ant_recon_loss = False
 
+        # STL Loss Function
+        self._enable_stl_loss = False
+
     def _init_diffeq_loss_function_heads(self):
         self._bce_loss = nn.BCELoss()
         self._ce_loss = nn.CrossEntropyLoss()

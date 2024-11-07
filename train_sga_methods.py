@@ -217,6 +217,231 @@ class TrainDsgDetrGenAnt(TrainSTSGBase):
 
 
 # -------------------------------------------------------------------------------------
+# ------------------------------- TRANSFORMER STL METHODS ---------------------------------
+# -------------------------------------------------------------------------------------
+
+class TrainSTTranAntSTL(TrainSTSGBase):
+
+    def __init__(self, conf):
+        super().__init__(conf)
+
+    def init_model(self):
+        from lib.supervised.sga.sttran_ant import STTranAnt
+        self._model = STTranAnt(mode=self._conf.mode,
+                                attention_class_num=len(self._test_dataset.attention_relationships),
+                                spatial_class_num=len(self._test_dataset.spatial_relationships),
+                                contact_class_num=len(self._test_dataset.contacting_relationships),
+                                obj_classes=self._test_dataset.object_classes,
+                                enc_layer_num=self._conf.enc_layer,
+                                dec_layer_num=self._conf.dec_layer).to(device=self._device)
+
+        self._init_transformer_loss_function_heads()
+
+    def init_method_loss_type_params(self):
+        # Observed Representations Loss
+        self._enable_obj_class_loss = True
+        self._enable_gen_pred_class_loss = False
+
+        # Anticipated Representations Loss
+        self._enable_ant_pred_loss = True
+        self._enable_ant_bb_subject_loss = False
+        self._enable_ant_bb_object_loss = False
+        self._enable_ant_recon_loss = True
+
+        # STL Loss
+        self._enable_stl_loss = True
+
+    def process_train_video(self, entry, gt_annotation, frame_size) -> dict:
+        self.get_sequence_no_tracking(entry, self._conf.mode)
+        pred = self._model(entry, self._conf.baseline_context, self._conf.max_window)
+        return pred
+
+    def process_test_video(self, entry, gt_annotation, frame_size) -> dict:
+        self.get_sequence_no_tracking(entry, self._conf.mode)
+        num_ff = self._conf.max_window
+        num_cf = self._conf.baseline_context
+        pred = self._model(entry, num_cf, num_ff)
+        return pred
+
+    def compute_loss(self, pred, gt) -> dict:
+        if self._conf.use_partial_annotations:
+            losses = self.compute_baseline_ant_loss_with_mask(pred)
+        else:
+            losses = self.compute_baseline_ant_loss(pred)
+        return losses
+
+    def process_evaluation_score(self, pred, gt):
+        self.compute_baseline_evaluation_score(pred, gt)
+
+
+class TrainSTTranGenAntSTL(TrainSTSGBase):
+
+    def __init__(self, conf):
+        super().__init__(conf)
+
+    def init_model(self):
+        from lib.supervised.sga.sttran_gen_ant import STTranGenAnt
+
+        self._model = STTranGenAnt(mode=self._conf.mode,
+                                   attention_class_num=len(self._test_dataset.attention_relationships),
+                                   spatial_class_num=len(self._test_dataset.spatial_relationships),
+                                   contact_class_num=len(self._test_dataset.contacting_relationships),
+                                   obj_classes=self._test_dataset.object_classes,
+                                   enc_layer_num=self._conf.enc_layer,
+                                   dec_layer_num=self._conf.dec_layer).to(device=self._device)
+
+        self._init_transformer_loss_function_heads()
+
+    def init_method_loss_type_params(self):
+        # Observed Representations Loss
+        self._enable_obj_class_loss = True
+        self._enable_gen_pred_class_loss = True
+
+        # Anticipated Representations Loss
+        self._enable_ant_pred_loss = True
+        self._enable_ant_bb_subject_loss = False
+        self._enable_ant_bb_object_loss = False
+        self._enable_ant_recon_loss = True
+
+        # STL Loss
+        self._enable_stl_loss = True
+
+    def process_train_video(self, entry, gt_annotation, frame_size) -> dict:
+        self.get_sequence_no_tracking(entry, self._conf.mode)
+        pred = self._model(entry, self._conf.baseline_context, self._conf.max_window)
+        return pred
+
+    def process_test_video(self, entry, gt_annotation, frame_size) -> dict:
+        self.get_sequence_no_tracking(entry, self._conf.mode)
+        num_ff = self._conf.max_window
+        num_cf = self._conf.baseline_context
+        pred = self._model(entry, num_cf, num_ff)
+        return pred
+
+    def compute_loss(self, pred, gt) -> dict:
+        if self._conf.use_partial_annotations:
+            losses = self.compute_baseline_gen_ant_loss_with_mask(pred)
+        else:
+            losses = self.compute_baseline_gen_ant_loss(pred)
+        return losses
+
+    def process_evaluation_score(self, pred, gt):
+        self.compute_baseline_evaluation_score(pred, gt)
+
+
+class TrainDsgDetrAntSTL(TrainSTSGBase):
+
+    def __init__(self, conf):
+        super().__init__(conf)
+        self._init_matcher()
+
+    def init_model(self):
+        from lib.supervised.sga.dsgdetr_ant import DsgDetrAnt
+
+        self._model = DsgDetrAnt(mode=self._conf.mode,
+                                 attention_class_num=len(self._test_dataset.attention_relationships),
+                                 spatial_class_num=len(self._test_dataset.spatial_relationships),
+                                 contact_class_num=len(self._test_dataset.contacting_relationships),
+                                 obj_classes=self._test_dataset.object_classes,
+                                 enc_layer_num=self._conf.enc_layer,
+                                 dec_layer_num=self._conf.dec_layer).to(device=self._device)
+        self._init_matcher()
+        self._init_transformer_loss_function_heads()
+
+    def init_method_loss_type_params(self):
+        # Observed Representations Loss
+        self._enable_obj_class_loss = True
+        self._enable_gen_pred_class_loss = False
+
+        # Anticipated Representations Loss
+        self._enable_ant_pred_loss = True
+        self._enable_ant_bb_subject_loss = False
+        self._enable_ant_bb_object_loss = False
+        self._enable_ant_recon_loss = True
+
+        # STL Loss
+        self._enable_stl_loss = True
+
+    def process_train_video(self, entry, gt_annotation, frame_size) -> dict:
+        get_sequence_with_tracking(entry, gt_annotation, self._matcher, frame_size, self._conf.mode)
+        pred = self._model(entry, self._conf.baseline_context, self._conf.max_window)
+        return pred
+
+    def process_test_video(self, entry, gt_annotation, frame_size) -> dict:
+        get_sequence_with_tracking(entry, gt_annotation, self._matcher, frame_size, self._conf.mode)
+        num_ff = self._conf.max_window
+        num_cf = self._conf.baseline_context
+        pred = self._model(entry, num_cf, num_ff)
+        return pred
+
+    def compute_loss(self, pred, gt) -> dict:
+        if self._conf.use_partial_annotations:
+            losses = self.compute_baseline_ant_loss_with_mask(pred)
+        else:
+            losses = self.compute_baseline_ant_loss(pred)
+        return losses
+
+    def process_evaluation_score(self, pred, gt):
+        self.compute_baseline_evaluation_score(pred, gt)
+
+
+class TrainDsgDetrGenAntSTL(TrainSTSGBase):
+
+    def __init__(self, conf):
+        super().__init__(conf)
+        self._init_matcher()
+
+    def init_model(self):
+        from lib.supervised.sga.dsgdetr_gen_ant import DsgDetrGenAnt
+
+        self._model = DsgDetrGenAnt(mode=self._conf.mode,
+                                    attention_class_num=len(self._test_dataset.attention_relationships),
+                                    spatial_class_num=len(self._test_dataset.spatial_relationships),
+                                    contact_class_num=len(self._test_dataset.contacting_relationships),
+                                    obj_classes=self._test_dataset.object_classes,
+                                    enc_layer_num=self._conf.enc_layer,
+                                    dec_layer_num=self._conf.dec_layer).to(device=self._device)
+        self._init_matcher()
+        self._init_transformer_loss_function_heads()
+
+    def init_method_loss_type_params(self):
+        # Observed Representations Loss
+        self._enable_obj_class_loss = True
+        self._enable_gen_pred_class_loss = True
+
+        # Anticipated Representations Loss
+        self._enable_ant_pred_loss = True
+        self._enable_ant_bb_subject_loss = False
+        self._enable_ant_bb_object_loss = False
+        self._enable_ant_recon_loss = True
+
+        # STL Loss
+        self._enable_stl_loss = True
+
+    def process_train_video(self, entry, gt_annotation, frame_size) -> dict:
+        get_sequence_with_tracking(entry, gt_annotation, self._matcher, frame_size, self._conf.mode)
+        pred = self._model(entry, self._conf.baseline_context, self._conf.max_window)
+        return pred
+
+    def process_test_video(self, entry, gt_annotation, frame_size) -> dict:
+        get_sequence_with_tracking(entry, gt_annotation, self._matcher, frame_size, self._conf.mode)
+        num_ff = self._conf.max_window
+        num_cf = self._conf.baseline_context
+        pred = self._model(entry, num_cf, num_ff)
+        return pred
+
+    def compute_loss(self, pred, gt) -> dict:
+        if self._conf.use_partial_annotations:
+            losses = self.compute_baseline_gen_ant_loss_with_mask(pred)
+        else:
+            losses = self.compute_baseline_gen_ant_loss(pred)
+        return losses
+
+    def process_evaluation_score(self, pred, gt):
+        self.compute_baseline_evaluation_score(pred, gt)
+
+
+# -------------------------------------------------------------------------------------
 # ------------------------------- SCENE SAYER METHODS ---------------------------------
 # -------------------------------------------------------------------------------------
 
@@ -341,6 +566,14 @@ def main():
         evaluate_class = TrainDsgDetrAnt(conf)
     elif conf.method_name == "dsgdetr_gen_ant":
         evaluate_class = TrainDsgDetrGenAnt(conf)
+    elif conf.method_name == "sttran_ant_stl":
+        evaluate_class = TrainSTTranAntSTL(conf)
+    elif conf.method_name == "sttran_gen_ant_stl":
+        evaluate_class = TrainSTTranGenAntSTL(conf)
+    elif conf.method_name == "dsgdetr_ant_stl":
+        evaluate_class = TrainDsgDetrAntSTL(conf)
+    elif conf.method_name == "dsgdetr_gen_ant_stl":
+        evaluate_class = TrainDsgDetrGenAntSTL(conf)
     else:
         raise NotImplementedError
 

@@ -38,6 +38,9 @@ class TestSTSGBase(STSGBase):
         self._future_frame_windows = [1, 2, 3, 4, 5]
         self._context_fractions = [0.3, 0.5, 0.7, 0.9]
 
+        if self._conf.use_input_corruptions:
+            self._context_fractions = [0.5]
+
         # Load the evaluators
         self._combined_ff_evaluators_dict = {}
         self._combined_cf_evaluators_dict = {}

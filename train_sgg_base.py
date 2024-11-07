@@ -16,6 +16,7 @@ from dataloader.partial.action_genome.ag_dataset import PartialAG
 from dataloader.standard.action_genome.ag_dataset import StandardAG
 from dataloader.standard.action_genome.ag_dataset import cuda_collate_fn as ag_data_cuda_collate_fn
 from lib.object_detector import Detector
+from lib.stl.core.expression import Expression
 from stsg_base import STSGBase
 
 
@@ -41,6 +42,8 @@ class TrainSGGBase(STSGBase):
 
         # Enable STL constraint loss
         self._enable_stl_loss = False
+        self._enable_generic_loss = False
+        self._enable_dataset_specific_loss = False
 
     def _init_loss_functions(self):
         self._bce_loss = nn.BCELoss()
@@ -63,17 +66,44 @@ class TrainSGGBase(STSGBase):
         # Predictions should be a tensor of shape [total_num_objects, num_relationships]
         # The total number of objects here can be considered as the batch size
 
-        # Construct STL Expressions for each relationship
+        # 1. Construct STL Expressions for each relationship
+        # TODO: Check dimension mismatch
         relationship_classes = self._train_dataset.relationship_classes
-        rel_exp_name_list = []
-        for relationship in relationship_classes:
-            rel_exp_name_list.append(relationship)
+        rel_exp_list = []
+        for rel_idx, relation in enumerate(relationship_classes):
+            rel_exp = Expression(f"{relation}_generic", predictions[rel_idx])
+            rel_exp_list.append(rel_exp)
+
+        # 2. Create an inverse map between relation_name and rel_exp
+        rel_exp_map = {rel_exp.name: rel_exp for rel_exp in rel_exp_list}
+
+        # 3. Construct STL Formulas from generic.text file
+
+
+
 
 
         pass
 
     def _calculate_dataset_specific_stl_loss(self, predictions):
         pass
+
+
+    def _calculate_stl_loss(self, predictions):
+        loss = 0
+        if self._enable_generic_loss:
+            loss += self._calculate_generic_stl_loss(predictions)
+        if self._enable_dataset_specific_loss:
+            loss += self._calculate_dataset_specific_stl_loss(predictions)
+        return loss
+
+    def _construct_inputs_for_expression(self,
+                                         attention_distribution,
+                                         spatial_distribution,
+                                         contact_distribution):
+        predicates_exp_input = None
+        return predicates_exp_input
+
 
     def _calculate_losses_for_partial_annotations(self, pred):
         losses = {}
@@ -104,7 +134,8 @@ class TrainSGGBase(STSGBase):
         # For both spatial and contacting relations, if all the annotations are masked then the loss is not calculated
 
         # 3. Spatial Loss
-        filtered_spatial_distribution, filtered_spatial_labels = self._prepare_labels_and_distribution(
+        (filtered_spatial_distribution,
+         filtered_spatial_labels, spatial_distribution) = self._prepare_labels_and_distribution(
             pred=pred,
             distribution_type=const.SPATIAL_DISTRIBUTION,
             label_type=const.SPATIAL_GT,
@@ -118,7 +149,8 @@ class TrainSGGBase(STSGBase):
                 losses[const.SPATIAL_RELATION_LOSS] = self._bce_loss(filtered_spatial_distribution, filtered_spatial_labels)
 
         # 4. Contacting Loss
-        filtered_contact_distribution, filtered_contact_labels = self._prepare_labels_and_distribution(
+        (filtered_contact_distribution,
+         filtered_contact_labels, contact_distribution) = self._prepare_labels_and_distribution(
             pred=pred,
             distribution_type=const.CONTACTING_DISTRIBUTION,
             label_type=const.CONTACTING_GT,
@@ -131,7 +163,19 @@ class TrainSGGBase(STSGBase):
             else:
                 losses[const.CONTACTING_RELATION_LOSS] = self._bce_loss(filtered_contact_distribution, filtered_contact_labels)
 
+        # 0. Enable STL Loss
+        if self._enable_stl_loss:
+            predicate_exp_input = self._construct_inputs_for_expression(
+                attention_distribution,
+                spatial_distribution,
+                contact_distribution
+            )
+
+            # Calculate STL Loss
+            losses[const.STL_LOSS] = self._calculate_stl_loss(predicate_exp_input)
+
         return losses
+
 
     def _calculate_losses_for_full_annotations(self, pred):
         attention_distribution = pred[const.ATTENTION_DISTRIBUTION]
@@ -155,6 +199,18 @@ class TrainSGGBase(STSGBase):
                 contact_label[i, pred[const.CONTACTING_GT][i]] = 1
 
         losses = {}
+
+        # 0. Enable STL Loss
+        if self._enable_stl_loss:
+            predicate_exp_input = self._construct_inputs_for_expression(
+                attention_distribution,
+                spatial_distribution,
+                contact_distribution
+            )
+
+            # Calculate STL Loss
+            losses[const.STL_LOSS] = self._calculate_stl_loss(predicate_exp_input)
+
         # 1. Object Loss
         if self._conf.mode == const.SGCLS or self._conf.mode == const.SGDET:
             losses[const.OBJECT_LOSS] = self._ce_loss(pred[const.DISTRIBUTION], pred[const.LABELS])

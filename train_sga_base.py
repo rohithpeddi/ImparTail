@@ -459,7 +459,8 @@ class TrainSTSGBase(STSGBase):
             for i in range(len(pred["spatial_gt"])):
                 spatial_label[i, pred["spatial_gt"][i]] = 1
 
-        filtered_spatial_distribution, filtered_spatial_labels = self._prepare_labels_and_distribution(
+        (filtered_spatial_distribution,
+         filtered_spatial_labels, spatial_distribution) = self._prepare_labels_and_distribution(
             pred=pred,
             distribution_type="spatial_distribution",
             label_type=const.SPATIAL_GT,
@@ -489,7 +490,8 @@ class TrainSTSGBase(STSGBase):
             for i in range(len(pred["spatial_gt"])):
                 contact_label[i, pred["contacting_gt"][i]] = 1
 
-        filtered_contact_distribution, filtered_contact_labels = self._prepare_labels_and_distribution(
+        (filtered_contact_distribution,
+         filtered_contact_labels, contacting_distribution) = self._prepare_labels_and_distribution(
             pred=pred,
             distribution_type="contacting_distribution",
             label_type=const.CONTACTING_GT,
@@ -934,7 +936,8 @@ class TrainSTSGBase(STSGBase):
         # --------------------------------------------------------------------------------------------
         # 3. Spatial Loss for Generation
         # --------------------------------------------------------------------------------------------
-        filtered_spatial_distribution, filtered_spatial_labels = self._prepare_labels_and_distribution(
+        (filtered_spatial_distribution,
+         filtered_spatial_labels, gen_spatial_distribution) = self._prepare_labels_and_distribution(
             pred=pred,
             distribution_type="gen_spatial_distribution",
             label_type=const.SPATIAL_GT,
@@ -952,7 +955,8 @@ class TrainSTSGBase(STSGBase):
         # --------------------------------------------------------------------------------------------
         # 4. Contacting Loss for Generation
         # --------------------------------------------------------------------------------------------
-        filtered_contact_distribution, filtered_contact_labels = self._prepare_labels_and_distribution(
+        (filtered_contact_distribution,
+         filtered_contact_labels, gen_contact_distribution) = self._prepare_labels_and_distribution(
             pred=pred,
             distribution_type="gen_contacting_distribution",
             label_type=const.CONTACTING_GT,

@@ -34,6 +34,8 @@ class Constants:
     ADAM = "adam"
     ADAMW = "adamw"
     SGD = "sgd"
+
+    STL_LOSS = "stl_loss"
     OBJECT_LOSS = "object_loss"
     FRAMES_PREDCLS = "frames_predcls"
     FRAMES_SGCLS = "frames_sgcls"

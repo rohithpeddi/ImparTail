@@ -317,7 +317,7 @@ class STSGBase:
         filtered_labels = torch.stack(filtered_labels)
         filtered_distribution = torch.stack(filtered_distribution)
 
-        return filtered_distribution, filtered_labels
+        return filtered_distribution, filtered_labels, pred_distribution
 
     def _init_scheduler(self):
         self._scheduler = ReduceLROnPlateau(self._optimizer, "max", patience=1, factor=0.5, verbose=True,

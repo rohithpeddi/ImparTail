@@ -59,6 +59,22 @@ class TrainSGGBase(STSGBase):
         ).to(device=self._device)
         self._object_detector.eval()
 
+    def _calculate_generic_stl_loss(self, predictions):
+        # Predictions should be a tensor of shape [total_num_objects, num_relationships]
+        # The total number of objects here can be considered as the batch size
+
+        # Construct STL Expressions for each relationship
+        relationship_classes = self._train_dataset.relationship_classes
+        rel_exp_name_list = []
+        for relationship in relationship_classes:
+            rel_exp_name_list.append(relationship)
+
+
+        pass
+
+    def _calculate_dataset_specific_stl_loss(self, predictions):
+        pass
+
     def _calculate_losses_for_partial_annotations(self, pred):
         losses = {}
 

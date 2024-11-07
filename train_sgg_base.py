@@ -39,6 +39,9 @@ class TrainSGGBase(STSGBase):
         self._checkpoint_name = None
         self._checkpoint_save_dir_path = None
 
+        # Enable STL constraint loss
+        self._enable_stl_loss = False
+
     def _init_loss_functions(self):
         self._bce_loss = nn.BCELoss()
         self._ce_loss = nn.CrossEntropyLoss()

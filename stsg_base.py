@@ -44,7 +44,15 @@ class STSGBase:
                 # Checkpoint name is of the format for model trained with label noise: sttran_label_noise_10_sgdet_epoch_1.tar
                 self._checkpoint_name_with_epoch = os.path.basename(self._conf.ckpt).split('.')[0]
                 self._checkpoint_name = "_".join(self._checkpoint_name_with_epoch.split('_')[:-2])
-                self._conf.mode = self._checkpoint_name.split('_')[-1]
+
+                if const.SGDET in self._checkpoint_name:
+                    self._conf.mode = const.SGDET
+                elif const.SGCLS in self._checkpoint_name:
+                    self._conf.mode = const.SGCLS
+                elif const.PREDCLS in self._checkpoint_name:
+                    self._conf.mode = const.PREDCLS
+
+                # self._conf.mode = self._checkpoint_name.split('_')[-1]
                 print("--------------------------------------------------------")
                 print(f"Loading checkpoint with name: {self._checkpoint_name}")
                 print(f"Mode: {self._conf.mode}")

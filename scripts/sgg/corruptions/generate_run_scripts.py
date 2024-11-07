@@ -2,14 +2,15 @@ import os
 
 from constants import CorruptionConstants as const
 
+
 class GenerateRunScripts:
 
     def __init__(self):
         self.ckpt_directory_path = "/data/rohith/ag/checkpoints"
         self.data_path = "/data/rohith/ag"
         self.task = const.SGG
-        self.methods = ["sttran", "dsgdetr", "tempura"]
-        self.modes = [const.SGDET, const.SGCLS, const.PREDCLS]
+        self.methods = ["sttran", "dsgdetr"]
+        self.modes = [const.SGCLS, const.PREDCLS]
         self.corruption_types = [
             const.NO_CORRUPTION, const.GAUSSIAN_NOISE, const.SHOT_NOISE, const.IMPULSE_NOISE, const.SPECKLE_NOISE,
             const.GAUSSIAN_BLUR, const.DEFOCUS_BLUR, const.MOTION_BLUR, const.ZOOM_BLUR, const.FOG, const.FROST,
@@ -18,7 +19,7 @@ class GenerateRunScripts:
         ]
         self.dataset_corruption_modes = [const.FIXED]
         self.video_corruption_modes = [const.FIXED, const.MIXED]
-        self.severity_levels = [5]
+        self.severity_levels = [3]
         self.generate_scripts()
 
     def generate_scripts(self):
@@ -54,6 +55,7 @@ class GenerateRunScripts:
                                         f"--video_corruption_mode {video_corruption_mode} --corruption_severity_level {severity_level}\n")
                                     f.write(
                                         "-----------------------------------------------------------------------------\n")
+
 
 def main():
     generate_run_scripts = GenerateRunScripts()

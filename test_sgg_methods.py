@@ -55,48 +55,12 @@ class TestDsgDetr(TestSGGBase):
         return prediction
 
 
-class TestTempura(TestSGGBase):
-
-    def __init__(self, conf):
-        super().__init__(conf)
-
-    def init_model(self):
-        from lib.supervised.sgg.tempura.tempura import TEMPURA
-        model = TEMPURA(mode=self._conf.mode,
-                        attention_class_num=len(self._test_dataset.attention_relationships),
-                        spatial_class_num=len(self._test_dataset.spatial_relationships),
-                        contact_class_num=len(self._test_dataset.contacting_relationships),
-                        obj_classes=self._test_dataset.object_classes,
-                        enc_layer_num=self._conf.enc_layer,
-                        dec_layer_num=self._conf.dec_layer,
-                        obj_mem_compute=self._conf.obj_mem_compute,
-                        rel_mem_compute=self._conf.rel_mem_compute,
-                        take_obj_mem_feat=self._conf.take_obj_mem_feat,
-                        mem_fusion=self._conf.mem_fusion,
-                        selection=self._conf.mem_feat_selection,
-                        selection_lambda=self._conf.mem_feat_lambda,
-                        obj_head=self._conf.obj_head,
-                        rel_head=self._conf.rel_head,
-                        K=self._conf.K,
-                        tracking=self._conf.tracking).to(device=self._device)
-        model.eval()
-
-    def process_test_video(self, video_entry, frame_size, gt_annotation) -> dict:
-        from lib.supervised.sgg.tempura.ds_track import get_sequence
-        if self._conf.tracking:
-            get_sequence(video_entry, gt_annotation, frame_size, self._conf.mode)
-        prediction = self._model(video_entry)
-        return prediction
-
-
 def main():
     conf = Config()
-    if conf.method_name == "sttran":
+    if conf.method_name in ["sttran", "sttran_partial_10"]:
         evaluate_class = TestSTTran(conf)
-    elif conf.method_name == "dsgdetr":
+    elif conf.method_name in ["dsgdetr", "dsgdetr_partial_10"]:
         evaluate_class = TestDsgDetr(conf)
-    elif conf.method_name == "tempura":
-        evaluate_class = TestTempura(conf)
     else:
         raise NotImplementedError
 

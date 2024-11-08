@@ -63,6 +63,13 @@ class GenerateClauses(BaseInstructLLama):
 
         return system_prompt, input_content
 
+
+    def construct_implication_prompts(self, video_id):
+        pass
+
+    def construct_forward_cancellation_prompts(self, video_id):
+        pass
+
     def segment_video_captions(self, video_id):
         system_prompt, content_prompt = self.construct_prompts(video_id)
         messages = [
@@ -93,11 +100,11 @@ class GenerateClauses(BaseInstructLLama):
 
 
 def main():
-    caption_segmenter = CaptionSegmenter()
-    caption_segmenter.generate_video_segments()
+    clause_generator = GenerateClauses()
+    clause_generator.generate_video_segments()
 
 
-def compile_captions():
+def compile_rules():
     captions = {}
     captions_dir = "/data/rohith/ag/captions/segmented/"
     for file in os.listdir(captions_dir):
@@ -116,4 +123,4 @@ def compile_captions():
 
 if __name__ == "__main__":
     # main()
-    compile_captions()
+    compile_rules()

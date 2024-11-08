@@ -17,6 +17,7 @@ from dataloader.standard.action_genome.ag_dataset import StandardAG
 from dataloader.standard.action_genome.ag_dataset import cuda_collate_fn as ag_data_cuda_collate_fn
 from lib.object_detector import Detector
 from lib.stl.core.stl_formula import Expression, GreaterThan
+from lib.stl.iterative_parser import IterativeParser
 from lib.stl.parser import Parser
 from lib.stl.tokenizer import Tokenizer
 from stsg_base import STSGBase
@@ -58,7 +59,8 @@ class TrainSGGBase(STSGBase):
 
         if self._enable_stl_loss:
             if self._enable_generic_loss or self._enable_dataset_specific_loss:
-                self._stl_rule_parser = Parser()
+                # self._stl_rule_parser = Parser()
+                self._stl_rule_parser = IterativeParser()
                 self._stl_tokenizer = Tokenizer()
 
 
@@ -88,24 +90,23 @@ class TrainSGGBase(STSGBase):
         rel_exp_list = []
         const_exp_list = []
         for rel_idx, relation in enumerate(relationship_classes):
-            rel_exp = Expression(f"{relation}_generic", predictions[:, rel_idx])
+            rel_exp = Expression(f"{relation}_generic", predictions[:, rel_idx].reshape(1, -1, 1))
             const_exp = Expression(f"{relation}_const", constants[rel_idx])
             rel_exp_list.append(rel_exp)
             const_exp_list.append(const_exp)
 
-        # 2. Create an inverse map between relation_name and rel_exp
-        rel_exp_map = {rel_exp.name: rel_exp for rel_exp in rel_exp_list}
-
-        # 3. Construct STL Predicates for each relationship type prediction
-        stl_predicate_list = []
-        relation_to_predicate_map = {}
+        # 2. Construct STL Predicates for each relationship type prediction
+        # In our case, predicates are of the form: GreaterThan(relation_expression, constant_expression)
+        # For attention relationship, predictions[:, :3] --> Each of processed logit should be greater than 0.0
+        # For spatial relationship, predictions[:, 3:9] --> Each of processed sigmoid should be greater than 0.5
+        # For contacting relationship, predictions[:, 9:] --> Each of processed sigmoid should be greater than 0.5
+        relation_to_stl_predicate_map = {}
         relation_to_prediction_map = {}
         for rel_idx, relation in enumerate(relationship_classes):
             rel_exp = rel_exp_list[rel_idx]
             stl_predicate = GreaterThan(rel_exp, const_exp_list[rel_idx])
-            stl_predicate_list.append(stl_predicate)
-            relation_to_predicate_map[relation] = stl_predicate
-            relation_to_prediction_map[relation] = predictions[:, rel_idx]
+            relation_to_stl_predicate_map[relation] = stl_predicate
+            relation_to_prediction_map[relation] = predictions[:, rel_idx].reshape(1, -1, 1)
 
         # 4. Construct STL Formulas from generic.text file
         try:
@@ -122,7 +123,7 @@ class TrainSGGBase(STSGBase):
             if not line:
                 continue  # Skip empty lines
             tokens = self._stl_tokenizer.tokenize(line)
-            self._stl_rule_parser.init_tokens(tokens, relation_to_predicate_map)
+            self._stl_rule_parser.init_tokens(tokens, relation_to_stl_predicate_map)
             formula = self._stl_rule_parser.parse_formula()
             formula_identifiers = self._stl_rule_parser.identifiers
             # Ensure all tokens are consumed
@@ -135,9 +136,11 @@ class TrainSGGBase(STSGBase):
         stl_loss = 0
         for formula_idx, formula in enumerate(stl_formula_list):
             identifier_list = stl_formula_identifiers[formula_idx]
-            inputs = [relation_to_prediction_map[relation] for relation in identifier_list]
-            inputs = torch.stack(inputs, dim=1)
+            inputs = (relation_to_prediction_map[identifier_list[0]], relation_to_prediction_map[identifier_list[1]])
             stl_loss += formula.robustness(inputs=inputs)
+
+        normalized_stl_loss = stl_loss / len(stl_formula_list)
+        return normalized_stl_loss
 
 
     def _calculate_dataset_specific_stl_loss(self, predictions):

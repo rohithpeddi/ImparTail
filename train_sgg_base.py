@@ -16,7 +16,7 @@ from dataloader.partial.action_genome.ag_dataset import PartialAG
 from dataloader.standard.action_genome.ag_dataset import StandardAG
 from dataloader.standard.action_genome.ag_dataset import cuda_collate_fn as ag_data_cuda_collate_fn
 from lib.object_detector import Detector
-from lib.stl.core.expression import Expression
+from lib.stl.core.stl_formula import Expression
 from stsg_base import STSGBase
 
 
@@ -72,16 +72,13 @@ class TrainSGGBase(STSGBase):
         relationship_classes = self._train_dataset.relationship_classes
         rel_exp_list = []
         for rel_idx, relation in enumerate(relationship_classes):
-            rel_exp = Expression(f"{relation}_generic", predictions[rel_idx])
+            rel_exp = Expression(f"{relation}_generic", predictions[:, rel_idx])
             rel_exp_list.append(rel_exp)
 
         # 2. Create an inverse map between relation_name and rel_exp
         rel_exp_map = {rel_exp.name: rel_exp for rel_exp in rel_exp_list}
 
         # 3. Construct STL Formulas from generic.text file
-
-
-
 
 
         pass
@@ -98,11 +95,25 @@ class TrainSGGBase(STSGBase):
             loss += self._calculate_dataset_specific_stl_loss(predictions)
         return loss
 
-    def _construct_inputs_for_expression(self,
-                                         attention_distribution,
-                                         spatial_distribution,
-                                         contact_distribution):
-        predicates_exp_input = None
+    def _construct_inputs_for_expression(self, attention_distribution, spatial_distribution, contact_distribution):
+        # 1. Convert the attention distribution to predicate friendly form
+        # For each class (column tensor of att distribution), estimate logsumexp of other class tensors
+        att_dist = attention_distribution.copy()
+        log_sum_exp_att = torch.zeros(att_dist.shape)
+        for i in range(att_dist.shape[1]):
+            log_sum_exp_att[:, i] = torch.logsumexp(att_dist[:, [j for j in range(att_dist.shape[1]) if j != i]], dim=1)
+
+        attention_predicate = att_dist - log_sum_exp_att
+
+        # 2. Convert the spatial distribution, contact distribution to predicate friendly form
+        # We don't have to explicitly change anything as they are sigmoid outputs!
+        spatial_predicate = spatial_distribution.copy()
+        contact_predicate = contact_distribution.copy()
+
+        # 3. Concatenate the three predicates
+        # Output shape: [ batch_size(total number of objects detected), num_relationships (total number of relationships)]
+        predicates_exp_input = torch.cat((attention_predicate, spatial_predicate, contact_predicate), dim=1)
+
         return predicates_exp_input
 
 

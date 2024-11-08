@@ -1,5 +1,5 @@
 from lib.stl.core.stl_formula import Negation, GreaterThan, LessThan, Equal, Until, Then, And, Or, Implies
-from lib.stl.core.temporal_operator import Always, Eventually
+from lib.stl.core.stl_formula import Always, Eventually
 
 
 class Parser:

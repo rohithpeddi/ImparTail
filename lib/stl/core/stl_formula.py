@@ -17,7 +17,6 @@ def tensor_to_str(tensor):
 		tensor = tensor.cpu()
 	return str(tensor.numpy())
 
-
 def convert_to_input_values(inputs):
 	x_, y_ = inputs
 	if isinstance(x_, Expression):
@@ -100,7 +99,6 @@ class Maxish(torch.nn.Module):
         """
 		return [str(self.input_name)]
 
-
 class Minish(torch.nn.Module):
 	"""
     Function to compute the min, or softmin, or other variants of the min function.
@@ -161,7 +159,6 @@ class Minish(torch.nn.Module):
         This is used for the graph visualization to keep track of the parent node.
         """
 		return [str(self.input_name)]
-
 
 class Expression(torch.nn.Module):
 	"""
@@ -263,7 +260,6 @@ class Expression(torch.nn.Module):
 	def __str__(self):
 		return str(self.name)
 
-
 class STLFormula(torch.nn.Module):
 	"""
     NOTE: All the inputs are assumed to be TIME REVERSED. The outputs are also TIME REVERSED
@@ -333,15 +329,14 @@ class STLFormula(torch.nn.Module):
 	def __str__(self):
 		raise NotImplementedError("__str__ not yet implemented")
 	
-	def __and__(phi, psi):
+	def __and__(self, phi, psi):
 		return And(phi, psi)
 	
-	def __or__(phi, psi):
+	def __or__(self, phi, psi):
 		return Or(phi, psi)
 	
-	def __invert__(phi):
+	def __invert__(self, phi):
 		return Negation(phi)
-
 
 class LessThan(STLFormula):
 	"""

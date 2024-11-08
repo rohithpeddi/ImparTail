@@ -77,21 +77,21 @@ class TrainSGGBase(STSGBase):
 
         # 0. Construct value map for each relationship expression used to make an expression to a predicate
         num_objects, num_relationships = predictions.shape
+        # Threshold for sigmoid = 0.5, Threshold for logits = 0
         constants = torch.zeros(num_relationships).reshape((num_relationships, 1)).to(device=self._device)
-        # Threshold for sigmoid
-        constants += 0.5
+        constants[3:] += 0.5
+        # Set requires_grad to False for the constant tensor
+        constants.requires_grad = False
 
-        # Threshold for logits
-        constants[0] = 0
-        constants[1] = 0
-        constants[2] = 0
-
-        # 1. Construct STL Expressions for each relationship
+        # 1. Construct STL Expressions for each relationship and their corresponding constants
         relationship_classes = self._train_dataset.relationship_classes
         rel_exp_list = []
+        const_exp_list = []
         for rel_idx, relation in enumerate(relationship_classes):
             rel_exp = Expression(f"{relation}_generic", predictions[:, rel_idx])
+            const_exp = Expression(f"{relation}_const", constants[rel_idx])
             rel_exp_list.append(rel_exp)
+            const_exp_list.append(const_exp)
 
         # 2. Create an inverse map between relation_name and rel_exp
         rel_exp_map = {rel_exp.name: rel_exp for rel_exp in rel_exp_list}
@@ -99,11 +99,13 @@ class TrainSGGBase(STSGBase):
         # 3. Construct STL Predicates for each relationship type prediction
         stl_predicate_list = []
         relation_to_predicate_map = {}
+        relation_to_prediction_map = {}
         for rel_idx, relation in enumerate(relationship_classes):
             rel_exp = rel_exp_list[rel_idx]
-            stl_predicate = GreaterThan(rel_exp, constants[rel_idx])
+            stl_predicate = GreaterThan(rel_exp, const_exp_list[rel_idx])
             stl_predicate_list.append(stl_predicate)
             relation_to_predicate_map[relation] = stl_predicate
+            relation_to_prediction_map[relation] = predictions[:, rel_idx]
 
         # 4. Construct STL Formulas from generic.text file
         try:
@@ -133,8 +135,10 @@ class TrainSGGBase(STSGBase):
         stl_loss = 0
         for formula_idx, formula in enumerate(stl_formula_list):
             identifier_list = stl_formula_identifiers[formula_idx]
-            input_list = [relation_to_predicate_map[identifier] for identifier in identifier_list]
-            stl_loss += formula.robustness()
+            relation_list = [relation_to_predicate_map[identifier] for identifier in identifier_list]
+            inputs = [relation_to_prediction_map[relation] for relation in relation_list]
+            inputs = torch.stack(inputs, dim=1)
+            stl_loss += formula.robustness(inputs=inputs)
 
 
     def _calculate_dataset_specific_stl_loss(self, predictions):

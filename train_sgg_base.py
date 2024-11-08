@@ -16,7 +16,9 @@ from dataloader.partial.action_genome.ag_dataset import PartialAG
 from dataloader.standard.action_genome.ag_dataset import StandardAG
 from dataloader.standard.action_genome.ag_dataset import cuda_collate_fn as ag_data_cuda_collate_fn
 from lib.object_detector import Detector
-from lib.stl.core.stl_formula import Expression
+from lib.stl.core.stl_formula import Expression, GreaterThan
+from lib.stl.parser import Parser
+from lib.stl.tokenizer import Tokenizer
 from stsg_base import STSGBase
 
 
@@ -54,6 +56,12 @@ class TrainSGGBase(STSGBase):
         self._abs_loss = nn.L1Loss()
         self._mse_loss = nn.MSELoss()
 
+        if self._enable_stl_loss:
+            if self._enable_generic_loss or self._enable_dataset_specific_loss:
+                self._stl_rule_parser = Parser()
+                self._stl_tokenizer = Tokenizer()
+
+
     def _init_object_detector(self):
         self._object_detector = Detector(
             train=True,
@@ -67,8 +75,18 @@ class TrainSGGBase(STSGBase):
         # Predictions should be a tensor of shape [total_num_objects, num_relationships]
         # The total number of objects here can be considered as the batch size
 
+        # 0. Construct value map for each relationship expression used to make an expression to a predicate
+        num_objects, num_relationships = predictions.shape
+        constants = torch.zeros(num_relationships).reshape((num_relationships, 1)).to(device=self._device)
+        # Threshold for sigmoid
+        constants += 0.5
+
+        # Threshold for logits
+        constants[0] = 0
+        constants[1] = 0
+        constants[2] = 0
+
         # 1. Construct STL Expressions for each relationship
-        # TODO: Check dimension mismatch
         relationship_classes = self._train_dataset.relationship_classes
         rel_exp_list = []
         for rel_idx, relation in enumerate(relationship_classes):
@@ -78,10 +96,41 @@ class TrainSGGBase(STSGBase):
         # 2. Create an inverse map between relation_name and rel_exp
         rel_exp_map = {rel_exp.name: rel_exp for rel_exp in rel_exp_list}
 
-        # 3. Construct STL Formulas from generic.text file
+        # 3. Construct STL Predicates for each relationship type prediction
+        stl_predicate_list = []
+        relation_to_predicate_map = {}
+        for rel_idx, relation in enumerate(relationship_classes):
+            rel_exp = rel_exp_list[rel_idx]
+            stl_predicate = GreaterThan(rel_exp, constants[rel_idx])
+            stl_predicate_list.append(stl_predicate)
+            relation_to_predicate_map[relation] = stl_predicate
 
+        # 4. Construct STL Formulas from generic.text file
+        try:
+            with open(self._stl_generic_text_file_path, 'r') as f:
+                lines = f.readlines()
+        except FileNotFoundError:
+            print(f"Error: The file '{self._stl_generic_text_file_path}' was not found.")
+            return
 
-        pass
+        stl_formula_list = []
+        for idx, line in enumerate(lines, start=1):
+            line = line.strip()
+            if not line:
+                continue  # Skip empty lines
+            tokens = self._stl_tokenizer.tokenize(line)
+            self._stl_rule_parser.init_tokens(tokens, relation_to_predicate_map)
+            formula = self._stl_rule_parser.parse_formula()
+            # Ensure all tokens are consumed
+            if self._stl_rule_parser.current_token()[0] != 'EOF':
+                raise RuntimeError(f'Unexpected token {self._stl_rule_parser.current_token()} at the end of formula')
+            stl_formula_list.append(formula)
+
+        # 5. Calculate the loss for each formula
+        stl_loss = 0
+        for formula in stl_formula_list:
+            stl_loss += formula.robustness()
+
 
     def _calculate_dataset_specific_stl_loss(self, predictions):
         pass

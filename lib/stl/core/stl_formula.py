@@ -309,7 +309,7 @@ class STLFormula(torch.nn.Module):
 		return self.eval_trace(inputs, pscale=pscale, scale=scale, keepdim=keepdim, agm=agm, distributed=distributed,
 		                       **kwargs)[:, -(time + 1), :].unsqueeze(1)  # [batch_size, time_dim, x_dim]
 	
-	def forward(self, formula, inputs, pscale=1, scale=-1, keepdim=True, agm=False, distributed=False, **kwargs):
+	def forward(formula, inputs, pscale=1, scale=-1, keepdim=True, agm=False, distributed=False, **kwargs):
 		"""
         Evaluates the robustness_trace given the input. The input is converted to the numerical value first.
         """

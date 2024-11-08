@@ -135,8 +135,7 @@ class TrainSGGBase(STSGBase):
         stl_loss = 0
         for formula_idx, formula in enumerate(stl_formula_list):
             identifier_list = stl_formula_identifiers[formula_idx]
-            relation_list = [relation_to_predicate_map[identifier] for identifier in identifier_list]
-            inputs = [relation_to_prediction_map[relation] for relation in relation_list]
+            inputs = [relation_to_prediction_map[relation] for relation in identifier_list]
             inputs = torch.stack(inputs, dim=1)
             stl_loss += formula.robustness(inputs=inputs)
 

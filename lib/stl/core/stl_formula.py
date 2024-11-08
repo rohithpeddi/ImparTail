@@ -3,7 +3,7 @@ import torch
 
 from lib.stl.core.expression import Expression
 from lib.stl.core.functions import Maxish, Minish
-from lib.stl.core.stlcg import Eventually, Always
+from lib.stl.core.temporal_operator import Eventually, Always
 from lib.stl.core.utils import convert_to_input_values, tensor_to_str
 
 

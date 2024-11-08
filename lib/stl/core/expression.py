@@ -1,6 +1,6 @@
 import torch
 
-from lib.stl.core.stlcg import LessThan, GreaterThan, Equal
+from lib.stl.core.temporal_operator import LessThan, GreaterThan, Equal
 
 
 class Expression(torch.nn.Module):

@@ -6,16 +6,16 @@ class Tokenizer:
 
     # Define token specifications as tuples of (TOKEN_NAME, REGEX_PATTERN)
     token_specification = [
-        ('ALWAYS',       r'G'),                         # Always operator
+        ('ALWAYS',  r'G'),                         # Always operator
         ('NEG',     r'¬'),                              # Negation operator
         ('AND',     r'∧'),                              # Conjunction operator
         ('OR',      r'∨'),                              # Disjunction operator
         ('IMPL',    r'⇒'),                              # Implication operator
         ('EVENTUALLY', r'F'),                           # Eventually operator
         ('UNTIL',   r'U'),                              # Until operator
-        ('LT',r'<='),                              # Less than operator
-        ('GT',r'>='),                           # Greater than operator
-        ('EQ',r'=='),                           # Equal to operator
+        ('LT',      r'<='),                              # Less than operator
+        ('GT',      r'>='),                           # Greater than operator
+        ('EQ',      r'=='),                           # Equal to operator
         ('THEN',    r'T'),                             # Then operator
         ('LPAREN',  r'\('),                             # Left Parenthesis
         ('RPAREN',  r'\)'),                             # Right Parenthesis

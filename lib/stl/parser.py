@@ -3,22 +3,28 @@ from lib.stl.core.stl_formula import Always, Eventually
 
 
 class Parser:
-    """Parses a list of tokens into an abstract syntax tree (AST) of STL Formulas."""
+    """Parses a list of tokens into an abstract syntax tree (AST) of STL Formulas.
+
+    Additionally, it stores the identifiers in the formula from left to right.
+    """
 
     def __init__(self):
         self.pos = 0
         self.tokens = None
         self.id_to_predicate_map = {}
+        self.identifiers = []  # List to store identifiers in order
 
     def init_tokens(self, tokens, id_to_expression_map):
         self.tokens = tokens
         self.pos = 0
         self.id_to_predicate_map = id_to_expression_map
+        self.identifiers = []  # Reset identifiers when initializing tokens
 
     def reset_pos(self):
         self.pos = 0
         self.tokens = None
         self.id_to_predicate_map = {}
+        self.identifiers = []  # Reset identifiers when resetting
 
     def current_token(self):
         if self.pos < len(self.tokens):
@@ -120,6 +126,8 @@ class Parser:
             return expr
         elif self.accept('ID'):
             rel_name = self.tokens[self.pos - 1][1]
+            # Store the identifier in the list
+            self.identifiers.append(rel_name)
             return self.id_to_predicate_map[rel_name]
         else:
             raise RuntimeError(f'Unexpected token {self.current_token()}')

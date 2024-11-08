@@ -1,11 +1,20 @@
 # ------------------------------------------------------------------------------
-# ---------------------------- SGDET (Scene Graph Determination) --------------------
+# ---------------------------- SGDET (Scene Graph Detection) --------------------
 # ------------------------------------------------------------------------------
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgdet
-python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgdet
+python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=sgdet
+python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=sgdet
+python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=sgdet
+python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --mode=sgdet
+python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --mode=sgdet
+
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgdet
-python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=sgdet
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --mode=sgdet
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --mode=sgdet
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --mode=sgdet
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mode=sgdet
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --mode=sgdet
 
 
 # ------------------------------------------------------------------------------
@@ -13,13 +22,33 @@ python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=sgdet
 # ------------------------------------------------------------------------------
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgcls
+python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=sgcls
+python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=sgcls
+python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=sgcls
+python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --mode=sgcls
+python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --mode=sgcls
+
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgcls
-python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=sgcls
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --mode=sgcls
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --mode=sgcls
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --mode=sgcls
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mode=sgcls
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --mode=sgcls
 
 # ------------------------------------------------------------------------------
 # ---------------- PREDCLS (Predicate Classification) ----------
 # ------------------------------------------------------------------------------
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=predcls
+python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=predcls
+python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=predcls
+python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=predcls
+python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --mode=predcls
+python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --mode=predcls
+
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=predcls
-python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=predcls
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --mode=predcls
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --mode=predcls
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --mode=predcls
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mode=predcls
+python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --mode=predcls

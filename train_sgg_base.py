@@ -44,6 +44,7 @@ class TrainSGGBase(STSGBase):
         self._enable_stl_loss = False
         self._enable_generic_loss = False
         self._enable_dataset_specific_loss = False
+        self._enable_time_conditioned_dataset_specific_loss = False
 
     def _init_loss_functions(self):
         self._bce_loss = nn.BCELoss()

@@ -4,6 +4,11 @@ from lib.supervised.sgg.sttran.sttran import STTran
 from lib.supervised.sgg.dsgdetr.dsgdetr import DsgDETR
 from lib.supervised.sgg.tempura.tempura import TEMPURA
 
+# -----------------------------------------------------------------------------------------------------
+# --------------------------------------------- BASELINE METHODS ---------------------------------------
+# -----------------------------------------------------------------------------------------------------
+
+
 class TrainSTTran(TrainSGGBase):
 
     def __init__(self, conf):
@@ -61,8 +66,31 @@ class TrainDsgDetr(TrainSGGBase):
         pred = self._model(entry)
         return pred
 
+# -----------------------------------------------------------------------------------------------------
+# --------------------------------------------- STL BASED METHODS -------------------------------------
+# -----------------------------------------------------------------------------------------------------
 
-class TrainSTTranSTL(TrainSGGBase):
+# --------------------------------------------- STTRAN METHODS -------------------------------------
+
+class TrainSTTranSTLBase(TrainSGGBase):
+
+    def __init__(self, conf):
+        super().__init__(conf)
+
+    def init_model(self):
+        raise NotImplementedError
+
+    def process_train_video(self, entry, frame_size, gt_annotation) -> dict:
+        self.get_sequence_no_tracking(entry, self._conf.mode)
+        pred = self._model(entry)
+        return pred
+
+    def process_test_video(self, entry, frame_size, gt_annotation) -> dict:
+        self.get_sequence_no_tracking(entry, self._conf.mode)
+        pred = self._model(entry)
+        return pred
+
+class TrainSTTranSTLGeneric(TrainSTTranSTLBase):
 
     def __init__(self, conf):
         super().__init__(conf)
@@ -77,19 +105,116 @@ class TrainSTTranSTL(TrainSGGBase):
                              dec_layer_num=self._conf.dec_layer).to(device=self._device)
 
         self._enable_stl_loss = True
+        self._enable_generic_loss = True
+        self._enable_dataset_specific_loss = False
+        self._enable_time_conditioned_dataset_specific_loss = False
+
+
+class TrainSTTranSTLDS(TrainSTTranSTLBase):
+
+    def __init__(self, conf):
+        super().__init__(conf)
+
+    def init_model(self):
+        self._model = STTran(mode=self._conf.mode,
+                             attention_class_num=len(self._train_dataset.attention_relationships),
+                             spatial_class_num=len(self._train_dataset.spatial_relationships),
+                             contact_class_num=len(self._train_dataset.contacting_relationships),
+                             obj_classes=self._train_dataset.object_classes,
+                             enc_layer_num=self._conf.enc_layer,
+                             dec_layer_num=self._conf.dec_layer).to(device=self._device)
+
+        self._enable_stl_loss = True
+        self._enable_generic_loss = False
+        self._enable_dataset_specific_loss = True
+        self._enable_time_conditioned_dataset_specific_loss = False
+
+
+class TrainSTTranSTLTimeCondDS(TrainSTTranSTLBase):
+
+    def __init__(self, conf):
+        super().__init__(conf)
+
+    def init_model(self):
+        self._model = STTran(mode=self._conf.mode,
+                             attention_class_num=len(self._train_dataset.attention_relationships),
+                             spatial_class_num=len(self._train_dataset.spatial_relationships),
+                             contact_class_num=len(self._train_dataset.contacting_relationships),
+                             obj_classes=self._train_dataset.object_classes,
+                             enc_layer_num=self._conf.enc_layer,
+                             dec_layer_num=self._conf.dec_layer).to(device=self._device)
+
+        self._enable_stl_loss = True
+        self._enable_generic_loss = False
+        self._enable_dataset_specific_loss = False
+        self._enable_time_conditioned_dataset_specific_loss = True
+
+
+class TrainSTTranSTLComb(TrainSTTranSTLBase):
+
+    def __init__(self, conf):
+        super().__init__(conf)
+
+    def init_model(self):
+        self._model = STTran(mode=self._conf.mode,
+                             attention_class_num=len(self._train_dataset.attention_relationships),
+                             spatial_class_num=len(self._train_dataset.spatial_relationships),
+                             contact_class_num=len(self._train_dataset.contacting_relationships),
+                             obj_classes=self._train_dataset.object_classes,
+                             enc_layer_num=self._conf.enc_layer,
+                             dec_layer_num=self._conf.dec_layer).to(device=self._device)
+
+        self._enable_stl_loss = True
+        self._enable_generic_loss = True
+        self._enable_dataset_specific_loss = True
+        self._enable_time_conditioned_dataset_specific_loss = False
+
+
+class TrainSTTranSTLTimeCondComb(TrainSTTranSTLBase):
+
+    def __init__(self, conf):
+        super().__init__(conf)
+
+    def init_model(self):
+        self._model = STTran(mode=self._conf.mode,
+                             attention_class_num=len(self._train_dataset.attention_relationships),
+                             spatial_class_num=len(self._train_dataset.spatial_relationships),
+                             contact_class_num=len(self._train_dataset.contacting_relationships),
+                             obj_classes=self._train_dataset.object_classes,
+                             enc_layer_num=self._conf.enc_layer,
+                             dec_layer_num=self._conf.dec_layer).to(device=self._device)
+
+        self._enable_stl_loss = True
+        self._enable_generic_loss = True
+        self._enable_dataset_specific_loss = False
+        self._enable_time_conditioned_dataset_specific_loss = True
+
+
+# --------------------------------------------- DSGDETR METHODS -------------------------------------
+
+class TrainDsgDetrSTLBase(TrainSGGBase):
+
+    def __init__(self, conf):
+        super().__init__(conf)
+        self._matcher = None
+
+    def init_model(self):
+        raise NotImplementedError
 
     def process_train_video(self, entry, frame_size, gt_annotation) -> dict:
-        self.get_sequence_no_tracking(entry, self._conf.mode)
+        from lib.supervised.sgg.dsgdetr.track import get_sequence_with_tracking
+        get_sequence_with_tracking(entry, gt_annotation, self._matcher, frame_size, self._conf.mode)
         pred = self._model(entry)
         return pred
 
     def process_test_video(self, entry, frame_size, gt_annotation) -> dict:
-        self.get_sequence_no_tracking(entry, self._conf.mode)
+        from lib.supervised.sgg.dsgdetr.track import get_sequence_with_tracking
+        get_sequence_with_tracking(entry, gt_annotation, self._matcher, frame_size, self._conf.mode)
         pred = self._model(entry)
         return pred
 
 
-class TrainDsgDetrSTL(TrainSGGBase):
+class TrainDsgDetrSTLGeneric(TrainDsgDetrSTLBase):
 
     def __init__(self, conf):
         super().__init__(conf)
@@ -106,19 +231,107 @@ class TrainDsgDetrSTL(TrainSGGBase):
                               dec_layer_num=self._conf.dec_layer).to(device=self._device)
 
         self._matcher = HungarianMatcher(0.5, 1, 1, 0.5)
+
         self._enable_stl_loss = True
+        self._enable_generic_loss = True
+        self._enable_dataset_specific_loss = False
+        self._enable_time_conditioned_dataset_specific_loss = False
 
-    def process_train_video(self, entry, frame_size, gt_annotation) -> dict:
-        from lib.supervised.sgg.dsgdetr.track import get_sequence_with_tracking
-        get_sequence_with_tracking(entry, gt_annotation, self._matcher, frame_size, self._conf.mode)
-        pred = self._model(entry)
-        return pred
 
-    def process_test_video(self, entry, frame_size, gt_annotation) -> dict:
-        from lib.supervised.sgg.dsgdetr.track import get_sequence_with_tracking
-        get_sequence_with_tracking(entry, gt_annotation, self._matcher, frame_size, self._conf.mode)
-        pred = self._model(entry)
-        return pred
+class TrainDsgDetrSTLDS(TrainDsgDetrSTLBase):
+
+    def __init__(self, conf):
+        super().__init__(conf)
+        self._matcher = None
+
+    def init_model(self):
+        from lib.supervised.sgg.dsgdetr.matcher import HungarianMatcher
+        self._model = DsgDETR(mode=self._conf.mode,
+                              attention_class_num=len(self._train_dataset.attention_relationships),
+                              spatial_class_num=len(self._train_dataset.spatial_relationships),
+                              contact_class_num=len(self._train_dataset.contacting_relationships),
+                              obj_classes=self._train_dataset.object_classes,
+                              enc_layer_num=self._conf.enc_layer,
+                              dec_layer_num=self._conf.dec_layer).to(device=self._device)
+
+        self._matcher = HungarianMatcher(0.5, 1, 1, 0.5)
+
+        self._enable_stl_loss = True
+        self._enable_generic_loss = False
+        self._enable_dataset_specific_loss = True
+        self._enable_time_conditioned_dataset_specific_loss = False
+
+
+class TrainDsgDetrSTLTimeCondDS(TrainDsgDetrSTLBase):
+
+    def __init__(self, conf):
+        super().__init__(conf)
+        self._matcher = None
+
+    def init_model(self):
+        from lib.supervised.sgg.dsgdetr.matcher import HungarianMatcher
+        self._model = DsgDETR(mode=self._conf.mode,
+                              attention_class_num=len(self._train_dataset.attention_relationships),
+                              spatial_class_num=len(self._train_dataset.spatial_relationships),
+                              contact_class_num=len(self._train_dataset.contacting_relationships),
+                              obj_classes=self._train_dataset.object_classes,
+                              enc_layer_num=self._conf.enc_layer,
+                              dec_layer_num=self._conf.dec_layer).to(device=self._device)
+
+        self._matcher = HungarianMatcher(0.5, 1, 1, 0.5)
+
+        self._enable_stl_loss = True
+        self._enable_generic_loss = False
+        self._enable_dataset_specific_loss = False
+        self._enable_time_conditioned_dataset_specific_loss = True
+
+
+class TrainDsgDetrSTLComb(TrainDsgDetrSTLBase):
+
+    def __init__(self, conf):
+        super().__init__(conf)
+        self._matcher = None
+
+    def init_model(self):
+        from lib.supervised.sgg.dsgdetr.matcher import HungarianMatcher
+        self._model = DsgDETR(mode=self._conf.mode,
+                              attention_class_num=len(self._train_dataset.attention_relationships),
+                              spatial_class_num=len(self._train_dataset.spatial_relationships),
+                              contact_class_num=len(self._train_dataset.contacting_relationships),
+                              obj_classes=self._train_dataset.object_classes,
+                              enc_layer_num=self._conf.enc_layer,
+                              dec_layer_num=self._conf.dec_layer).to(device=self._device)
+
+        self._matcher = HungarianMatcher(0.5, 1, 1, 0.5)
+
+        self._enable_stl_loss = True
+        self._enable_generic_loss = True
+        self._enable_dataset_specific_loss = True
+        self._enable_time_conditioned_dataset_specific_loss = False
+
+
+class TrainDsgDetrSTLTimeCondComb(TrainDsgDetrSTLBase):
+
+    def __init__(self, conf):
+        super().__init__(conf)
+        self._matcher = None
+
+    def init_model(self):
+        from lib.supervised.sgg.dsgdetr.matcher import HungarianMatcher
+        self._model = DsgDETR(mode=self._conf.mode,
+                              attention_class_num=len(self._train_dataset.attention_relationships),
+                              spatial_class_num=len(self._train_dataset.spatial_relationships),
+                              contact_class_num=len(self._train_dataset.contacting_relationships),
+                              obj_classes=self._train_dataset.object_classes,
+                              enc_layer_num=self._conf.enc_layer,
+                              dec_layer_num=self._conf.dec_layer).to(device=self._device)
+
+        self._matcher = HungarianMatcher(0.5, 1, 1, 0.5)
+
+        self._enable_stl_loss = True
+        self._enable_generic_loss = True
+        self._enable_dataset_specific_loss = False
+        self._enable_time_conditioned_dataset_specific_loss = True
 
 
 def main():
@@ -127,10 +340,26 @@ def main():
         train_class = TrainSTTran(conf)
     elif conf.method_name == "dsgdetr":
         train_class = TrainDsgDetr(conf)
-    elif conf.method_name == "sttran_stl":
-        train_class = TrainSTTranSTL(conf)
-    elif conf.method_name == "dsgdetr_stl":
-        train_class = TrainDsgDetrSTL(conf)
+    elif conf.method_name == "sttran_stl_generic":
+        train_class = TrainSTTranSTLGeneric(conf)
+    elif conf.method_name == "dsgdetr_stl_generic":
+        train_class = TrainDsgDetrSTLGeneric(conf)
+    elif conf.method_name == "sttran_stl_ds":
+        train_class = TrainSTTranSTLDS(conf)
+    elif conf.method_name == "dsgdetr_stl_ds":
+        train_class = TrainDsgDetrSTLDS(conf)
+    elif conf.method_name == "sttran_stl_time_cond_ds":
+        train_class = TrainSTTranSTLTimeCondDS(conf)
+    elif conf.method_name == "dsgdetr_stl_time_cond_ds":
+        train_class = TrainDsgDetrSTLTimeCondDS(conf)
+    elif conf.method_name == "sttran_stl_comb":
+        train_class = TrainSTTranSTLComb(conf)
+    elif conf.method_name == "dsgdetr_stl_comb":
+        train_class = TrainDsgDetrSTLComb(conf)
+    elif conf.method_name == "sttran_stl_time_cond_comb":
+        train_class = TrainSTTranSTLTimeCondComb(conf)
+    elif conf.method_name == "dsgdetr_stl_time_cond_comb":
+        train_class = TrainDsgDetrSTLTimeCondComb(conf)
     else:
         raise NotImplementedError
 

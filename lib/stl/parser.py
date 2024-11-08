@@ -29,7 +29,6 @@ class Parser:
             raise RuntimeError(f'Expected {kind}, got {self.current_token()[0]}')
 
     # Parsing functions with precedence climbing
-
     def parse_formula(self):
         """Parses the formula starting from the lowest precedence."""
         return self.parse_implication()

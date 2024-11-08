@@ -3,6 +3,7 @@
 # ------------------------------------------------------------------------------
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgdet
+python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgdet
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgdet
 python train_sgg_methods.py --task_name=sgg --method_name=tempura --mode=sgdet
 

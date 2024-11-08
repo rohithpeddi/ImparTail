@@ -114,6 +114,7 @@ class TrainSGGBase(STSGBase):
             return
 
         stl_formula_list = []
+        stl_formula_identifiers = []
         for idx, line in enumerate(lines, start=1):
             line = line.strip()
             if not line:
@@ -121,14 +122,18 @@ class TrainSGGBase(STSGBase):
             tokens = self._stl_tokenizer.tokenize(line)
             self._stl_rule_parser.init_tokens(tokens, relation_to_predicate_map)
             formula = self._stl_rule_parser.parse_formula()
+            formula_identifiers = self._stl_rule_parser.identifiers
             # Ensure all tokens are consumed
             if self._stl_rule_parser.current_token()[0] != 'EOF':
                 raise RuntimeError(f'Unexpected token {self._stl_rule_parser.current_token()} at the end of formula')
             stl_formula_list.append(formula)
+            stl_formula_identifiers.append(formula_identifiers)
 
         # 5. Calculate the loss for each formula
         stl_loss = 0
-        for formula in stl_formula_list:
+        for formula_idx, formula in enumerate(stl_formula_list):
+            identifier_list = stl_formula_identifiers[formula_idx]
+            input_list = [relation_to_predicate_map[identifier] for identifier in identifier_list]
             stl_loss += formula.robustness()
 
 
@@ -147,17 +152,18 @@ class TrainSGGBase(STSGBase):
     def _construct_inputs_for_expression(self, attention_distribution, spatial_distribution, contact_distribution):
         # 1. Convert the attention distribution to predicate friendly form
         # For each class (column tensor of att distribution), estimate logsumexp of other class tensors
-        att_dist = attention_distribution.copy()
+        # Create a copy for attention distribution tensor
+        att_dist = attention_distribution.clone()
         log_sum_exp_att = torch.zeros(att_dist.shape)
+        log_sum_exp_att = log_sum_exp_att.to(device=self._device)
         for i in range(att_dist.shape[1]):
             log_sum_exp_att[:, i] = torch.logsumexp(att_dist[:, [j for j in range(att_dist.shape[1]) if j != i]], dim=1)
-
         attention_predicate = att_dist - log_sum_exp_att
 
         # 2. Convert the spatial distribution, contact distribution to predicate friendly form
         # We don't have to explicitly change anything as they are sigmoid outputs!
-        spatial_predicate = spatial_distribution.copy()
-        contact_predicate = contact_distribution.copy()
+        spatial_predicate = spatial_distribution.clone()
+        contact_predicate = contact_distribution.clone()
 
         # 3. Concatenate the three predicates
         # Output shape: [ batch_size(total number of objects detected), num_relationships (total number of relationships)]

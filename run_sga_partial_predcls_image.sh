@@ -8,7 +8,7 @@ MODES=("predcls")
 CORRUPTION_TYPES=("gaussian_noise" "shot_noise" "impulse_noise" "speckle_noise" "gaussian_blur" "defocus_blur" "fog" "frost" "spatter" "contrast" "brightness" "pixelate" "jpeg_compression" "sun_glare" "dust" "saturate")
 DATASET_CORRUPTION_MODES=("fixed" "mixed")
 VIDEO_CORRUPTION_MODES=("fixed" "mixed")
-PARTIAL_PERCENTAGES=(40)
+PARTIAL_PERCENTAGES=(10)
 SEVERITY_LEVELS=(3)
 
 # Main function to execute commands iteratively

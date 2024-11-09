@@ -67,6 +67,68 @@ class TrainDsgDetr(TrainSGGBase):
         return pred
 
 # -----------------------------------------------------------------------------------------------------
+# ----------------------------------- CURRICULUM LEARNING METHODS -------------------------------------
+# -----------------------------------------------------------------------------------------------------
+
+class TrainCurriculumSTTran(TrainSGGBase):
+
+    def __init__(self, conf):
+        super().__init__(conf)
+
+    def init_model(self):
+        self._model = STTran(mode=self._conf.mode,
+                             attention_class_num=len(self._train_dataset.attention_relationships),
+                             spatial_class_num=len(self._train_dataset.spatial_relationships),
+                             contact_class_num=len(self._train_dataset.contacting_relationships),
+                             obj_classes=self._train_dataset.object_classes,
+                             enc_layer_num=self._conf.enc_layer,
+                             dec_layer_num=self._conf.dec_layer).to(device=self._device)
+
+    def process_train_video(self, entry, frame_size, gt_annotation) -> dict:
+        self.get_sequence_no_tracking(entry, self._conf.mode)
+        pred = self._model(entry)
+        return pred
+
+    def process_test_video(self, entry, frame_size, gt_annotation) -> dict:
+        self.get_sequence_no_tracking(entry, self._conf.mode)
+        pred = self._model(entry)
+        return pred
+
+
+class TrainCurriculumDsgDetr(TrainSGGBase):
+
+    def __init__(self, conf):
+        super().__init__(conf)
+        self._matcher = None
+
+    def init_model(self):
+
+        from lib.supervised.sgg.dsgdetr.matcher import HungarianMatcher
+
+        self._model = DsgDETR(mode=self._conf.mode,
+                              attention_class_num=len(self._train_dataset.attention_relationships),
+                              spatial_class_num=len(self._train_dataset.spatial_relationships),
+                              contact_class_num=len(self._train_dataset.contacting_relationships),
+                              obj_classes=self._train_dataset.object_classes,
+                              enc_layer_num=self._conf.enc_layer,
+                              dec_layer_num=self._conf.dec_layer).to(device=self._device)
+
+        self._matcher = HungarianMatcher(0.5, 1, 1, 0.5)
+
+    def process_train_video(self, entry, frame_size, gt_annotation) -> dict:
+        from lib.supervised.sgg.dsgdetr.track import get_sequence_with_tracking
+        get_sequence_with_tracking(entry, gt_annotation, self._matcher, frame_size, self._conf.mode)
+        pred = self._model(entry)
+        return pred
+
+    def process_test_video(self, entry, frame_size, gt_annotation) -> dict:
+        from lib.supervised.sgg.dsgdetr.track import get_sequence_with_tracking
+        get_sequence_with_tracking(entry, gt_annotation, self._matcher, frame_size, self._conf.mode)
+        pred = self._model(entry)
+        return pred
+
+
+# -----------------------------------------------------------------------------------------------------
 # --------------------------------------------- STL BASED METHODS -------------------------------------
 # -----------------------------------------------------------------------------------------------------
 
@@ -336,10 +398,17 @@ class TrainDsgDetrSTLTimeCondComb(TrainDsgDetrSTLBase):
 
 def main():
     conf = Config()
+    is_curriculum = False
     if conf.method_name == "sttran":
         train_class = TrainSTTran(conf)
     elif conf.method_name == "dsgdetr":
         train_class = TrainDsgDetr(conf)
+    elif conf.method_name == "sttran_curriculum":
+        train_class = TrainCurriculumSTTran(conf)
+        is_curriculum = True
+    elif conf.method_name == "dsgdetr_curriculum":
+        train_class = TrainCurriculumDsgDetr(conf)
+        is_curriculum = True
     elif conf.method_name == "sttran_stl_generic":
         train_class = TrainSTTranSTLGeneric(conf)
     elif conf.method_name == "dsgdetr_stl_generic":
@@ -363,7 +432,11 @@ def main():
     else:
         raise NotImplementedError
 
-    train_class.init_method_training()
+    print(f"-------------------------------------------------------")
+    print(f"Training method: {conf.method_name}-{'Curriculum' if is_curriculum else 'No Curriculum'}")
+    print(f"-------------------------------------------------------")
+
+    train_class.init_method_training(is_curriculum=is_curriculum)
 
 
 if __name__ == "__main__":

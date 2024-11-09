@@ -74,6 +74,138 @@ class TrainSGGBase(STSGBase):
         ).to(device=self._device)
         self._object_detector.eval()
 
+    # ----------------- Load the dataset -------------------------
+    # Three main settings:
+    # (a) Standard Dataset: Where full annotations are used
+    # (b) Partial Annotations: Where partial object and relationship annotations are used
+    # (c) Label Noise: Where label noise is added to the dataset
+    # -------------------------------------------------------------
+    def init_dataset(self):
+
+        if self._conf.use_partial_annotations:
+            print("-----------------------------------------------------")
+            print("Loading the partial annotations dataset with percentage:", self._conf.partial_percentage)
+            print("-----------------------------------------------------")
+            self._train_dataset = PartialAG(
+                phase="train",
+                mode=self._conf.mode,
+                maintain_distribution=self._conf.maintain_distribution,
+                datasize=self._conf.datasize,
+                partial_percentage=self._conf.partial_percentage,
+                data_path=self._conf.data_path,
+                filter_nonperson_box_frame=True,
+                filter_small_box=False if self._conf.mode == 'predcls' else True,
+            )
+        elif self._conf.use_label_noise:
+            print("-----------------------------------------------------")
+            print("Loading the dataset with label noise percentage:", self._conf.label_noise_percentage)
+            print("-----------------------------------------------------")
+            self._train_dataset = LabelNoiseAG(
+                phase="train",
+                mode=self._conf.mode,
+                maintain_distribution=self._conf.maintain_distribution,
+                datasize=self._conf.datasize,
+                noise_percentage=self._conf.label_noise_percentage,
+                data_path=self._conf.data_path,
+                filter_nonperson_box_frame=True,
+                filter_small_box=False if self._conf.mode == 'predcls' else True,
+            )
+        else:
+            print("-----------------------------------------------------")
+            print("Loading the standard dataset")
+            print("-----------------------------------------------------")
+            self._train_dataset = StandardAG(
+                phase="train",
+                mode=self._conf.mode,
+                datasize=self._conf.datasize,
+                data_path=self._conf.data_path,
+                filter_nonperson_box_frame=True,
+                filter_small_box=False if self._conf.mode == 'predcls' else True
+            )
+
+        self._test_dataset = StandardAG(
+            phase="test",
+            mode=self._conf.mode,
+            datasize=self._conf.datasize,
+            data_path=self._conf.data_path,
+            filter_nonperson_box_frame=True,
+            filter_small_box=False if self._conf.mode == 'predcls' else True
+        )
+
+        self._dataloader_train = DataLoader(
+            self._train_dataset,
+            shuffle=True,
+            collate_fn=ag_data_cuda_collate_fn,
+            pin_memory=True,
+            num_workers=0
+        )
+
+        self._dataloader_test = DataLoader(
+            self._test_dataset,
+            shuffle=False,
+            collate_fn=ag_data_cuda_collate_fn,
+            pin_memory=False
+        )
+
+        self._object_classes = self._train_dataset.object_classes
+
+
+    def init_curriculum_dataset(self, epoch):
+        print("-----------------------------------------------------")
+        print("Loading the curriculum dataset")
+        print("-----------------------------------------------------")
+
+        if epoch == 0:
+            self._train_dataset = PartialAG(
+                phase="train",
+                mode=self._conf.mode,
+                maintain_distribution=self._conf.maintain_distribution,
+                datasize=self._conf.datasize,
+                partial_percentage=70,
+                data_path=self._conf.data_path,
+                filter_nonperson_box_frame=True,
+                filter_small_box=False if self._conf.mode == 'predcls' else True,
+            )
+            self._conf.partial_percentage = 70
+        elif epoch == 1:
+            self._train_dataset = PartialAG(
+                phase="train",
+                mode=self._conf.mode,
+                maintain_distribution=self._conf.maintain_distribution,
+                datasize=self._conf.datasize,
+                partial_percentage=40,
+                data_path=self._conf.data_path,
+                filter_nonperson_box_frame=True,
+                filter_small_box=False if self._conf.mode == 'predcls' else True,
+            )
+            self._conf.partial_percentage = 40
+        elif epoch > 1:
+            self._train_dataset = PartialAG(
+                phase="train",
+                mode=self._conf.mode,
+                maintain_distribution=self._conf.maintain_distribution,
+                datasize=self._conf.datasize,
+                partial_percentage=10,
+                data_path=self._conf.data_path,
+                filter_nonperson_box_frame=True,
+                filter_small_box=False if self._conf.mode == 'predcls' else True,
+            )
+            self._conf.partial_percentage = 10
+
+        assert self._train_dataset is not None
+        self._conf.use_partial_annotations = True
+
+        self._dataloader_train = DataLoader(
+            self._train_dataset,
+            shuffle=True,
+            collate_fn=ag_data_cuda_collate_fn,
+            pin_memory=True,
+            num_workers=0
+        )
+
+        self._object_classes = self._train_dataset.object_classes
+
+
     def _calculate_generic_stl_loss(self, predictions):
         # Predictions should be a tensor of shape [total_num_objects, num_relationships]
         # The total number of objects here can be considered as the batch size
@@ -301,10 +433,14 @@ class TrainSGGBase(STSGBase):
             losses[const.CONTACTING_RELATION_LOSS] = self._bce_loss(contact_distribution, contact_label)
         return losses
 
-    def _train_model(self):
+    def _train_model(self, is_curriculum=False):
         tr = []
         for epoch in range(self._conf.nepoch):
             self._model.train()
+
+            if is_curriculum:
+                self.init_curriculum_dataset(epoch)
+
             train_iter = iter(self._dataloader_train)
             counter = 0
             start_time = time.time()
@@ -400,81 +536,6 @@ class TrainSGGBase(STSGBase):
             self._evaluator.reset_result()
             self._scheduler.step(score)
 
-    # ----------------- Load the dataset -------------------------
-    # Three main settings:
-    # (a) Standard Dataset: Where full annotations are used
-    # (b) Partial Annotations: Where partial object and relationship annotations are used
-    # (c) Label Noise: Where label noise is added to the dataset
-    # -------------------------------------------------------------
-    def init_dataset(self):
-
-        if self._conf.use_partial_annotations:
-            print("-----------------------------------------------------")
-            print("Loading the partial annotations dataset with percentage:", self._conf.partial_percentage)
-            print("-----------------------------------------------------")
-            self._train_dataset = PartialAG(
-                phase="train",
-                mode=self._conf.mode,
-                maintain_distribution=self._conf.maintain_distribution,
-                datasize=self._conf.datasize,
-                partial_percentage=self._conf.partial_percentage,
-                data_path=self._conf.data_path,
-                filter_nonperson_box_frame=True,
-                filter_small_box=False if self._conf.mode == 'predcls' else True,
-            )
-        elif self._conf.use_label_noise:
-            print("-----------------------------------------------------")
-            print("Loading the dataset with label noise percentage:", self._conf.label_noise_percentage)
-            print("-----------------------------------------------------")
-            self._train_dataset = LabelNoiseAG(
-                phase="train",
-                mode=self._conf.mode,
-                maintain_distribution=self._conf.maintain_distribution,
-                datasize=self._conf.datasize,
-                noise_percentage=self._conf.label_noise_percentage,
-                data_path=self._conf.data_path,
-                filter_nonperson_box_frame=True,
-                filter_small_box=False if self._conf.mode == 'predcls' else True,
-            )
-        else:
-            print("-----------------------------------------------------")
-            print("Loading the standard dataset")
-            print("-----------------------------------------------------")
-            self._train_dataset = StandardAG(
-                phase="train",
-                mode=self._conf.mode,
-                datasize=self._conf.datasize,
-                data_path=self._conf.data_path,
-                filter_nonperson_box_frame=True,
-                filter_small_box=False if self._conf.mode == 'predcls' else True
-            )
-
-        self._test_dataset = StandardAG(
-            phase="test",
-            mode=self._conf.mode,
-            datasize=self._conf.datasize,
-            data_path=self._conf.data_path,
-            filter_nonperson_box_frame=True,
-            filter_small_box=False if self._conf.mode == 'predcls' else True
-        )
-
-        self._dataloader_train = DataLoader(
-            self._train_dataset,
-            shuffle=True,
-            collate_fn=ag_data_cuda_collate_fn,
-            pin_memory=True,
-            num_workers=0
-        )
-
-        self._dataloader_test = DataLoader(
-            self._test_dataset,
-            shuffle=False,
-            collate_fn=ag_data_cuda_collate_fn,
-            pin_memory=False
-        )
-
-        self._object_classes = self._train_dataset.object_classes
-
     @abstractmethod
     def process_train_video(self, video, frame_size, gt_annotation) -> dict:
         pass
@@ -483,7 +544,7 @@ class TrainSGGBase(STSGBase):
     def process_test_video(self, video, frame_size, gt_annotation) -> dict:
         pass
 
-    def init_method_training(self):
+    def init_method_training(self, is_curriculum=False):
         # 0. Initialize the config
         self._init_config()
 
@@ -502,4 +563,7 @@ class TrainSGGBase(STSGBase):
         self._init_scheduler()
 
         # 4. Initialize model training
-        self._train_model()
+        print("-----------------------------------------------------")
+        print(f"Initialized the training with the following settings:{is_curriculum}")
+        print("-----------------------------------------------------")
+        self._train_model(is_curriculum=is_curriculum)

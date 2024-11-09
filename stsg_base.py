@@ -318,7 +318,7 @@ class STSGBase:
                     filtered_distribution.append(pred_distribution_i)
 
         if len(filtered_labels) == 0 and len(filtered_distribution) == 0:
-            return None, None
+            return None, None, pred_distribution
 
         filtered_labels = torch.stack(filtered_labels)
         filtered_distribution = torch.stack(filtered_distribution)

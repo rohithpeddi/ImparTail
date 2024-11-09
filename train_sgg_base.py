@@ -5,6 +5,7 @@ from abc import abstractmethod
 import numpy as np
 import pandas as pd
 import torch
+import wandb
 from torch import nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -349,6 +350,9 @@ class TrainSGGBase(STSGBase):
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(self._model.parameters(), max_norm=5, norm_type=2)
                 self._optimizer.step()
+
+                if self._conf.use_wandb:
+                    wandb.log(losses)
 
                 tr.append(pd.Series({x: y.item() for x, y in losses.items()}))
 

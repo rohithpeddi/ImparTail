@@ -7,39 +7,62 @@ class PrepareResultsLatexBase(PrepareResultsBase):
 		super(PrepareResultsLatexBase, self).__init__()
 	
 	@staticmethod
-	def fetch_setting_name(mode):
+	def fetch_sgg_setting_name(mode):
 		if mode == "sgdet":
-			setting_name = "\\textbf{sgdet}"
+			setting_name = "\\textbf{SGDET}"
 		elif mode == "sgcls":
-			setting_name = "\\textbf{sgcls}"
+			setting_name = "\\textbf{SGCLS}"
 		elif mode == "predcls":
-			setting_name = "\\textbf{predcls}"
+			setting_name = "\\textbf{PREDCLS}"
 		return setting_name
 	
 	@staticmethod
-	def fetch_method_name_latex(method_name):
-		if method_name == "NeuralODE" or method_name == "ode":
-			method_name = "\\textbf{SceneSayerODE (Ours)}"
-		elif method_name == "NeuralSDE" or method_name == "sde":
-			method_name = "\\textbf{SceneSayerSDE (Ours)}"
-		elif method_name == "sttran_ant":
-			method_name = "STTran+ \cite{cong_et_al_sttran_2021}"
-		elif method_name == "sttran_gen_ant":
-			method_name = "STTran++ \cite{cong_et_al_sttran_2021}"
-		elif method_name == "dsgdetr_ant":
-			method_name = "DSGDetr+ \cite{Feng_2021}"
-		elif method_name == "dsgdetr_gen_ant":
-			method_name = "DSGDetr++ \cite{Feng_2021}"
-		elif method_name == "sde_wo_bb":
-			method_name = "\\textbf{SceneSayerSDE (w/o BB)}"
-		elif method_name == "sde_wo_recon":
-			method_name = "\\textbf{SceneSayerSDE (w/o Recon)}"
-		elif method_name == "sde_wo_gen":
-			method_name = "\\textbf{SceneSayerSDE (w/o GenLoss)}"
-		elif method_name == "sttran":
+	def fetch_sga_setting_name(mode):
+		if mode == "sgdet":
+			setting_name = "\\textbf{AGS}"
+		elif mode == "sgcls":
+			setting_name = "\\textbf{PGAGS}"
+		elif mode == "predcls":
+			setting_name = "\\textbf{GAGS}"
+		return setting_name
+	
+	def fetch_method_name_latex(self, method_name):
+		"""
+		method_name will be of the form: sttran_partial, dsgdetr_partial, ode_partial, sde_partial, sttran_ant_partial
+		"""
+		method_name = method_name.to_lower()
+		if method_name == "sttran":
 			method_name = "STTran \cite{cong_et_al_sttran_2021}"
 		elif method_name == "dsgdetr":
 			method_name = "DSGDetr \cite{Feng_2021}"
+		elif method_name == "sttran_partial":
+			method_name = f"{self.proposed_method_name}STTran (Ours)"
+		elif method_name == "dsgdetr_partial":
+			method_name = f"{self.proposed_method_name}DSGDetr (Ours)"
+		elif method_name == "sttran_ant":
+			method_name = "STTran+ \cite{peddi_et_al_scene_sayer_2024}"
+		elif method_name == "dsgdetr_ant":
+			method_name = "DSGDetr+ \cite{peddi_et_al_scene_sayer_2024}"
+		elif method_name == "sttran_gen_ant":
+			method_name = "STTran++ \cite{peddi_et_al_scene_sayer_2024}"
+		elif method_name == "dsgdetr_gen_ant":
+			method_name = "DSGDetr++ \cite{peddi_et_al_scene_sayer_2024}"
+		elif method_name == "ode":
+			method_name = "SceneSayerODE \cite{peddi_et_al_scene_sayer_2024}"
+		elif method_name == "sde":
+			method_name = "SceneSayerSDE \cite{peddi_et_al_scene_sayer_2024}"
+		elif method_name == "sttran_ant_partial":
+			method_name = f"{self.proposed_method_name}STTran+ (Ours)"
+		elif method_name == "dsgdetr_ant_partial":
+			method_name = f"{self.proposed_method_name}DSGDetr+ (Ours)"
+		elif method_name == "sttran_gen_ant_partial":
+			method_name = f"{self.proposed_method_name}STTran++ (Ours)"
+		elif method_name == "dsgdetr_gen_ant_partial":
+			method_name = f"{self.proposed_method_name}DSGDetr++ (Ours)"
+		elif method_name == "ode_partial":
+			method_name = f"{self.proposed_method_name}SceneSayerODE (Ours)"
+		elif method_name == "sde_partial":
+			method_name = f"{self.proposed_method_name}SceneSayerSDE (Ours)"
 		elif method_name == "tempura":
 			method_name = "Tempura \cite{tempura_2021}"
 		return method_name

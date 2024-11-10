@@ -45,6 +45,8 @@ class PrepareResultsBase:
 		
 		self.sgg_mode_list = ["sgcls", "sgdet", "predcls"]
 		self.sga_mode_list = ["sgcls", "sgdet", "predcls"]
+		
+		self.proposed_method_name = "ImparTail"
 	
 	def fetch_db_sgg_results(self):
 		results_dict = self.db_service.fetch_results_from_db(self.sgg_database_name)

@@ -12,8 +12,8 @@ def formatted_metric_num(metric_num):
 		return metric_num
 	else:
 		return round(float(metric_num) * 100, 2)
-	
-	
+
+
 def formatted_easg_metric_num(metric_num):
 	if metric_num == "-":
 		return metric_num
@@ -42,6 +42,9 @@ class PrepareResultsBase:
 		self.sgg_database_name = "results_31_10_sgg"
 		self.easg_database_name = "results_2_11_easg"
 		self.sgg_corruptions_database_name = "results_5_11_sgg_corruptions"
+		
+		self.sgg_mode_list = ["sgcls", "sgdet", "predcls"]
+		self.sga_mode_list = ["sgcls", "sgdet", "predcls"]
 	
 	def fetch_db_sgg_results(self):
 		results_dict = self.db_service.fetch_results_from_db(self.sgg_database_name)
@@ -78,6 +81,30 @@ class PrepareResultsBase:
 			if result.task_name == const.EASG:
 				easg_db_result_list.append(result)
 		return easg_db_result_list
+	
+	@staticmethod
+	def fetch_paper_mean_recall_empty_metrics_json():
+		metrics_json = {}
+		for i in range(3):
+			metrics_json[i] = {
+				"mR@10": "-",
+				"mR@20": "-",
+				"mR@50": "-",
+				"mR@100": "-"
+			}
+		return metrics_json
+	
+	@staticmethod
+	def fetch_paper_recall_empty_metrics_json():
+		metrics_json = {}
+		for i in range(3):
+			metrics_json[i] = {
+				"R@10": "-",
+				"R@20": "-",
+				"R@50": "-",
+				"R@100": "-"
+			}
+		return metrics_json
 	
 	# 0 - With constraint evaluator
 	# 1 - No constraint evaluator
@@ -135,6 +162,64 @@ class PrepareResultsBase:
 			corruption_name = "_".join(words[0:-2])
 		
 		return corruption_name, severity_level
+	
+	@staticmethod
+	def fetch_paper_completed_mean_recall_metrics_json(
+			with_constraint_metrics,
+			no_constraint_metrics,
+			semi_constraint_metrics
+	):
+		metrics_json = {
+			0: {
+				"mR@10": formatted_metric_num(with_constraint_metrics.mean_recall_10),
+				"mR@20": formatted_metric_num(with_constraint_metrics.mean_recall_20),
+				"mR@50": formatted_metric_num(with_constraint_metrics.mean_recall_50),
+				"mR@100": formatted_metric_num(with_constraint_metrics.mean_recall_100)
+			},
+			1: {
+				"mR@10": formatted_metric_num(no_constraint_metrics.mean_recall_10),
+				"mR@20": formatted_metric_num(no_constraint_metrics.mean_recall_20),
+				"mR@50": formatted_metric_num(no_constraint_metrics.mean_recall_50),
+				"mR@100": formatted_metric_num(no_constraint_metrics.mean_recall_100)
+			},
+			2: {
+				"mR@10": formatted_metric_num(semi_constraint_metrics.mean_recall_10),
+				"mR@20": formatted_metric_num(semi_constraint_metrics.mean_recall_20),
+				"mR@50": formatted_metric_num(semi_constraint_metrics.mean_recall_50),
+				"mR@100": formatted_metric_num(semi_constraint_metrics.mean_recall_100)
+			}
+		}
+		
+		return metrics_json
+	
+	@staticmethod
+	def fetch_paper_completed_recall_metrics_json(
+			with_constraint_metrics,
+			no_constraint_metrics,
+			semi_constraint_metrics
+	):
+		metrics_json = {
+			0: {
+				"R@10": formatted_metric_num(with_constraint_metrics.recall_10),
+				"R@20": formatted_metric_num(with_constraint_metrics.recall_20),
+				"R@50": formatted_metric_num(with_constraint_metrics.recall_50),
+				"R@100": formatted_metric_num(with_constraint_metrics.recall_100)
+			},
+			1: {
+				"R@10": formatted_metric_num(no_constraint_metrics.recall_10),
+				"R@20": formatted_metric_num(no_constraint_metrics.recall_20),
+				"R@50": formatted_metric_num(no_constraint_metrics.recall_50),
+				"R@100": formatted_metric_num(no_constraint_metrics.recall_100)
+			},
+			2: {
+				"R@10": formatted_metric_num(semi_constraint_metrics.recall_10),
+				"R@20": formatted_metric_num(semi_constraint_metrics.recall_20),
+				"R@50": formatted_metric_num(semi_constraint_metrics.recall_50),
+				"R@100": formatted_metric_num(semi_constraint_metrics.recall_100)
+			}
+		}
+		
+		return metrics_json
 	
 	@staticmethod
 	def fetch_completed_metrics_json(

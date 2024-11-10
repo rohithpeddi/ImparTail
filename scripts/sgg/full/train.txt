@@ -22,6 +22,7 @@ python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_
 # ------------------------------------------------------------------------------
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgcls
+python train_sgg_methods.py --task_name=sgg --method_name=sttran_curriculum --mode=sgcls --use_wandb
 python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=sgcls
 python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=sgcls
 python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=sgcls

@@ -161,24 +161,24 @@ class TrainSGGBase(STSGBase):
                 mode=self._conf.mode,
                 maintain_distribution=self._conf.maintain_distribution,
                 datasize=self._conf.datasize,
-                partial_percentage=70,
-                data_path=self._conf.data_path,
-                filter_nonperson_box_frame=True,
-                filter_small_box=False if self._conf.mode == 'predcls' else True,
-            )
-            self._conf.partial_percentage = 70
-        elif epoch == 1:
-            self._train_dataset = PartialAG(
-                phase="train",
-                mode=self._conf.mode,
-                maintain_distribution=self._conf.maintain_distribution,
-                datasize=self._conf.datasize,
                 partial_percentage=40,
                 data_path=self._conf.data_path,
                 filter_nonperson_box_frame=True,
                 filter_small_box=False if self._conf.mode == 'predcls' else True,
             )
             self._conf.partial_percentage = 40
+        elif epoch == 1:
+            self._train_dataset = PartialAG(
+                phase="train",
+                mode=self._conf.mode,
+                maintain_distribution=self._conf.maintain_distribution,
+                datasize=self._conf.datasize,
+                partial_percentage=10,
+                data_path=self._conf.data_path,
+                filter_nonperson_box_frame=True,
+                filter_small_box=False if self._conf.mode == 'predcls' else True,
+            )
+            self._conf.partial_percentage = 10
         elif epoch > 1:
             self._train_dataset = PartialAG(
                 phase="train",

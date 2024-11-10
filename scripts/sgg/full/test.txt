@@ -1,28 +1,61 @@
 # ---------------------------------------------------------------------------------------------------
-# NOTE: For SGG the checkpoint names are expected to be of the form: {method_name}_{mode}.tar
+# NOTE: For SGG the checkpoint names are expected to be of the form: {method_name}_{mode}_epoch_3.tar
 # ----------------------------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 # ---------------------------- SGDET (Scene Graph Determination) --------------------
 # ------------------------------------------------------------------------------
 
-python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_sgdet.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_sgdet.tar
-python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_generic_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_ds_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_ds_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_comb_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_comb_sgdet_epoch_3.tar
+
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_generic_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_ds_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_ds_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_comb_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_comb_sgdet_epoch_3.tar
 
 
 # ------------------------------------------------------------------------------
 # ---------------- SGCLS (Scene Graph Classification) ----------
 # ------------------------------------------------------------------------------
 
-python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_sgcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_sgcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_generic_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_ds_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_ds_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_comb_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_comb_sgcls_epoch_3.tar
+
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_generic_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_ds_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_ds_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_comb_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_comb_sgcls_epoch_3.tar
+
 
 # ------------------------------------------------------------------------------
 # ---------------- PREDCLS (Predicate Classification) ----------
 # ------------------------------------------------------------------------------
 
-python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_predcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_predcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_generic_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_ds_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_ds_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_comb_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_comb_predcls_epoch_3.tar
+
+
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_generic_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_ds_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_ds_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_comb_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_comb_predcls_epoch_3.tar
+

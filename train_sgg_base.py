@@ -5,6 +5,7 @@ from abc import abstractmethod
 import numpy as np
 import pandas as pd
 import torch
+import wandb
 from torch import nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -16,7 +17,10 @@ from dataloader.partial.action_genome.ag_dataset import PartialAG
 from dataloader.standard.action_genome.ag_dataset import StandardAG
 from dataloader.standard.action_genome.ag_dataset import cuda_collate_fn as ag_data_cuda_collate_fn
 from lib.object_detector import Detector
-from lib.stl.core.expression import Expression
+from lib.stl.core.stl_formula import Expression, GreaterThan
+from lib.stl.iterative_parser import IterativeParser
+from lib.stl.parser import Parser
+from lib.stl.tokenizer import Tokenizer
 from stsg_base import STSGBase
 
 
@@ -44,6 +48,7 @@ class TrainSGGBase(STSGBase):
         self._enable_stl_loss = False
         self._enable_generic_loss = False
         self._enable_dataset_specific_loss = False
+        self._enable_time_conditioned_dataset_specific_loss = False
 
     def _init_loss_functions(self):
         self._bce_loss = nn.BCELoss()
@@ -52,6 +57,13 @@ class TrainSGGBase(STSGBase):
         self._bbox_loss = nn.SmoothL1Loss()
         self._abs_loss = nn.L1Loss()
         self._mse_loss = nn.MSELoss()
+
+        if self._enable_stl_loss:
+            if self._enable_generic_loss or self._enable_dataset_specific_loss:
+                # self._stl_rule_parser = Parser()
+                self._stl_rule_parser = IterativeParser()
+                self._stl_tokenizer = Tokenizer()
+
 
     def _init_object_detector(self):
         self._object_detector = Detector(
@@ -62,28 +74,207 @@ class TrainSGGBase(STSGBase):
         ).to(device=self._device)
         self._object_detector.eval()
 
+    # ----------------- Load the dataset -------------------------
+    # Three main settings:
+    # (a) Standard Dataset: Where full annotations are used
+    # (b) Partial Annotations: Where partial object and relationship annotations are used
+    # (c) Label Noise: Where label noise is added to the dataset
+    # -------------------------------------------------------------
+    def init_dataset(self):
+
+        if self._conf.use_partial_annotations:
+            print("-----------------------------------------------------")
+            print("Loading the partial annotations dataset with percentage:", self._conf.partial_percentage)
+            print("-----------------------------------------------------")
+            self._train_dataset = PartialAG(
+                phase="train",
+                mode=self._conf.mode,
+                maintain_distribution=self._conf.maintain_distribution,
+                datasize=self._conf.datasize,
+                partial_percentage=self._conf.partial_percentage,
+                data_path=self._conf.data_path,
+                filter_nonperson_box_frame=True,
+                filter_small_box=False if self._conf.mode == 'predcls' else True,
+            )
+        elif self._conf.use_label_noise:
+            print("-----------------------------------------------------")
+            print("Loading the dataset with label noise percentage:", self._conf.label_noise_percentage)
+            print("-----------------------------------------------------")
+            self._train_dataset = LabelNoiseAG(
+                phase="train",
+                mode=self._conf.mode,
+                maintain_distribution=self._conf.maintain_distribution,
+                datasize=self._conf.datasize,
+                noise_percentage=self._conf.label_noise_percentage,
+                data_path=self._conf.data_path,
+                filter_nonperson_box_frame=True,
+                filter_small_box=False if self._conf.mode == 'predcls' else True,
+            )
+        else:
+            print("-----------------------------------------------------")
+            print("Loading the standard dataset")
+            print("-----------------------------------------------------")
+            self._train_dataset = StandardAG(
+                phase="train",
+                mode=self._conf.mode,
+                datasize=self._conf.datasize,
+                data_path=self._conf.data_path,
+                filter_nonperson_box_frame=True,
+                filter_small_box=False if self._conf.mode == 'predcls' else True
+            )
+
+        self._test_dataset = StandardAG(
+            phase="test",
+            mode=self._conf.mode,
+            datasize=self._conf.datasize,
+            data_path=self._conf.data_path,
+            filter_nonperson_box_frame=True,
+            filter_small_box=False if self._conf.mode == 'predcls' else True
+        )
+
+        self._dataloader_train = DataLoader(
+            self._train_dataset,
+            shuffle=True,
+            collate_fn=ag_data_cuda_collate_fn,
+            pin_memory=True,
+            num_workers=0
+        )
+
+        self._dataloader_test = DataLoader(
+            self._test_dataset,
+            shuffle=False,
+            collate_fn=ag_data_cuda_collate_fn,
+            pin_memory=False
+        )
+
+        self._object_classes = self._train_dataset.object_classes
+
+
+    def init_curriculum_dataset(self, epoch):
+        print("-----------------------------------------------------")
+        print("Loading the curriculum dataset")
+        print("-----------------------------------------------------")
+
+        if epoch == 0:
+            self._train_dataset = PartialAG(
+                phase="train",
+                mode=self._conf.mode,
+                maintain_distribution=self._conf.maintain_distribution,
+                datasize=self._conf.datasize,
+                partial_percentage=70,
+                data_path=self._conf.data_path,
+                filter_nonperson_box_frame=True,
+                filter_small_box=False if self._conf.mode == 'predcls' else True,
+            )
+            self._conf.partial_percentage = 70
+        elif epoch == 1:
+            self._train_dataset = PartialAG(
+                phase="train",
+                mode=self._conf.mode,
+                maintain_distribution=self._conf.maintain_distribution,
+                datasize=self._conf.datasize,
+                partial_percentage=40,
+                data_path=self._conf.data_path,
+                filter_nonperson_box_frame=True,
+                filter_small_box=False if self._conf.mode == 'predcls' else True,
+            )
+            self._conf.partial_percentage = 40
+        elif epoch > 1:
+            self._train_dataset = PartialAG(
+                phase="train",
+                mode=self._conf.mode,
+                maintain_distribution=self._conf.maintain_distribution,
+                datasize=self._conf.datasize,
+                partial_percentage=10,
+                data_path=self._conf.data_path,
+                filter_nonperson_box_frame=True,
+                filter_small_box=False if self._conf.mode == 'predcls' else True,
+            )
+            self._conf.partial_percentage = 10
+
+        assert self._train_dataset is not None
+        self._conf.use_partial_annotations = True
+
+        self._dataloader_train = DataLoader(
+            self._train_dataset,
+            shuffle=True,
+            collate_fn=ag_data_cuda_collate_fn,
+            pin_memory=True,
+            num_workers=0
+        )
+
+        self._object_classes = self._train_dataset.object_classes
+
+
     def _calculate_generic_stl_loss(self, predictions):
         # Predictions should be a tensor of shape [total_num_objects, num_relationships]
         # The total number of objects here can be considered as the batch size
 
-        # 1. Construct STL Expressions for each relationship
-        # TODO: Check dimension mismatch
+        # 0. Construct value map for each relationship expression used to make an expression to a predicate
+        num_objects, num_relationships = predictions.shape
+        # Threshold for sigmoid = 0.5, Threshold for logits = 0
+        constants = torch.zeros(num_relationships).reshape((num_relationships, 1)).to(device=self._device)
+        constants[3:] += 0.5
+        # Set requires_grad to False for the constant tensor
+        constants.requires_grad = False
+
+        # 1. Construct STL Expressions for each relationship and their corresponding constants
         relationship_classes = self._train_dataset.relationship_classes
         rel_exp_list = []
+        const_exp_list = []
         for rel_idx, relation in enumerate(relationship_classes):
-            rel_exp = Expression(f"{relation}_generic", predictions[rel_idx])
+            rel_exp = Expression(f"{relation}_generic", predictions[:, rel_idx].reshape(1, -1, 1))
+            const_exp = Expression(f"{relation}_const", constants[rel_idx])
             rel_exp_list.append(rel_exp)
+            const_exp_list.append(const_exp)
 
-        # 2. Create an inverse map between relation_name and rel_exp
-        rel_exp_map = {rel_exp.name: rel_exp for rel_exp in rel_exp_list}
+        # 2. Construct STL Predicates for each relationship type prediction
+        # In our case, predicates are of the form: GreaterThan(relation_expression, constant_expression)
+        # For attention relationship, predictions[:, :3] --> Each of processed logit should be greater than 0.0
+        # For spatial relationship, predictions[:, 3:9] --> Each of processed sigmoid should be greater than 0.5
+        # For contacting relationship, predictions[:, 9:] --> Each of processed sigmoid should be greater than 0.5
+        relation_to_stl_predicate_map = {}
+        relation_to_prediction_map = {}
+        for rel_idx, relation in enumerate(relationship_classes):
+            rel_exp = rel_exp_list[rel_idx]
+            stl_predicate = GreaterThan(rel_exp, const_exp_list[rel_idx])
+            relation_to_stl_predicate_map[relation] = stl_predicate
+            relation_to_prediction_map[relation] = predictions[:, rel_idx].reshape(1, -1, 1)
 
-        # 3. Construct STL Formulas from generic.text file
+        # 4. Construct STL Formulas from generic.text file
+        try:
+            with open(self._stl_generic_text_file_path, 'r') as f:
+                lines = f.readlines()
+        except FileNotFoundError:
+            print(f"Error: The file '{self._stl_generic_text_file_path}' was not found.")
+            return
 
+        stl_formula_list = []
+        stl_formula_identifiers = []
+        for idx, line in enumerate(lines, start=1):
+            line = line.strip()
+            if not line:
+                continue  # Skip empty lines
+            tokens = self._stl_tokenizer.tokenize(line)
+            self._stl_rule_parser.init_tokens(tokens, relation_to_stl_predicate_map)
+            formula = self._stl_rule_parser.parse_formula()
+            formula_identifiers = self._stl_rule_parser.identifiers
+            # Ensure all tokens are consumed
+            if self._stl_rule_parser.current_token()[0] != 'EOF':
+                raise RuntimeError(f'Unexpected token {self._stl_rule_parser.current_token()} at the end of formula')
+            stl_formula_list.append(formula)
+            stl_formula_identifiers.append(formula_identifiers)
 
+        # 5. Calculate the loss for each formula
+        stl_loss = 0
+        for formula_idx, formula in enumerate(stl_formula_list):
+            identifier_list = stl_formula_identifiers[formula_idx]
+            inputs = (relation_to_prediction_map[identifier_list[0]], relation_to_prediction_map[identifier_list[1]])
+            stl_loss += formula.robustness(inputs=inputs)
 
+        normalized_stl_loss = stl_loss / len(stl_formula_list)
+        return normalized_stl_loss
 
-
-        pass
 
     def _calculate_dataset_specific_stl_loss(self, predictions):
         pass
@@ -97,11 +288,26 @@ class TrainSGGBase(STSGBase):
             loss += self._calculate_dataset_specific_stl_loss(predictions)
         return loss
 
-    def _construct_inputs_for_expression(self,
-                                         attention_distribution,
-                                         spatial_distribution,
-                                         contact_distribution):
-        predicates_exp_input = None
+    def _construct_inputs_for_expression(self, attention_distribution, spatial_distribution, contact_distribution):
+        # 1. Convert the attention distribution to predicate friendly form
+        # For each class (column tensor of att distribution), estimate logsumexp of other class tensors
+        # Create a copy for attention distribution tensor
+        att_dist = attention_distribution.clone()
+        log_sum_exp_att = torch.zeros(att_dist.shape)
+        log_sum_exp_att = log_sum_exp_att.to(device=self._device)
+        for i in range(att_dist.shape[1]):
+            log_sum_exp_att[:, i] = torch.logsumexp(att_dist[:, [j for j in range(att_dist.shape[1]) if j != i]], dim=1)
+        attention_predicate = att_dist - log_sum_exp_att
+
+        # 2. Convert the spatial distribution, contact distribution to predicate friendly form
+        # We don't have to explicitly change anything as they are sigmoid outputs!
+        spatial_predicate = spatial_distribution.clone()
+        contact_predicate = contact_distribution.clone()
+
+        # 3. Concatenate the three predicates
+        # Output shape: [ batch_size(total number of objects detected), num_relationships (total number of relationships)]
+        predicates_exp_input = torch.cat((attention_predicate, spatial_predicate, contact_predicate), dim=1)
+
         return predicates_exp_input
 
 
@@ -227,10 +433,14 @@ class TrainSGGBase(STSGBase):
             losses[const.CONTACTING_RELATION_LOSS] = self._bce_loss(contact_distribution, contact_label)
         return losses
 
-    def _train_model(self):
+    def _train_model(self, is_curriculum=False):
         tr = []
         for epoch in range(self._conf.nepoch):
             self._model.train()
+
+            if is_curriculum:
+                self.init_curriculum_dataset(epoch)
+
             train_iter = iter(self._dataloader_train)
             counter = 0
             start_time = time.time()
@@ -276,6 +486,9 @@ class TrainSGGBase(STSGBase):
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(self._model.parameters(), max_norm=5, norm_type=2)
                 self._optimizer.step()
+
+                if self._conf.use_wandb:
+                    wandb.log(losses)
 
                 tr.append(pd.Series({x: y.item() for x, y in losses.items()}))
 
@@ -323,81 +536,6 @@ class TrainSGGBase(STSGBase):
             self._evaluator.reset_result()
             self._scheduler.step(score)
 
-    # ----------------- Load the dataset -------------------------
-    # Three main settings:
-    # (a) Standard Dataset: Where full annotations are used
-    # (b) Partial Annotations: Where partial object and relationship annotations are used
-    # (c) Label Noise: Where label noise is added to the dataset
-    # -------------------------------------------------------------
-    def init_dataset(self):
-
-        if self._conf.use_partial_annotations:
-            print("-----------------------------------------------------")
-            print("Loading the partial annotations dataset with percentage:", self._conf.partial_percentage)
-            print("-----------------------------------------------------")
-            self._train_dataset = PartialAG(
-                phase="train",
-                mode=self._conf.mode,
-                maintain_distribution=self._conf.maintain_distribution,
-                datasize=self._conf.datasize,
-                partial_percentage=self._conf.partial_percentage,
-                data_path=self._conf.data_path,
-                filter_nonperson_box_frame=True,
-                filter_small_box=False if self._conf.mode == 'predcls' else True,
-            )
-        elif self._conf.use_label_noise:
-            print("-----------------------------------------------------")
-            print("Loading the dataset with label noise percentage:", self._conf.label_noise_percentage)
-            print("-----------------------------------------------------")
-            self._train_dataset = LabelNoiseAG(
-                phase="train",
-                mode=self._conf.mode,
-                maintain_distribution=self._conf.maintain_distribution,
-                datasize=self._conf.datasize,
-                noise_percentage=self._conf.label_noise_percentage,
-                data_path=self._conf.data_path,
-                filter_nonperson_box_frame=True,
-                filter_small_box=False if self._conf.mode == 'predcls' else True,
-            )
-        else:
-            print("-----------------------------------------------------")
-            print("Loading the standard dataset")
-            print("-----------------------------------------------------")
-            self._train_dataset = StandardAG(
-                phase="train",
-                mode=self._conf.mode,
-                datasize=self._conf.datasize,
-                data_path=self._conf.data_path,
-                filter_nonperson_box_frame=True,
-                filter_small_box=False if self._conf.mode == 'predcls' else True
-            )
-
-        self._test_dataset = StandardAG(
-            phase="test",
-            mode=self._conf.mode,
-            datasize=self._conf.datasize,
-            data_path=self._conf.data_path,
-            filter_nonperson_box_frame=True,
-            filter_small_box=False if self._conf.mode == 'predcls' else True
-        )
-
-        self._dataloader_train = DataLoader(
-            self._train_dataset,
-            shuffle=True,
-            collate_fn=ag_data_cuda_collate_fn,
-            pin_memory=True,
-            num_workers=0
-        )
-
-        self._dataloader_test = DataLoader(
-            self._test_dataset,
-            shuffle=False,
-            collate_fn=ag_data_cuda_collate_fn,
-            pin_memory=False
-        )
-
-        self._object_classes = self._train_dataset.object_classes
-
     @abstractmethod
     def process_train_video(self, video, frame_size, gt_annotation) -> dict:
         pass
@@ -406,7 +544,7 @@ class TrainSGGBase(STSGBase):
     def process_test_video(self, video, frame_size, gt_annotation) -> dict:
         pass
 
-    def init_method_training(self):
+    def init_method_training(self, is_curriculum=False):
         # 0. Initialize the config
         self._init_config()
 
@@ -425,4 +563,7 @@ class TrainSGGBase(STSGBase):
         self._init_scheduler()
 
         # 4. Initialize model training
-        self._train_model()
+        print("-----------------------------------------------------")
+        print(f"Initialized the training with the following settings:{is_curriculum}")
+        print("-----------------------------------------------------")
+        self._train_model(is_curriculum=is_curriculum)

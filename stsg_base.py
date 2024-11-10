@@ -30,6 +30,12 @@ class STSGBase:
         # Init Wandb
         self._enable_wandb = self._conf.use_wandb
 
+        # Init STL filename parameters
+        directory_path = os.path.dirname(os.path.abspath(__file__))
+        self._stl_generic_text_file_path = os.path.join(directory_path, "lib/stl/data/rules/generic.txt")
+        self._stl_dataset_specific_file_path = os.path.join(directory_path, "lib/stl/data/rules/dataset_specific.json")
+
+
     def _init_config(self, is_train=True):
         print('The CKPT saved here:', self._conf.save_path)
         os.makedirs(self._conf.save_path, exist_ok=True)
@@ -312,7 +318,7 @@ class STSGBase:
                     filtered_distribution.append(pred_distribution_i)
 
         if len(filtered_labels) == 0 and len(filtered_distribution) == 0:
-            return None, None
+            return None, None, pred_distribution
 
         filtered_labels = torch.stack(filtered_labels)
         filtered_distribution = torch.stack(filtered_distribution)

@@ -1,11 +1,264 @@
 import numpy as np
 import torch
 
-from lib.stl.core.expression import Expression
-from lib.stl.core.functions import Maxish, Minish
-from lib.stl.core.stlcg import Eventually, Always
-from lib.stl.core.utils import convert_to_input_values, tensor_to_str
+LARGE_NUMBER = 1E4
 
+
+def tensor_to_str(tensor):
+	"""
+    turn tensor into a string for printing
+    """
+	device = tensor.device.type
+	req_grad = tensor.requires_grad
+	if req_grad == False:
+		return "input"
+	tensor = tensor.detach()
+	if device == "cuda":
+		tensor = tensor.cpu()
+	return str(tensor.numpy())
+
+def convert_to_input_values(inputs):
+	x_, y_ = inputs
+	if isinstance(x_, Expression):
+		assert x_.value is not None, "Input Expression does not have numerical values"
+		x_ret = x_.value
+	elif isinstance(x_, torch.Tensor):
+		x_ret = x_
+	elif isinstance(x_, tuple):
+		x_ret = convert_to_input_values(x_)
+	else:
+		raise ValueError("First argument is an invalid input trace")
+
+	if isinstance(y_, Expression):
+		assert y_.value is not None, "Input Expression does not have numerical values"
+		y_ret = y_.value
+	elif isinstance(y_, torch.Tensor):
+		y_ret = y_
+	elif isinstance(y_, tuple):
+		y_ret = convert_to_input_values(y_)
+	else:
+		raise ValueError("Second argument is an invalid input trace")
+
+	return x_ret, y_ret
+
+class Maxish(torch.nn.Module):
+	"""
+    Function to compute the max, or softmax, or other variants of the max function.
+    """
+
+	def __init__(self, name="Maxish input"):
+		super(Maxish, self).__init__()
+		self.input_name = name
+
+	def forward(self, x, scale, dim=1, keepdim=True, agm=False, distributed=False):
+		"""
+        x is of size [batch_size, T, ...] where T is typically the trace length.
+
+        if scale <= 0, then the true max is used, otherwise, the softmax is used.
+
+        dim is the dimension which the max is applied over. Default: 1
+
+        keepdim keeps the dimension of the input tensor. Default: True
+
+        agm is the arithmetic-geometric mean. Currently in progress. If some elements are >0, output is the average of those elements. If all the elements <= 0, output is -ᵐ√(Πᵢ (1 - ηᵢ)) + 1. scale doesn't play a role here except to switch between the using the AGM or true robustness value (scale <=0). Default: False
+
+        distributed addresses the case when there are multiple max values. As max is poorly defined in these cases, PyTorch (randomly?) selects one of the max values only. If distributed=True and scale <=0 then it will average over the max values and split the gradients equally. Default: False
+        """
+
+		if isinstance(x, Expression):
+			assert x.value is not None, "Input Expression does not have numerical values"
+			x = x.value
+		if scale > 0:
+			if agm == True:
+				if torch.gt(x, 0).any():
+					return x[torch.gt(x, 0)].reshape(*x.shape[:-1], -1).mean(dim=dim, keepdim=keepdim)
+				else:
+					return -torch.log(1 - x).mean(dim=dim, keepdim=keepdim).exp() + 1
+			else:
+				# return torch.log(torch.exp(x*scale).sum(dim=dim, keepdim=keepdim))/scale
+				return torch.logsumexp(x * scale, dim=dim, keepdim=keepdim) / scale
+		else:
+			if distributed:
+				return self.distributed_true_max(x, dim=dim, keepdim=keepdim)
+			else:
+				return x.max(dim, keepdim=keepdim)[0]
+
+	@staticmethod
+	def distributed_true_max(xx, dim=1, keepdim=True):
+		"""
+        If there are multiple values that share the same max value, the max value is computed by taking the mean of all those values.
+        This will ensure that the gradients of max(xx, dim=dim) will be distributed evenly across all values, rather than just the one value.
+        """
+		m, mi = torch.max(xx, dim, keepdim=True)
+		inds = xx == m
+		return torch.where(inds, xx, xx * 0).sum(dim, keepdim=keepdim) / inds.sum(dim, keepdim=keepdim)
+
+	def _next_function(self):
+		"""
+        This is used for the graph visualization to keep track of the parent node.
+        """
+		return [str(self.input_name)]
+
+class Minish(torch.nn.Module):
+	"""
+    Function to compute the min, or softmin, or other variants of the min function.
+    """
+
+	def __init__(self, name="Minish input"):
+		super(Minish, self).__init__()
+		self.input_name = name
+
+	def forward(self, x, scale, dim=1, keepdim=True, agm=False, distributed=False):
+		"""
+        x is of size [batch_size, T, ...] where T is typically the trace length.
+
+        if scale <= 0, then the true max is used, otherwise, the softmax is used.
+
+        dim is the dimension which the max is applied over. Default: 1
+
+        keepdim keeps the dimension of the input tensor. Default: True
+
+        agm is the arithmetic-geometric mean. Currently in progress. If all elements are >0, output is ᵐ√(Πᵢ (1 + ηᵢ)) - 1.If some the elements <= 0, output is the average of those negative values. scale doesn't play a role here except to switch between the using the AGM or true robustness value (scale <=0).
+
+        distributed addresses the case when there are multiple max values. As max is poorly defined in these cases, PyTorch (randomly?) selects one of the max values only. If distributed=True and scale <=0 then it will average over the max values and split the gradients equally. Default: False
+        """
+
+		if isinstance(x, Expression):
+			assert x.value is not None, "Input Expression does not have numerical values"
+			x = x.value
+
+		if scale > 0:
+			if agm == True:
+				if torch.gt(x, 0).all():
+					return torch.log(1 + x).mean(dim=dim, keepdim=keepdim).exp() - 1
+				else:
+					# return x[torch.lt(x, 0)].reshape(*x.shape[:-1], -1).mean(dim=dim, keepdim=keepdim)
+					return (torch.lt(x, 0) * x).sum(dim, keepdim=keepdim) / torch.lt(x, 0).sum(dim, keepdim=keepdim)
+			else:
+				# return -torch.log(torch.exp(-x*scale).sum(dim=dim, keepdim=keepdim))/scale
+				return -torch.logsumexp(-x * scale, dim=dim, keepdim=keepdim) / scale
+
+		else:
+			if distributed:
+				return self.distributed_true_min(x, dim=dim, keepdim=keepdim)
+			else:
+				return x.min(dim, keepdim=keepdim)[0]
+
+	@staticmethod
+	def distributed_true_min(xx, dim=1, keepdim=True):
+		"""
+        If there are multiple values that share the same max value, the min value is computed by taking the mean of all those values.
+        This will ensure that the gradients of min(xx, dim=dim) will be distributed evenly across all values, rather than just the one value.
+        """
+		m, mi = torch.min(xx, dim, keepdim=True)
+		inds = xx == m
+		return torch.where(inds, xx, xx * 0).sum(dim, keepdim=keepdim) / inds.sum(dim, keepdim=keepdim)
+
+	def _next_function(self):
+		"""
+        This is used for the graph visualization to keep track of the parent node.
+        """
+		return [str(self.input_name)]
+
+class Expression(torch.nn.Module):
+	"""
+    Wraps a pytorch arithmetic operation, so that we can intercept and overload comparison operators.
+    Expression allows us to express tensors using their names to make it easier to code up and read,
+    but also keep track of their numeric values.
+    """
+
+	def __init__(self, name, value):
+		super(Expression, self).__init__()
+		self.name = name
+		self.value = value
+
+	def set_name(self, new_name):
+		self.name = new_name
+
+	def set_value(self, new_value):
+		self.value = new_value
+
+	def __neg__(self):
+		return Expression(self.name, -self.value)
+
+	def __add__(self, other):
+		if isinstance(other, Expression):
+			return Expression(self.name + '+' + other.name, self.value + other.value)
+		else:
+			return Expression(self.name + "+ other", self.value + other)
+
+	def __radd__(self, other):
+		return self.__add__(other)
+
+	# No need for the case when "other" is an Expression, since that case will be handled by the regular add
+	def __sub__(self, other):
+		if isinstance(other, Expression):
+			return Expression(self.name + '-' + other.name, self.value - other.value)
+		else:
+			return Expression(self.name + "-other", self.value - other)
+
+	def __rsub__(self, other):
+		return Expression(other - self.value)
+
+	# No need for the case when "other" is an Expression, since that case will be handled by the regular sub
+	def __mul__(self, other):
+		if isinstance(other, Expression):
+			return Expression(self.name + '*' + other.name, self.value * other.value)
+		else:
+			return Expression(self.name + "*other", self.value * other)
+
+	def __rmul__(self, other):
+		return self.__mul__(other)
+
+	def __truediv__(self, a, b):
+		# This is the new form required by Python 3
+		numerator = a
+		denominator = b
+		numerator_name = 'num'
+		denominator_name = 'denom'
+		if isinstance(numerator, Expression):
+			numerator_name = numerator.name
+			numerator = numerator.value
+		if isinstance(denominator, Expression):
+			denominator_name = denominator.name
+			denominator = denominator.value
+		return Expression(numerator_name + '/' + denominator_name, numerator / denominator)
+
+	# Comparators
+	def __lt__(self, lhs, rhs):
+		assert isinstance(lhs, str) | isinstance(lhs, Expression), "LHS of LessThan needs to be a string or Expression"
+		assert not isinstance(rhs, str), "RHS cannot be a string"
+		return LessThan(lhs, rhs)
+
+	def __le__(self, lhs, rhs):
+		assert isinstance(lhs, str) | isinstance(lhs, Expression), "LHS of LessThan needs to be a string or Expression"
+		assert not isinstance(rhs, str), "RHS cannot be a string"
+		return LessThan(lhs, rhs)
+
+	def __gt__(self, lhs, rhs):
+		assert isinstance(lhs, str) | isinstance(lhs,
+												 Expression), "LHS of GreaterThan needs to be a string or Expression"
+		assert not isinstance(rhs, str), "RHS cannot be a string"
+		return GreaterThan(lhs, rhs)
+
+	def __ge__(self, lhs, rhs):
+		assert isinstance(lhs, str) | isinstance(lhs,
+												 Expression), "LHS of GreaterThan needs to be a string or Expression"
+		assert not isinstance(rhs, str), "RHS cannot be a string"
+		return GreaterThan(lhs, rhs)
+
+	@staticmethod
+	def equal(lhs, rhs):
+		assert isinstance(lhs, str) | isinstance(lhs, Expression), "LHS of Equal needs to be a string or Expression"
+		assert not isinstance(rhs, str), "RHS cannot be a string"
+		return Equal(lhs, rhs)
+
+	@staticmethod
+	def not_equal(lhs, rhs):
+		raise NotImplementedError("Not supported yet")
+
+	def __str__(self):
+		return str(self.name)
 
 class STLFormula(torch.nn.Module):
 	"""
@@ -76,15 +329,14 @@ class STLFormula(torch.nn.Module):
 	def __str__(self):
 		raise NotImplementedError("__str__ not yet implemented")
 	
-	def __and__(phi, psi):
+	def __and__(self, phi, psi):
 		return And(phi, psi)
 	
-	def __or__(phi, psi):
+	def __or__(self, phi, psi):
 		return Or(phi, psi)
 	
-	def __invert__(phi):
+	def __invert__(self, phi):
 		return Negation(phi)
-
 
 class LessThan(STLFormula):
 	"""
@@ -586,3 +838,225 @@ class Identity(STLFormula):
 	
 	def __str__(self):
 		return "%s" % self.name
+
+'''
+Important information:
+- This has the option to use an arithmetic-geometric mean robustness metric: https://arxiv.org/pdf/1903.05186.pdf.
+    The default is not to use it. But this is still being tested.
+- Assume inputs are already reversed, but user does not need to worry about the indexing.
+- "pscale" stands for "predicate scale" (not the scale used in maxish and minish)
+- "scale" is the scale used in maxish and minish which Always, Eventually, Until, and Then uses.
+- "time" variable when computing robustness: time=0 means the current time, t=1 means next time step.
+    The reversal of the trace is accounted for inside the function, the user does not need to worry about this
+- must specify subformula (no default string value)
+'''
+
+
+# TODO:
+# - Run tests to ensure that "Expression" correctly overrides operators
+# - Make a test for each temporal operator, and make sure that they all produce the expected output for at least one example trace
+# - Implement log-barrier
+# - option to choose type of padding
+
+class TemporalOperator(STLFormula):
+	"""
+    Class to compute Eventually and Always. This builds a recurrent cell to perform dynamic programming
+    subformula: The formula that the temporal operator is applied to.
+    interval: either None (defaults to [0, np.inf]), [a, b] ( b < np.inf), [a, np.inf] (a > 0)
+    NOTE: Assume that the interval is describing the INDICES of the desired time interval. The user is responsible for converting the time interval (in time units) into indices (integers) using knowledge of the time step size.
+    """
+
+	def __init__(self, subformula, interval=None):
+		super(TemporalOperator, self).__init__()
+		self.subformula = subformula
+		self.interval = interval
+		self._interval = [0, np.inf] if self.interval is None else self.interval
+		self.rnn_dim = 1 if not self.interval else self.interval[
+			-1]  # rnn_dim=1 if interval is [0, ∞) otherwise rnn_dim=end of interval
+		if self.rnn_dim == np.inf:
+			self.rnn_dim = self.interval[0]
+		self.steps = 1 if not self.interval else self.interval[-1] - self.interval[
+			0] + 1  # steps=1 if interval is [0, ∞) otherwise steps=length of interval
+		self.operation = None
+		# Matrices that shift a vector and add a new entry at the end.
+		self.M = torch.tensor(np.diag(np.ones(self.rnn_dim - 1), k=1)).requires_grad_(False).float()
+		self.b = torch.zeros(self.rnn_dim).unsqueeze(-1).requires_grad_(False).float()
+		self.b[-1] = 1.0
+
+	def _initialize_rnn_cell(self, x):
+		"""
+        x is [batch_size, time_dim, x_dim]
+        initial rnn state is [batch_size, rnn_dim, x_dim]
+        This requires padding on the signal. Currently, the default is to extend the last value.
+        TODO: have option on this padding
+
+        The initial hidden state is of the form (hidden_state, count). count is needed just for the case with self.interval=[0, np.inf) and distributed=True. Since we are scanning through the sigal and outputing the min/max values incrementally, the distributed min function doesn't apply. If there are multiple min values along the signal, the gradient will be distributed equally across them. Otherwise it will only apply to the value that occurs earliest as we scan through the signal (i.e., practically, the last value in the trace as we process the signal backwards).
+        """
+		raise NotImplementedError("_initialize_rnn_cell is not implemented")
+
+	def _rnn_cell(self, x, hc, scale=-1, agm=False, distributed=False, **kwargs):
+		"""
+        x: rnn input [batch_size, 1, ...]
+        h0: input rnn hidden state. The hidden state is either a tensor, or a tuple of tensors, depending on the interval chosen. Generally, the hidden state is of size [batch_size, rnn_dim,...]
+        """
+		raise NotImplementedError("_initialize_rnn_cell is not implemented")
+
+	def _run_cell(self, x, scale, agm=False, distributed=False):
+		"""
+        Run the cell through the trace.
+        """
+
+		outputs = []
+		states = []
+		hc = self._initialize_rnn_cell(x)  # [batch_size, rnn_dim, x_dim]
+		xs = torch.split(x, 1, dim=1)  # time_dim tuple
+		time_dim = len(xs)
+		for i in range(time_dim):
+			o, hc = self._rnn_cell(xs[i], hc, scale, agm=agm, distributed=distributed)
+			outputs.append(o)
+			states.append(hc)
+		return outputs, states
+
+	def robustness_trace(self, inputs, pscale=1, scale=-1, keepdim=True, agm=False, distributed=False, **kwargs):
+		# Compute the robustness trace of the subformula and that is the input to the temporal operator graph.
+		trace = self.subformula(inputs, pscale=pscale, scale=scale, keepdim=keepdim, agm=agm, distributed=distributed,
+								**kwargs)
+		outputs, states = self._run_cell(trace, scale=scale, agm=agm, distributed=distributed)
+		return torch.cat(outputs, dim=1)  # [batch_size, time_dim, ...]
+
+	def _next_function(self):
+		# next function is the input subformula
+		return [self.subformula]
+
+
+class Always(TemporalOperator):
+	def __init__(self, subformula, interval=None):
+		super(Always, self).__init__(subformula=subformula, interval=interval)
+		self.operation = Minish()
+		self.oper = "min"
+
+	def _initialize_rnn_cell(self, x):
+		"""
+        Padding is with the last value of the trace
+        """
+		if x.is_cuda:
+			self.M = self.M.cuda()
+			self.b = self.b.cuda()
+		h0 = torch.ones([x.shape[0], self.rnn_dim, x.shape[2]], device=x.device) * x[:, :1, :]
+		count = 0.0
+		# if self.interval is [a, np.inf), then the hidden state is a tuple (like in an LSTM)
+		if (self._interval[1] == np.inf) & (self._interval[0] > 0):
+			d0 = x[:, :1, :]
+			return (d0, h0.to(x.device)), count
+
+		return h0.to(x.device), count
+
+	def _rnn_cell(self, x, hc, scale=-1, agm=False, distributed=False, **kwargs):
+		"""
+        x: rnn input [batch_size, 1, ...]
+        hc=(h0, c) h0 is the input rnn hidden state  [batch_size, rnn_dim, ...]. c is the count. Initialized by self._initialize_rnn_cell
+        """
+		h0, c = hc
+		if self.operation is None:
+			raise Exception()
+		# keeping track of all values that share the min value so the gradients can be distributed equally.
+		if self.interval is None:
+			if distributed:
+				if x == h0:
+					new_h = (h0 * c + x) / (c + 1)
+					new_c = c + 1.0
+				elif x < h0:
+					new_h = x
+					new_c = 1.0
+				else:
+					new_h = h0
+					new_c = c
+				state = (new_h, new_c)
+				output = new_h
+			else:
+				input_ = torch.cat([h0, x], dim=1)  # [batch_size, rnn_dim+1, x_dim]
+				output = self.operation(input_, scale, dim=1, keepdim=True, agm=agm)  # [batch_size, 1, x_dim]
+				state = (output, None)
+		else:  # self.interval is [a, np.inf)
+			if (self._interval[1] == np.inf) & (self._interval[0] > 0):
+				d0, h0 = h0
+				dh = torch.cat([d0, h0[:, :1, :]], dim=1)  # [batch_size, 2, x_dim]
+				output = self.operation(dh, scale, dim=1, keepdim=True, agm=agm,
+										distributed=distributed)  # [batch_size, 1, x_dim]
+				state = ((output, torch.matmul(self.M, h0) + self.b * x), None)
+			else:  # self.interval is [a, b]
+				state = (torch.matmul(self.M, h0) + self.b * x, None)
+				h0x = torch.cat([h0, x], dim=1)  # [batch_size, rnn_dim+1, x_dim]
+				input_ = h0x[:, :self.steps, :]  # [batch_size, self.steps, x_dim]
+				output = self.operation(input_, scale, dim=1, keepdim=True, agm=agm,
+										distributed=distributed)  # [batch_size, 1, x_dim]
+		return output, state
+
+	def __str__(self):
+		return "◻ " + str(self._interval) + "( " + str(self.subformula) + " )"
+
+
+class Eventually(TemporalOperator):
+	def __init__(self, subformula='Eventually input', interval=None):
+		super(Eventually, self).__init__(subformula=subformula, interval=interval)
+		self.operation = Maxish()
+		self.oper = "max"
+
+	def _initialize_rnn_cell(self, x):
+		"""
+        Padding is with the last value of the trace
+        """
+		if x.is_cuda:
+			self.M = self.M.cuda()
+			self.b = self.b.cuda()
+		h0 = torch.ones([x.shape[0], self.rnn_dim, x.shape[2]], device=x.device) * x[:, :1, :]
+		count = 0.0
+		if (self._interval[1] == np.inf) & (self._interval[0] > 0):
+			d0 = x[:, :1, :]
+			return (d0, h0.to(x.device)), count
+		return h0.to(x.device), count
+
+	def _rnn_cell(self, x, hc, scale=-1, agm=False, distributed=False, **kwargs):
+		"""
+        x: rnn input [batch_size, 1, ...]
+        hc=(h0, c) h0 is the input rnn hidden state  [batch_size, rnn_dim, ...].
+        c is the count. Initialized by self._initialize_rnn_cell
+        """
+		h0, c = hc
+		if self.operation is None:
+			raise Exception()
+
+		if self.interval is None:
+			if distributed:
+				if x == h0:
+					new_h = (h0 * c + x) / (c + 1)
+					new_c = c + 1.0
+				elif x > h0:
+					new_h = x
+					new_c = 1.0
+				else:
+					new_h = h0
+					new_c = c
+				state = (new_h, new_c)
+				output = new_h
+			else:
+				input_ = torch.cat([h0, x], dim=1)  # [batch_size, rnn_dim+1, x_dim]
+				output = self.operation(input_, scale, dim=1, keepdim=True, agm=agm)  # [batch_size, 1, x_dim]
+				state = (output, None)
+		else:  # self.interval is [a, np.inf)
+			if (self._interval[1] == np.inf) & (self._interval[0] > 0):
+				d0, h0 = h0
+				dh = torch.cat([d0, h0[:, :1, :]], dim=1)  # [batch_size, 2, x_dim]
+				output = self.operation(dh, scale, dim=1, keepdim=True, agm=agm,
+										distributed=distributed)  # [batch_size, 1, x_dim]
+				state = ((output, torch.matmul(self.M, h0) + self.b * x), None)
+			else:  # self.interval is [a, b]
+				state = (torch.matmul(self.M, h0) + self.b * x, None)
+				h0x = torch.cat([h0, x], dim=1)  # [batch_size, rnn_dim+1, x_dim]
+				input_ = h0x[:, :self.steps, :]  # [batch_size, self.steps, x_dim]
+				output = self.operation(input_, scale, dim=1, keepdim=True, agm=agm,
+										distributed=distributed)  # [batch_size, 1, x_dim]
+		return output, state
+
+	def __str__(self):
+		return "♢ " + str(self._interval) + "( " + str(self.subformula) + " )"

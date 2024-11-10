@@ -28,6 +28,10 @@ class PartialAG(BaseAG):
     ):
         super().__init__(phase, mode, datasize, data_path, filter_nonperson_box_frame, filter_small_box)
 
+        print("--------------------------------------------------------------------------------")
+        print(f"PartialAG: {mode} - {datasize} - {partial_percentage}% - {maintain_distribution}")
+        print("--------------------------------------------------------------------------------")
+
         self._maintain_distribution = maintain_distribution
         # Filter out objects in the ground truth based on object observation ratio.
         gt_annotation_masks = self.get_gt_annotation_masks(partial_percentage)

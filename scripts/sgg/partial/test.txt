@@ -3,7 +3,7 @@
 # 1. Method Name -- To match with user intent
 # 2. Mode
 # ---------------------------------------------------------------------------------------------------
-# NOTE: For SGG the checkpoint names are expected to be of the form: {method_name}_{mode}.tar
+# NOTE: For SGG the checkpoint names are expected to be of the form: {method_name}_{mode}_epoch_3.tar
 # ----------------------------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -12,23 +12,55 @@
 
 # Partial Annotations with percentage 10%
 
-python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_10_sgdet.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_10_sgdet.tar
-python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_10_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_10_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_generic_partial_10_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_ds_partial_10_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_ds_partial_10_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_comb_partial_10_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_comb_partial_10_sgdet_epoch_3.tar
+
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_10_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_generic_partial_10_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_ds_partial_10_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_ds_partial_10_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_comb_partial_10_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_comb_partial_10_sgdet_epoch_3.tar
 
 
 # Partial Annotations with percentage 40%
 
-python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_40_sgdet.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_40_sgdet.tar
-python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_40_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_40_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_generic_partial_40_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_ds_partial_40_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_ds_partial_40_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_comb_partial_40_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_comb_partial_40_sgdet_epoch_3.tar
+
+
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_40_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_generic_partial_40_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_ds_partial_40_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_ds_partial_40_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_comb_partial_40_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_comb_partial_40_sgdet_epoch_3.tar
 
 
 # Partial Annotations with percentage 70%
 
-python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_70_sgdet.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_70_sgdet.tar
-python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_70_sgdet.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_70_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_generic_partial_70_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_ds_partial_70_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_ds_partial_70_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_comb_partial_70_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_comb_partial_70_sgdet_epoch_3.tar
+
+
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_70_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_generic_partial_70_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_ds_partial_70_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_ds_partial_70_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_comb_partial_70_sgdet_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_comb_partial_70_sgdet_epoch_3.tar
 
 # ------------------------------------------------------------------------------
 # ---------------- SGCLS (Scene Graph Classification) ----------
@@ -36,23 +68,55 @@ python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/ro
 
 # Partial Annotations with percentage 10%
 
-python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_10_sgcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_10_sgcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_10_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_10_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_generic_partial_10_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_ds_partial_10_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_ds_partial_10_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_comb_partial_10_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_comb_partial_10_sgcls_epoch_3.tar
+
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_10_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_generic_partial_10_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_ds_partial_10_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_ds_partial_10_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_comb_partial_10_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_comb_partial_10_sgcls_epoch_3.tar
 
 
 # Partial Annotations with percentage 40%
 
-python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_40_sgcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_40_sgcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_40_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_40_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_generic_partial_40_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_ds_partial_40_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_ds_partial_40_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_comb_partial_40_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_comb_partial_40_sgcls_epoch_3.tar
+
+
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_40_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_generic_partial_40_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_ds_partial_40_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_ds_partial_40_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_comb_partial_40_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_comb_partial_40_sgcls_epoch_3.tar
 
 
 # Partial Annotations with percentage 70%
 
-python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_70_sgcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_70_sgcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_70_sgcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_70_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_generic_partial_70_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_ds_partial_70_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_ds_partial_70_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_comb_partial_70_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_comb_partial_70_sgcls_epoch_3.tar
+
+
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_70_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_generic_partial_70_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_ds_partial_70_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_ds_partial_70_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_comb_partial_70_sgcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_comb_partial_70_sgcls_epoch_3.tar
 
 
 # ------------------------------------------------------------------------------
@@ -61,20 +125,52 @@ python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/ro
 
 # Partial Annotations with percentage 10%
 
-python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_10_predcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_10_predcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_10_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_10_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_generic_partial_10_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_ds_partial_10_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_ds_partial_10_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_comb_partial_10_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_comb_partial_10_predcls_epoch_3.tar
+
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_10_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_generic_partial_10_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_ds_partial_10_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_ds_partial_10_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_comb_partial_10_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_comb_partial_10_predcls_epoch_3.tar
 
 
 # Partial Annotations with percentage 40%
 
-python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_40_predcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_40_predcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_40_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_40_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_generic_partial_40_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_ds_partial_40_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_ds_partial_40_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_comb_partial_40_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_comb_partial_40_predcls_epoch_3.tar
+
+
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_40_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_generic_partial_40_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_ds_partial_40_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_ds_partial_40_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_comb_partial_40_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_comb_partial_40_predcls_epoch_3.tar
 
 
 # Partial Annotations with percentage 70%
 
-python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_70_predcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_70_predcls.tar
-python test_sgg_methods.py --task_name=sgg --method_name=tempura --ckpt=/data/rohith/ag/checkpoints/sgg/tempura/tempura_partial_70_predcls.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_partial_70_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_generic_partial_70_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_ds_partial_70_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_ds_partial_70_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_comb_partial_70_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_comb_partial_70_predcls_epoch_3.tar
+
+
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_partial_70_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_generic_partial_70_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_ds_partial_70_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_ds_partial_70_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_comb_partial_70_predcls_epoch_3.tar
+python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_comb_partial_70_predcls_epoch_3.tar

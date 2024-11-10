@@ -7,32 +7,32 @@ from tqdm import tqdm
 from lib.stl.vlm.base_llama import BaseInstructLLama
 
 
-class CaptionSegmenter(BaseInstructLLama):
-	
-	def __init__(self):
-		super(BaseInstructLLama).__init__()
-		
-		self.captions_dir = "/data/rohith/ag/captions/segmented/"
-		os.makedirs(self.captions_dir, exist_ok=True)
+class GenerateClauses(BaseInstructLLama):
 
-		summary_caption_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "summary_captions.json")
+    def __init__(self):
+        super(BaseInstructLLama).__init__()
 
-		with open(summary_caption_path, "r") as f:
-			self.captions = json.load(f)
-	
-	def construct_prompts(self, video_id):
-		# Remove any new lines in the text file and combine the text into a single paragraph
-		caption = self.captions[video_id].replace("\n", " ")
-		stripped_caption = caption.strip()
-		
-		system_prompt = f'''
+        self.captions_dir = "/data/rohith/ag/rules/backward_dependency/"
+        os.makedirs(self.captions_dir, exist_ok=True)
+
+        segmented_caption_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../data/captions/segmented_captions.json")
+
+        with open(segmented_caption_path, "r") as f:
+            self.captions = json.load(f)
+
+    def construct_backward_dependency_prompts(self, video_id):
+        # Remove any new lines in the text file and combine the text into a single paragraph
+        caption = self.captions[video_id].replace("\n", " ")
+        stripped_caption = caption.strip()
+
+        system_prompt = f'''
 		In this task, you are given a video caption describing a video.
 		Considering the words that indicate the order of events (e.g., then, while, before, and after),
 		your job is to split multiple compositional sentences from the given video caption and list them in chronological order.
 		Note that you should specify the objects for the pronouns used in each of these sentences.
 		'''
-		
-		input_content = f'''
+
+        input_content = f'''
 		Following are a few examples of video captions and their segmented sentences:
 		Input: The person is turning on the stove. They then begin to stir some food and after that they pick up a camera and look at it.
         Output: The person is turning on the stove. >> The person stirs some food. >> The person picks up a camera. >> The person looks at a camera.
@@ -56,64 +56,71 @@ class CaptionSegmenter(BaseInstructLLama):
 		Output: The video begins with a person walking into the frame. >> A person sits down on a bed. >> A person puts on a pair of shoes. >> A person stands up. >> A person walks towards a door and enters the room. >> A person moves towards a closed door. >> A person turns around and exits the room. >> A person re-enters the room. >> A person sits in a chair. >> A person puts keys on a table. >> A person exits the room again.
 		Input: The video shows a person cleaning the kitchen floor. The person first picks up a mop and puts it in a bucket, then begins to mop the floor in a back-and-forth motion, thoroughly cleaning the entire area. Before starting, the person is not seen in the kitchen, but in the living room, where they are holding a broom and dustpan. The person then moves towards the kitchen, bends over a cabinet to reach into it, and stands up to engage with the kitchen counter. They are then seen interacting with the kitchen counter, possibly cooking or preparing food. The person's actions suggest a sequence of domestic tasks, including cleaning and cooking. The video captures a simple yet satisfying task of cleaning the kitchen floor, highlighting the importance of maintaining cleanliness in our daily lives.
 		Output: The person is holding a broom and dustpan in the living room. >> The person walks towards the kitchen. >> The person bends over a cabinet to reach into it. >> The person stands up to engage with the kitchen counter. >> The person interacts with the kitchen counter, possibly cooking or preparing food. >> The person picks up a mop. >> The person puts the mop in a bucket. >> The person begins to mop the floor in a back-and-forth motion, thoroughly cleaning the kitchen floor.
-		
+
 		Follow the same format to segment the video caption for the given video input and make sure to include only the output response. 
 		Input: {stripped_caption}.
 		'''
-		
-		return system_prompt, input_content
-	
-	def segment_video_captions(self, video_id):
-		system_prompt, content_prompt = self.construct_prompts(video_id)
-		messages = [
-			{"role": "system", "content": system_prompt},
-			{"role": "user", "content": content_prompt},
-		]
-		outputs = self.pipe(
-			messages,
-			max_new_tokens=512,
-		)
-		
-		summary = outputs[0]["generated_text"][-1]["content"]
-		summarized_video_file_path = os.path.join(self.captions_dir, f"{video_id}.txt")
-		with open(summarized_video_file_path, "w") as f:
-			f.write(summary)
-	
-	def generate_video_segments(self):
-		video_id_list = list(self.captions.keys())
-		random.shuffle(video_id_list)
-		self.init_llama_3_2()
-		for video_id in tqdm(video_id_list):
-			
-			if os.path.exists(os.path.join(self.captions_dir, f"{video_id}.txt")):
-				print(f"Skipping {video_id}")
-				continue
-			
-			self.segment_video_captions(video_id)
+
+        return system_prompt, input_content
+
+
+    def construct_implication_prompts(self, video_id):
+        pass
+
+    def construct_forward_cancellation_prompts(self, video_id):
+        pass
+
+    def segment_video_captions(self, video_id):
+        system_prompt, content_prompt = self.construct_prompts(video_id)
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": content_prompt},
+        ]
+        outputs = self.pipe(
+            messages,
+            max_new_tokens=512,
+        )
+
+        summary = outputs[0]["generated_text"][-1]["content"]
+        summarized_video_file_path = os.path.join(self.captions_dir, f"{video_id}.txt")
+        with open(summarized_video_file_path, "w") as f:
+            f.write(summary)
+
+    def generate_video_segments(self):
+        video_id_list = list(self.captions.keys())
+        random.shuffle(video_id_list)
+        self.init_llama_3_2()
+        for video_id in tqdm(video_id_list):
+
+            if os.path.exists(os.path.join(self.captions_dir, f"{video_id}.txt")):
+                print(f"Skipping {video_id}")
+                continue
+
+            self.segment_video_captions(video_id)
 
 
 def main():
-	caption_segmenter = CaptionSegmenter()
-	caption_segmenter.generate_video_segments()
+    clause_generator = GenerateClauses()
+    clause_generator.generate_video_segments()
 
 
-def compile_captions():
-	captions = {}
-	captions_dir = "/data/rohith/ag/captions/segmented/"
-	for file in os.listdir(captions_dir):
-		video_id = file.split(".")[0]
-		with open(os.path.join(captions_dir, file), "r") as f:
-			caption = f.read()
-			captions[video_id] = caption
+def compile_rules():
+    captions = {}
+    captions_dir = "/data/rohith/ag/captions/segmented/"
+    for file in os.listdir(captions_dir):
+        video_id = file.split(".")[0]
+        with open(os.path.join(captions_dir, file), "r") as f:
+            caption = f.read()
+            captions[video_id] = caption
 
-	store_file_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "captions")
-	os.makedirs(store_file_dir, exist_ok=True)
+    store_file_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "captions")
+    os.makedirs(store_file_dir, exist_ok=True)
 
-	store_file_path = os.path.join(store_file_dir, "segmented_captions.json")
-	with open(store_file_path, "w") as f:
-		json.dump(captions, f)
+    store_file_path = os.path.join(store_file_dir, "segmented_captions.json")
+    with open(store_file_path, "w") as f:
+        json.dump(captions, f)
 
 
 if __name__ == "__main__":
-	# main()
-	compile_captions()
+    # main()
+    compile_rules()

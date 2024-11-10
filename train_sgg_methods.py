@@ -4,6 +4,7 @@ from lib.supervised.sgg.sttran.sttran import STTran
 from lib.supervised.sgg.dsgdetr.dsgdetr import DsgDETR
 from lib.supervised.sgg.tempura.tempura import TEMPURA
 
+
 # -----------------------------------------------------------------------------------------------------
 # --------------------------------------------- BASELINE METHODS ---------------------------------------
 # -----------------------------------------------------------------------------------------------------
@@ -41,7 +42,6 @@ class TrainDsgDetr(TrainSGGBase):
         self._matcher = None
 
     def init_model(self):
-
         from lib.supervised.sgg.dsgdetr.matcher import HungarianMatcher
 
         self._model = DsgDETR(mode=self._conf.mode,
@@ -65,6 +65,7 @@ class TrainDsgDetr(TrainSGGBase):
         get_sequence_with_tracking(entry, gt_annotation, self._matcher, frame_size, self._conf.mode)
         pred = self._model(entry)
         return pred
+
 
 # -----------------------------------------------------------------------------------------------------
 # ----------------------------------- CURRICULUM LEARNING METHODS -------------------------------------
@@ -102,7 +103,6 @@ class TrainCurriculumDsgDetr(TrainSGGBase):
         self._matcher = None
 
     def init_model(self):
-
         from lib.supervised.sgg.dsgdetr.matcher import HungarianMatcher
 
         self._model = DsgDETR(mode=self._conf.mode,
@@ -151,6 +151,7 @@ class TrainSTTranSTLBase(TrainSGGBase):
         self.get_sequence_no_tracking(entry, self._conf.mode)
         pred = self._model(entry)
         return pred
+
 
 class TrainSTTranSTLGeneric(TrainSTTranSTLBase):
 

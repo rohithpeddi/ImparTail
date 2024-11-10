@@ -9,7 +9,7 @@ from dataloader.corrupted.image_based.corruptions import *
 def visualize_corruptions():
     # original_image = cv2.imread('/home/rxp190007/CODE/NeSyRobSGG/datasets/action_genome/corruptions/image_based/33.png')
     original_image = Image_open(
-        '/home/rxp190007/CODE/stl_stsg/datasets/action_genome/corruptions/image_based/33.png').convert('RGB')
+        '/home/rxp190007/CODE/stl_stsg/dataloader/corrupted/image_based/33.png').convert('RGB')
     corrupted_images = []
 
     severity = 3

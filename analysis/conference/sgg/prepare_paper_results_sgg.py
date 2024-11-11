@@ -238,7 +238,7 @@ class PreparePaperResultSGG(PrepareResultsBase):
 				"mR@10", "mR@20", "mR@50", "mR@100", "mR@10", "mR@20", "mR@50", "mR@100", "mR@10", "mR@20", "mR@50",
 				"mR@100",
 				"mR@10", "mR@20", "mR@50", "mR@100", "mR@10", "mR@20", "mR@50", "mR@100", "mR@10", "mR@20", "mR@50",
-				"mR@100",
+				"mR@100"
 			])
 			
 			for method_name in self.method_list:
@@ -502,8 +502,8 @@ class PreparePaperResultSGG(PrepareResultsBase):
 	# ---------------------------------------------------------------------------------------------
 	
 	@staticmethod
-	def fill_sgg_values_matrix_mean_recall(values_matrix, mean_recall_results_json,
-	                                       idx, comb_method_name, partial_percentage=10):
+	def fill_sgg_combined_values_matrix_mean_recall(values_matrix, mean_recall_results_json,
+	                                                idx, comb_method_name, partial_percentage=10):
 		
 		if "full" in comb_method_name:
 			values_matrix[idx, 0] = fetch_value(mean_recall_results_json[comb_method_name]["sgdet"][0]["mR@10"])
@@ -592,7 +592,7 @@ class PreparePaperResultSGG(PrepareResultsBase):
 		return values_matrix
 	
 	@staticmethod
-	def generate_sgg_paper_latex_header():
+	def generate_sgg_combined_paper_latex_header():
 		latex_header = "\\begin{table*}[!h]\n"
 		latex_header += "    \\centering\n"
 		latex_header += "    \\captionsetup{font=small}\n"
@@ -609,35 +609,74 @@ class PreparePaperResultSGG(PrepareResultsBase):
 		
 		latex_header += (
 				"        \\textbf{Method} & "
-				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50} & "
-				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50}  & "
-				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50}  & "
-				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50}  & "
-				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50}  & "
-				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50}  & "
-				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50}  & "
-				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50}  & "
-				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50}  & " + " \\\\ \\hline\n")
-		
-		# latex_header += (
-		# 		"        \\textbf{Method} & "
-		# 		"\\textbf{10} & \\textbf{20} & \\textbf{50} & "
-		# 		"\\textbf{10} & \\textbf{20} & \\textbf{50} & "
-		# 		"\\textbf{10} & \\textbf{20} & \\textbf{50} & "
-		# 		"\\textbf{10} & \\textbf{20} & \\textbf{50} & "
-		# 		"\\textbf{10} & \\textbf{20} & \\textbf{50} & "
-		# 		"\\textbf{10} & \\textbf{20} & \\textbf{50} & "
-		# 		"\\textbf{10} & \\textbf{20} & \\textbf{50} & "
-		# 		"\\textbf{10} & \\textbf{20} & \\textbf{50} & "
-		# 		"\\textbf{10} & \\textbf{20} & \\textbf{50} " + " \\\\ \\hline\n")
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50} & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50}  & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50}  & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50}  & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50}  & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50}  & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50}  & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50}  & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50}  & " + " \\\\ \\hline\n")
 		
 		return latex_header
 	
-	def generate_paper_sgg_mean_recall_latex_table(self, sgg_mean_recall_results_json):
+	@staticmethod
+	def generate_sgg_sgcls_predcls_paper_latex_header():
+		latex_header = "\\begin{table*}[!h]\n"
+		latex_header += "    \\centering\n"
+		latex_header += "    \\captionsetup{font=small}\n"
+		latex_header += "    \\caption{SGCLS and PREDCLS Mean Recall Results for SGG.}\n"
+		latex_header += "    \\label{tab:sgg_mean_recall_results}\n"
+		latex_header += "    \\renewcommand{\\arraystretch}{1.2} \n"
+		latex_header += "    \\resizebox{\\textwidth}{!}{\n"
+		latex_header += "    \\begin{tabular}{l|ccccccccc|ccccccccc}\n"
+		latex_header += "    \\hline\n"
+		latex_header += "         \\multirow{3}{*}{Method} & \\multicolumn{9}{c}{\\textbf{SGCLS}} & \\multicolumn{9}{c}{\\textbf{PREDCLS}} \\\\ \n"
+		latex_header += "        \\cmidrule(lr){2-10} \\cmidrule(lr){11-19} \n "
+		latex_header += "         & \\multicolumn{3}{c}{\\textbf{With Constraint}} & \\multicolumn{3}{c}{\\textbf{No Constraint}} & \\multicolumn{3}{c}{\\textbf{Semi Constraint}} & \\multicolumn{3}{c}{\\textbf{With Constraint}} & \\multicolumn{3}{c}{\\textbf{No Constraint}} & \\multicolumn{3}{c}{\\textbf{Semi Constraint}} \\\\ \n"
+		latex_header += "        \\cmidrule(lr){2-4} \\cmidrule(lr){5-7} \\cmidrule(lr){8-10} \\cmidrule(lr){11-13} \\cmidrule(lr){14-16} \\cmidrule(lr){17-19} \n "
+		
+		latex_header += (
+				"         & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50} & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50}  & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50}  & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50}  & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50}  & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50} " + " \\\\ \\hline\n")
+		
+		return latex_header
+	
+	@staticmethod
+	def generate_sgg_sgdet_paper_latex_header():
+		latex_header = "\\begin{table}[!h]\n"
+		latex_header += "    \\centering\n"
+		latex_header += "    \\captionsetup{font=small}\n"
+		latex_header += "    \\caption{SGDET Mean Recall Results for VidSGG.}\n"
+		latex_header += "    \\label{tab:sgg_mean_recall_results}\n"
+		latex_header += "    \\renewcommand{\\arraystretch}{1.2} \n"
+		latex_header += "    \\resizebox{\\textwidth}{!}{\n"
+		latex_header += "    \\begin{tabular}{l|ccccccccc|ccccccccc}\n"
+		latex_header += "    \\hline\n"
+		latex_header += "         \\multirow{3}{*}{Method} & \\multicolumn{9}{c}{\\textbf{SGDET}} \\\\ \n"
+		latex_header += "        \\cmidrule(lr){2-10} \n "
+		latex_header += "         & \\multicolumn{3}{c}{\\textbf{With Constraint}} & \\multicolumn{3}{c}{\\textbf{No Constraint}} & \\multicolumn{3}{c}{\\textbf{Semi Constraint}} \\\\ \n"
+		latex_header += "        \\cmidrule(lr){2-4} \\cmidrule(lr){5-7} \\cmidrule(lr){8-10}  \n "
+		
+		latex_header += (
+				"         & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50} & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50}  & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50} " + " \\\\ \\hline\n")
+		
+		return latex_header
+	
+	def generate_paper_sgg_mean_recall_combined_latex_table(self, sgg_mean_recall_results_json):
 		latex_file_name = f"sgg_mean_recall.tex"
 		latex_file_path = os.path.join(os.path.dirname(__file__), "../../results_docs", "latex_tables", latex_file_name)
 		os.makedirs(os.path.dirname(latex_file_path), exist_ok=True)
-		latex_table = self.generate_sgg_paper_latex_header()
+		latex_table = self.generate_sgg_combined_paper_latex_header()
 		
 		values_matrix = np.zeros((4, 27), dtype=np.float32)
 		
@@ -645,8 +684,9 @@ class PreparePaperResultSGG(PrepareResultsBase):
 		for method in self.method_list:
 			for scenario in self.scenario_list:
 				comb_method_name = f"{method}_{scenario}"
-				values_matrix = self.fill_sgg_values_matrix_mean_recall(values_matrix, sgg_mean_recall_results_json,
-				                                                        row_counter, comb_method_name)
+				values_matrix = self.fill_sgg_combined_values_matrix_mean_recall(values_matrix,
+				                                                                 sgg_mean_recall_results_json,
+				                                                                 row_counter, comb_method_name)
 				row_counter += 1
 		
 		row_counter = 0
@@ -654,7 +694,6 @@ class PreparePaperResultSGG(PrepareResultsBase):
 			for scenario in self.scenario_list:
 				comb_method_name = f"{method}_{scenario}"
 				latex_method_name = self.fetch_method_name_latex(comb_method_name)
-				
 				if row_counter % 2 == 1:
 					latex_row = f"        {latex_method_name}"
 					for col_idx in range(27):
@@ -666,11 +705,91 @@ class PreparePaperResultSGG(PrepareResultsBase):
 					for col_idx in range(27):
 						latex_row += f" & {fetch_rounded_value(values_matrix[row_counter, col_idx])}"
 					latex_row += "  \\\\ \n"
-				
 				latex_table += latex_row
 				row_counter += 1
-		
 		latex_footer = self.generate_full_width_latex_footer()
+		latex_table += latex_footer
+		
+		with open(latex_file_path, "a", newline='') as latex_file:
+			latex_file.write(latex_table)
+	
+	def generate_paper_sgg_mean_recall_sgcls_predcls_latex_table(self, sgg_mean_recall_results_json):
+		latex_file_name = f"sgg_mean_recall_sgcls_predcls.tex"
+		latex_file_path = os.path.join(os.path.dirname(__file__), "../../results_docs", "latex_tables", latex_file_name)
+		os.makedirs(os.path.dirname(latex_file_path), exist_ok=True)
+		latex_table = self.generate_sgg_sgcls_predcls_paper_latex_header()
+		
+		values_matrix = np.zeros((4, 27), dtype=np.float32)
+		
+		row_counter = 0
+		for method in self.method_list:
+			for scenario in self.scenario_list:
+				comb_method_name = f"{method}_{scenario}"
+				values_matrix = self.fill_sgg_combined_values_matrix_mean_recall(values_matrix,
+				                                                                 sgg_mean_recall_results_json,
+				                                                                 row_counter, comb_method_name)
+				row_counter += 1
+		
+		row_counter = 0
+		for method in self.method_list:
+			for scenario in self.scenario_list:
+				comb_method_name = f"{method}_{scenario}"
+				latex_method_name = self.fetch_method_name_latex(comb_method_name)
+				if row_counter % 2 == 1:
+					latex_row = f"        {latex_method_name}"
+					for col_idx in range(9, 27):
+						latex_row += f" & \\cellcolor{{highlightColor}} \\textbf{{{fetch_rounded_value(values_matrix[row_counter, col_idx])}}}"
+					latex_row += "  \\\\ \n"
+					latex_row += "          \\hline \n"
+				else:
+					latex_row = f"        {latex_method_name}"
+					for col_idx in range(9, 27):
+						latex_row += f" & {fetch_rounded_value(values_matrix[row_counter, col_idx])}"
+					latex_row += "  \\\\ \n"
+				latex_table += latex_row
+				row_counter += 1
+		latex_footer = self.generate_full_width_latex_footer()
+		latex_table += latex_footer
+		
+		with open(latex_file_path, "a", newline='') as latex_file:
+			latex_file.write(latex_table)
+	
+	def generate_paper_sgg_mean_recall_sgdet_latex_table(self, sgg_mean_recall_results_json):
+		latex_file_name = f"sgg_mean_recall_sgdet.tex"
+		latex_file_path = os.path.join(os.path.dirname(__file__), "../../results_docs", "latex_tables", latex_file_name)
+		os.makedirs(os.path.dirname(latex_file_path), exist_ok=True)
+		latex_table = self.generate_sgg_sgdet_paper_latex_header()
+		
+		values_matrix = np.zeros((4, 27), dtype=np.float32)
+		
+		row_counter = 0
+		for method in self.method_list:
+			for scenario in self.scenario_list:
+				comb_method_name = f"{method}_{scenario}"
+				values_matrix = self.fill_sgg_combined_values_matrix_mean_recall(values_matrix,
+				                                                                 sgg_mean_recall_results_json,
+				                                                                 row_counter, comb_method_name)
+				row_counter += 1
+		
+		row_counter = 0
+		for method in self.method_list:
+			for scenario in self.scenario_list:
+				comb_method_name = f"{method}_{scenario}"
+				latex_method_name = self.fetch_method_name_latex(comb_method_name)
+				if row_counter % 2 == 1:
+					latex_row = f"        {latex_method_name}"
+					for col_idx in range(9):
+						latex_row += f" & \\cellcolor{{highlightColor}} \\textbf{{{fetch_rounded_value(values_matrix[row_counter, col_idx])}}}"
+					latex_row += "  \\\\ \n"
+					latex_row += "          \\hline \n"
+				else:
+					latex_row = f"        {latex_method_name}"
+					for col_idx in range(9):
+						latex_row += f" & {fetch_rounded_value(values_matrix[row_counter, col_idx])}"
+					latex_row += "  \\\\ \n"
+				latex_table += latex_row
+				row_counter += 1
+		latex_footer = self.generate_latex_footer()
 		latex_table += latex_footer
 		
 		with open(latex_file_path, "a", newline='') as latex_file:
@@ -680,7 +799,9 @@ class PreparePaperResultSGG(PrepareResultsBase):
 def prepare_paper_sgg_latex_tables():
 	prepare_paper_results_sgg = PreparePaperResultSGG()
 	sgg_mean_recall_results_json = prepare_paper_results_sgg.fetch_sgg_mean_recall_results_json_latex()
-	prepare_paper_results_sgg.generate_paper_sgg_mean_recall_latex_table(sgg_mean_recall_results_json)
+	# prepare_paper_results_sgg.generate_paper_sgg_mean_recall_latex_table(sgg_mean_recall_results_json)
+	prepare_paper_results_sgg.generate_paper_sgg_mean_recall_sgcls_predcls_latex_table(sgg_mean_recall_results_json)
+	prepare_paper_results_sgg.generate_paper_sgg_mean_recall_sgdet_latex_table(sgg_mean_recall_results_json)
 
 
 def main():

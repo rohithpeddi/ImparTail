@@ -397,3 +397,129 @@ class PrepareResultsBase:
 		
 		# Save the Excel file
 		writer.save()
+	
+	@staticmethod
+	def fetch_sgg_setting_name(mode):
+		if mode == "sgdet":
+			setting_name = "\\textbf{SGDET}"
+		elif mode == "sgcls":
+			setting_name = "\\textbf{SGCLS}"
+		elif mode == "predcls":
+			setting_name = "\\textbf{PREDCLS}"
+		return setting_name
+	
+	@staticmethod
+	def fetch_sga_setting_name(mode):
+		if mode == "sgdet":
+			setting_name = "\\textbf{AGS}"
+		elif mode == "sgcls":
+			setting_name = "\\textbf{PGAGS}"
+		elif mode == "predcls":
+			setting_name = "\\textbf{GAGS}"
+		return setting_name
+	
+	def fetch_method_name_latex(self, method_name):
+		"""
+		method_name will be of the form: sttran_partial, dsgdetr_partial, ode_partial, sde_partial, sttran_ant_partial
+		"""
+		method_name = method_name.to_lower()
+		if method_name == "sttran":
+			method_name = "STTran \cite{cong_et_al_sttran_2021}"
+		elif method_name == "dsgdetr":
+			method_name = "DSGDetr \cite{Feng_2021}"
+		elif method_name == "sttran_partial":
+			method_name = f"{self.proposed_method_name}STTran (Ours)"
+		elif method_name == "dsgdetr_partial":
+			method_name = f"{self.proposed_method_name}DSGDetr (Ours)"
+		elif method_name == "sttran_ant":
+			method_name = "STTran+ \cite{peddi_et_al_scene_sayer_2024}"
+		elif method_name == "dsgdetr_ant":
+			method_name = "DSGDetr+ \cite{peddi_et_al_scene_sayer_2024}"
+		elif method_name == "sttran_gen_ant":
+			method_name = "STTran++ \cite{peddi_et_al_scene_sayer_2024}"
+		elif method_name == "dsgdetr_gen_ant":
+			method_name = "DSGDetr++ \cite{peddi_et_al_scene_sayer_2024}"
+		elif method_name == "ode":
+			method_name = "SceneSayerODE \cite{peddi_et_al_scene_sayer_2024}"
+		elif method_name == "sde":
+			method_name = "SceneSayerSDE \cite{peddi_et_al_scene_sayer_2024}"
+		elif method_name == "sttran_ant_partial":
+			method_name = f"{self.proposed_method_name}STTran+ (Ours)"
+		elif method_name == "dsgdetr_ant_partial":
+			method_name = f"{self.proposed_method_name}DSGDetr+ (Ours)"
+		elif method_name == "sttran_gen_ant_partial":
+			method_name = f"{self.proposed_method_name}STTran++ (Ours)"
+		elif method_name == "dsgdetr_gen_ant_partial":
+			method_name = f"{self.proposed_method_name}DSGDetr++ (Ours)"
+		elif method_name == "ode_partial":
+			method_name = f"{self.proposed_method_name}SceneSayerODE (Ours)"
+		elif method_name == "sde_partial":
+			method_name = f"{self.proposed_method_name}SceneSayerSDE (Ours)"
+		elif method_name == "tempura":
+			method_name = "Tempura \cite{tempura_2021}"
+		return method_name
+	
+	@staticmethod
+	def generate_latex_footer():
+		latex_footer = "    \\end{tabular}\n"
+		latex_footer += "    }\n"
+		latex_footer += "\\end{table}\n"
+		return latex_footer
+	
+	def fill_combined_context_fraction_values_matrix(self, values_matrix, idx, method_name, context_results_json,
+	                                                 context_fraction, mode, train_num_future_frame):
+		method_name = self.fetch_method_name_json(method_name)
+		values_matrix[idx, 0] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@10"])
+		values_matrix[idx, 1] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@20"])
+		values_matrix[idx, 2] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@50"])
+		values_matrix[idx, 3] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@10"])
+		values_matrix[idx, 4] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@20"])
+		values_matrix[idx, 5] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@50"])
+		values_matrix[idx, 6] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@10"])
+		values_matrix[idx, 7] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@20"])
+		values_matrix[idx, 8] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@50"])
+		values_matrix[idx, 9] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@10"])
+		values_matrix[idx, 10] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@20"])
+		values_matrix[idx, 11] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@50"])
+		return values_matrix
+	
+	def fill_combined_wn_context_fraction_values_matrix(self, values_matrix, idx, method_name, context_results_json,
+	                                                    context_fraction, mode, train_num_future_frame):
+		method_name = self.fetch_method_name_json(method_name)
+		values_matrix[idx, 0] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@10"])
+		values_matrix[idx, 1] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@20"])
+		values_matrix[idx, 2] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@50"])
+		values_matrix[idx, 3] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@10"])
+		values_matrix[idx, 4] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@20"])
+		values_matrix[idx, 5] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@50"])
+		values_matrix[idx, 6] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@10"])
+		values_matrix[idx, 7] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@20"])
+		values_matrix[idx, 8] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@50"])
+		values_matrix[idx, 9] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@10"])
+		values_matrix[idx, 10] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@20"])
+		values_matrix[idx, 11] = fetch_value(
+			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@50"])
+		return values_matrix

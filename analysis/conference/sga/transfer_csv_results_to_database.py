@@ -77,7 +77,7 @@ def transfer_sga(
 			
 			result.add_result_details(result_details)
 			print(f"[{task_name}][{scenario_name}][{mode}] Saving result: ", result.result_id)
-			db_service.update_result_to_db("results_31_10_sga_v2", result.result_id, result.to_dict())
+			db_service.update_result_to_db("results_11_11_sga", result.result_id, result.to_dict())
 			print(f"[{task_name}][{scenario_name}][{mode}] Saved result: ", result.result_id)
 			print("-----------------------------------------------------------------------------------")
 
@@ -98,7 +98,7 @@ def transfer_results_from_directories_sga():
 			for method_name_csv_file in os.listdir(mode_name_path):
 				# Convert the method name to lowercase
 				method_name_csv_path = os.path.join(mode_name_path, method_name_csv_file)
-				if task_name == const.SGA and scenario_name in [const.PARTIAL, const.LABELNOISE, const.FULL]:
+				if task_name == const.SGA and scenario_name in [const.PARTIAL, const.FULL]:
 					print(f"[{task_name}][{scenario_name}][{mode_name}][{method_name_csv_file[:-4]}] Processing file: ",
 					      method_name_csv_path)
 					transfer_sga(

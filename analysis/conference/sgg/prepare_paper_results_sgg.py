@@ -715,7 +715,7 @@ class PreparePaperResultSGG(PrepareResultsBase):
 	
 	def generate_paper_sgg_mean_recall_sgcls_predcls_latex_table(self, sgg_mean_recall_results_json):
 		latex_file_name = f"sgg_mean_recall_sgcls_predcls.tex"
-		latex_file_path = os.path.join(os.path.dirname(__file__), "../../results_docs", "latex_tables", latex_file_name)
+		latex_file_path = os.path.join(os.path.dirname(__file__), "../../results_docs", "paper_latex_tables", latex_file_name)
 		os.makedirs(os.path.dirname(latex_file_path), exist_ok=True)
 		latex_table = self.generate_sgg_sgcls_predcls_paper_latex_header()
 		
@@ -756,7 +756,7 @@ class PreparePaperResultSGG(PrepareResultsBase):
 	
 	def generate_paper_sgg_mean_recall_sgdet_latex_table(self, sgg_mean_recall_results_json):
 		latex_file_name = f"sgg_mean_recall_sgdet.tex"
-		latex_file_path = os.path.join(os.path.dirname(__file__), "../../results_docs", "latex_tables", latex_file_name)
+		latex_file_path = os.path.join(os.path.dirname(__file__), "../../results_docs", "paper_latex_tables", latex_file_name)
 		os.makedirs(os.path.dirname(latex_file_path), exist_ok=True)
 		latex_table = self.generate_sgg_sgdet_paper_latex_header()
 		

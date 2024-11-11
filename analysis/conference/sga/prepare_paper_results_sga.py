@@ -24,6 +24,7 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 			"sde_full", "sde_partial"
 		]
 		self.context_fraction_list = ['0.3', '0.5', '0.7', '0.9']
+		self.latex_context_fraction_list = ['0.7']
 	
 	def fetch_sga_recall_results_json_csv(self):
 		db_results = self.fetch_db_sga_results()
@@ -582,6 +583,95 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 		return values_matrix
 	
 	@staticmethod
+	def fill_sga_combined_values_matrix_mean_recall_no_sc(values_matrix, mean_recall_results_json,
+	                                                idx, comb_method_name, cf, partial_percentage='10'):
+		if "full" in comb_method_name:
+			values_matrix[idx, 0] = fetch_value(mean_recall_results_json[comb_method_name]["sgdet"][cf][0]["mR@10"])
+			values_matrix[idx, 1] = fetch_value(mean_recall_results_json[comb_method_name]["sgdet"][cf][0]["mR@20"])
+			values_matrix[idx, 2] = fetch_value(mean_recall_results_json[comb_method_name]["sgdet"][cf][0]["mR@50"])
+			values_matrix[idx, 3] = fetch_value(mean_recall_results_json[comb_method_name]["sgdet"][cf][1]["mR@10"])
+			values_matrix[idx, 4] = fetch_value(mean_recall_results_json[comb_method_name]["sgdet"][cf][1]["mR@20"])
+			values_matrix[idx, 5] = fetch_value(mean_recall_results_json[comb_method_name]["sgdet"][cf][1]["mR@50"])
+			values_matrix[idx, 6] = fetch_value(mean_recall_results_json[comb_method_name]["sgcls"][cf][0]["mR@10"])
+			values_matrix[idx, 7] = fetch_value(mean_recall_results_json[comb_method_name]["sgcls"][cf][0]["mR@20"])
+			values_matrix[idx, 8] = fetch_value(mean_recall_results_json[comb_method_name]["sgcls"][cf][0]["mR@50"])
+			values_matrix[idx, 9] = fetch_value(mean_recall_results_json[comb_method_name]["sgcls"][cf][1]["mR@10"])
+			values_matrix[idx, 10] = fetch_value(mean_recall_results_json[comb_method_name]["sgcls"][cf][1]["mR@20"])
+			values_matrix[idx, 11] = fetch_value(mean_recall_results_json[comb_method_name]["sgcls"][cf][1]["mR@50"])
+			values_matrix[idx, 12] = fetch_value(mean_recall_results_json[comb_method_name]["predcls"][cf][0]["mR@10"])
+			values_matrix[idx, 13] = fetch_value(mean_recall_results_json[comb_method_name]["predcls"][cf][0]["mR@20"])
+			values_matrix[idx, 14] = fetch_value(mean_recall_results_json[comb_method_name]["predcls"][cf][0]["mR@50"])
+			values_matrix[idx, 15] = fetch_value(mean_recall_results_json[comb_method_name]["predcls"][cf][1]["mR@10"])
+			values_matrix[idx, 16] = fetch_value(mean_recall_results_json[comb_method_name]["predcls"][cf][1]["mR@20"])
+			values_matrix[idx, 17] = fetch_value(mean_recall_results_json[comb_method_name]["predcls"][cf][1]["mR@50"])
+		elif "partial" in comb_method_name:
+			values_matrix[idx, 0] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][0]["mR@10"])
+			values_matrix[idx, 1] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][0]["mR@20"])
+			values_matrix[idx, 2] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][0]["mR@50"])
+			values_matrix[idx, 3] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][1]["mR@10"])
+			values_matrix[idx, 4] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][1]["mR@20"])
+			values_matrix[idx, 5] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][1]["mR@50"])
+			values_matrix[idx, 6] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][0]["mR@10"])
+			values_matrix[idx, 7] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][0]["mR@20"])
+			values_matrix[idx, 8] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][0]["mR@50"])
+			values_matrix[idx, 9] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][1]["mR@10"])
+			values_matrix[idx, 10] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][1]["mR@20"])
+			values_matrix[idx, 11] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][1]["mR@50"])
+			values_matrix[idx, 12] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][0]["mR@10"])
+			values_matrix[idx, 13] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][0]["mR@20"])
+			values_matrix[idx, 14] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][0]["mR@50"])
+			values_matrix[idx, 15] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][1]["mR@10"])
+			values_matrix[idx, 16] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][1]["mR@20"])
+			values_matrix[idx, 17] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][1]["mR@50"])
+			
+		return values_matrix
+	
+	@staticmethod
+	def generate_sga_combined_paper_latex_header():
+		latex_header = "\\begin{table*}[!h]\n"
+		latex_header += "    \\centering\n"
+		latex_header += "    \\captionsetup{font=small}\n"
+		latex_header += "    \\caption{Mean Recall Results for SGA.}\n"
+		latex_header += "    \\label{tab:sga_mean_recall_results}\n"
+		latex_header += "    \\renewcommand{\\arraystretch}{1.2} \n"
+		latex_header += "    \\resizebox{\\textwidth}{!}{\n"
+		latex_header += "    \\begin{tabular}{l|l|cccccc|cccccc|cccccc}\n"
+		latex_header += "    \\hline\n"
+		latex_header += "         \\multirow{3}{*}{$\\mathcal{F}$} & \\multirow{3}{*}{Method} & \\multicolumn{6}{c}{\\textbf{SGDET}} & \\multicolumn{6}{c}{\\textbf{SGCLS}} & \\multicolumn{6}{c}{\\textbf{PREDCLS}} \\\\ \n"
+		latex_header += "        \\cmidrule(lr){3-8} \\cmidrule(lr){9-14} \\cmidrule(lr){15-20} \n "
+		latex_header += "         & & \\multicolumn{3}{c}{\\textbf{With Constraint}} & \\multicolumn{3}{c}{\\textbf{No Constraint}}  & \\multicolumn{3}{c}{\\textbf{With Constraint}} & \\multicolumn{3}{c}{\\textbf{No Constraint}} & \\multicolumn{3}{c}{\\textbf{With Constraint}} & \\multicolumn{3}{c}{\\textbf{No Constraint}}  \\\\ \n"
+		latex_header += "        \\cmidrule(lr){3-5} \\cmidrule(lr){6-8} \\cmidrule(lr){9-11} \\cmidrule(lr){12-14} \\cmidrule(lr){15-17} \\cmidrule(lr){18-20} \n "
+		
+		latex_header += (
+				"      &   & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50} & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50}  & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50}  & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50}  & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50}  & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50} " + " \\\\ \\hline\n")
+		
+		return latex_header
+	
+	@staticmethod
 	def generate_sga_sgcls_predcls_paper_latex_header():
 		latex_header = "\\begin{table*}[!h]\n"
 		latex_header += "    \\centering\n"
@@ -631,6 +721,64 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50} " + " \\\\ \\hline\n")
 		
 		return latex_header
+	
+	def generate_paper_sga_mean_recall_latex_table(self, sga_mean_recall_results_json):
+		latex_file_name = f"sga_mean_recall.tex"
+		latex_file_path = os.path.join(os.path.dirname(__file__), "../../results_docs", "paper_latex_tables",
+		                               latex_file_name)
+		os.makedirs(os.path.dirname(latex_file_path), exist_ok=True)
+		latex_table = self.generate_sga_combined_paper_latex_header()
+		
+		values_matrix = np.zeros((12, 18), dtype=np.float32)
+		
+		row_counter = 0
+		for cf in self.latex_context_fraction_list:
+			for method in self.method_list:
+				for scenario in self.scenario_list:
+					comb_method_name = f"{method}_{scenario}"
+					values_matrix = self.fill_sga_combined_values_matrix_mean_recall_no_sc(
+						values_matrix=values_matrix,
+						mean_recall_results_json=sga_mean_recall_results_json,
+						idx=row_counter,
+						comb_method_name=comb_method_name,
+						cf=cf)
+					row_counter += 1
+		
+		row_counter = 0
+		for cf in self.latex_context_fraction_list:
+			for method in self.method_list:
+				for scenario in self.scenario_list:
+					comb_method_name = f"{method}_{scenario}"
+					latex_method_name = self.fetch_method_name_latex(comb_method_name)
+					
+					if row_counter % 12 == 0:
+						latex_row = f"        \\multirow{{12}}{{*}}{{{cf}}} &"
+					else:
+						latex_row = "        &"
+					
+					if row_counter % 2 == 1:
+						latex_row += f"        {latex_method_name}"
+						for col_idx in range(18):
+							latex_row += f" & \\cellcolor{{highlightColor}} \\textbf{{{fetch_rounded_value(values_matrix[row_counter, col_idx])}}}"
+						latex_row += "  \\\\ \n"
+						
+						if row_counter < 11:
+							latex_row += "          \\cmidrule(lr){2-11} \\cmidrule(lr){12-20} \n"
+						elif row_counter == 11:
+							latex_row += "          \\hline \n"
+					else:
+						latex_row += f"        {latex_method_name}"
+						for col_idx in range(18):
+							latex_row += f" & {fetch_rounded_value(values_matrix[row_counter, col_idx])}"
+						latex_row += "  \\\\ \n"
+					latex_table += latex_row
+					row_counter += 1
+		
+		latex_footer = self.generate_full_width_latex_footer()
+		latex_table += latex_footer
+		
+		with open(latex_file_path, "a", newline='') as latex_file:
+			latex_file.write(latex_table)
 	
 	def generate_paper_sga_mean_recall_sgcls_predcls_latex_table(self, sga_mean_recall_results_json):
 		latex_file_name = f"sga_mean_recall_sgcls_predcls.tex"
@@ -741,9 +889,9 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 def prepare_paper_sgg_latex_tables():
 	prepare_paper_results_sga = PreparePaperResultsSGA()
 	sga_mean_recall_results_json = prepare_paper_results_sga.fetch_sga_mean_recall_results_json_latex()
-	prepare_paper_results_sga.generate_paper_sga_mean_recall_sgcls_predcls_latex_table(sga_mean_recall_results_json)
-	prepare_paper_results_sga.generate_paper_sga_mean_recall_sgdet_latex_table(sga_mean_recall_results_json)
-	
+	# prepare_paper_results_sga.generate_paper_sga_mean_recall_sgcls_predcls_latex_table(sga_mean_recall_results_json)
+	# prepare_paper_results_sga.generate_paper_sga_mean_recall_sgdet_latex_table(sga_mean_recall_results_json)
+	prepare_paper_results_sga.generate_paper_sga_mean_recall_latex_table(sga_mean_recall_results_json)
 	
 def main():
 	prepare_paper_results_sga = PreparePaperResultsSGA()
@@ -759,6 +907,6 @@ def combine_results():
 
 
 if __name__ == '__main__':
-	main()
-	combine_results()
+	# main()
+	# combine_results()
 	prepare_paper_sgg_latex_tables()

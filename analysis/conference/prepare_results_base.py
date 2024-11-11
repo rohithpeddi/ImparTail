@@ -324,33 +324,6 @@ class PrepareResultsBase:
 			ref_tab_name = f"predcls_{eval_horizon}_{train_future_frame}"
 		return ref_tab_name
 	
-	@staticmethod
-	def fetch_method_name_csv(method_name):
-		if method_name == "NeuralODE" or method_name == "ode":
-			method_name = "SceneSayerODE"
-		elif method_name == "NeuralSDE" or method_name == "sde":
-			method_name = "SceneSayerSDE"
-		elif method_name == "sttran_ant":
-			method_name = "STTran+"
-		elif method_name == "sttran_gen_ant":
-			method_name = "STTran++"
-		elif method_name == "dsgdetr_ant":
-			method_name = "DSGDetr+"
-		elif method_name == "dsgdetr_gen_ant":
-			method_name = "DSGDetr++"
-		elif method_name == "sde_wo_bb":
-			method_name = "SceneSayerSDE(w/oBB)"
-		elif method_name == "sde_wo_recon":
-			method_name = "SceneSayerSDE(w/oRecon)"
-		elif method_name == "sde_wo_gen":
-			method_name = "SceneSayerSDE(w/oGenLoss)"
-		elif method_name == "sttran":
-			method_name = "STTran"
-		elif method_name == "dsgdetr":
-			method_name = "DSGDetr"
-		elif method_name == "tempura":
-			method_name = "Tempura"
-		return method_name
 	
 	@staticmethod
 	def fetch_method_name_json(method_name):
@@ -399,7 +372,7 @@ class PrepareResultsBase:
 		writer.save()
 	
 	@staticmethod
-	def fetch_sgg_setting_name(mode):
+	def fetch_sgg_setting_name_latex(mode):
 		if mode == "sgdet":
 			setting_name = "\\textbf{SGDET}"
 		elif mode == "sgcls":
@@ -409,7 +382,7 @@ class PrepareResultsBase:
 		return setting_name
 	
 	@staticmethod
-	def fetch_sga_setting_name(mode):
+	def fetch_sga_setting_name_latex(mode):
 		if mode == "sgdet":
 			setting_name = "\\textbf{AGS}"
 		elif mode == "sgcls":
@@ -422,27 +395,27 @@ class PrepareResultsBase:
 		"""
 		method_name will be of the form: sttran_partial, dsgdetr_partial, ode_partial, sde_partial, sttran_ant_partial
 		"""
-		method_name = method_name.to_lower()
-		if method_name == "sttran":
-			method_name = "STTran \cite{cong_et_al_sttran_2021}"
-		elif method_name == "dsgdetr":
-			method_name = "DSGDetr \cite{Feng_2021}"
+		method_name = method_name.lower()
+		if method_name in ["sttran", "sttran_full"]:
+			method_name = "STTran~\cite{cong_et_al_sttran_2021}"
+		elif method_name in ["dsgdetr", "dsgdetr_full"]:
+			method_name = "DSGDetr~\cite{Feng_2021}"
 		elif method_name == "sttran_partial":
 			method_name = f"{self.proposed_method_name}STTran (Ours)"
 		elif method_name == "dsgdetr_partial":
 			method_name = f"{self.proposed_method_name}DSGDetr (Ours)"
-		elif method_name == "sttran_ant":
-			method_name = "STTran+ \cite{peddi_et_al_scene_sayer_2024}"
-		elif method_name == "dsgdetr_ant":
-			method_name = "DSGDetr+ \cite{peddi_et_al_scene_sayer_2024}"
-		elif method_name == "sttran_gen_ant":
-			method_name = "STTran++ \cite{peddi_et_al_scene_sayer_2024}"
-		elif method_name == "dsgdetr_gen_ant":
-			method_name = "DSGDetr++ \cite{peddi_et_al_scene_sayer_2024}"
-		elif method_name == "ode":
-			method_name = "SceneSayerODE \cite{peddi_et_al_scene_sayer_2024}"
-		elif method_name == "sde":
-			method_name = "SceneSayerSDE \cite{peddi_et_al_scene_sayer_2024}"
+		elif method_name in ["sttran_ant", "sttran_ant_full"]:
+			method_name = "STTran+~\cite{peddi_et_al_scene_sayer_2024}"
+		elif method_name in ["dsgdetr_ant", "dsgdetr_ant_full"]:
+			method_name = "DSGDetr+~\cite{peddi_et_al_scene_sayer_2024}"
+		elif method_name in ["sttran_gen_ant", "sttran_gen_ant_full"]:
+			method_name = "STTran++~\cite{peddi_et_al_scene_sayer_2024}"
+		elif method_name in ["dsgdetr_gen_ant", "dsgdetr_gen_ant_full"]:
+			method_name = "DSGDetr++~\cite{peddi_et_al_scene_sayer_2024}"
+		elif method_name in ["ode", "ode_full"]:
+			method_name = "SceneSayerODE~\cite{peddi_et_al_scene_sayer_2024}"
+		elif method_name in ["sde", "sde_full"]:
+			method_name = "SceneSayerSDE~\cite{peddi_et_al_scene_sayer_2024}"
 		elif method_name == "sttran_ant_partial":
 			method_name = f"{self.proposed_method_name}STTran+ (Ours)"
 		elif method_name == "dsgdetr_ant_partial":
@@ -456,7 +429,7 @@ class PrepareResultsBase:
 		elif method_name == "sde_partial":
 			method_name = f"{self.proposed_method_name}SceneSayerSDE (Ours)"
 		elif method_name == "tempura":
-			method_name = "Tempura \cite{tempura_2021}"
+			method_name = "Tempura~\cite{tempura_2021}"
 		return method_name
 	
 	@staticmethod
@@ -466,60 +439,9 @@ class PrepareResultsBase:
 		latex_footer += "\\end{table}\n"
 		return latex_footer
 	
-	def fill_combined_context_fraction_values_matrix(self, values_matrix, idx, method_name, context_results_json,
-	                                                 context_fraction, mode, train_num_future_frame):
-		method_name = self.fetch_method_name_json(method_name)
-		values_matrix[idx, 0] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@10"])
-		values_matrix[idx, 1] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@20"])
-		values_matrix[idx, 2] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@50"])
-		values_matrix[idx, 3] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@10"])
-		values_matrix[idx, 4] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@20"])
-		values_matrix[idx, 5] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@50"])
-		values_matrix[idx, 6] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@10"])
-		values_matrix[idx, 7] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@20"])
-		values_matrix[idx, 8] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@50"])
-		values_matrix[idx, 9] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@10"])
-		values_matrix[idx, 10] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@20"])
-		values_matrix[idx, 11] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@50"])
-		return values_matrix
-	
-	def fill_combined_wn_context_fraction_values_matrix(self, values_matrix, idx, method_name, context_results_json,
-	                                                    context_fraction, mode, train_num_future_frame):
-		method_name = self.fetch_method_name_json(method_name)
-		values_matrix[idx, 0] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@10"])
-		values_matrix[idx, 1] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@20"])
-		values_matrix[idx, 2] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["R@50"])
-		values_matrix[idx, 3] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@10"])
-		values_matrix[idx, 4] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@20"])
-		values_matrix[idx, 5] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["R@50"])
-		values_matrix[idx, 6] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@10"])
-		values_matrix[idx, 7] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@20"])
-		values_matrix[idx, 8] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][0]["mR@50"])
-		values_matrix[idx, 9] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@10"])
-		values_matrix[idx, 10] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@20"])
-		values_matrix[idx, 11] = fetch_value(
-			context_results_json[context_fraction][mode][train_num_future_frame][method_name][1]["mR@50"])
-		return values_matrix
+	@staticmethod
+	def generate_full_width_latex_footer():
+		latex_footer = "    \\end{tabular}\n"
+		latex_footer += "    }\n"
+		latex_footer += "\\end{table*}\n"
+		return latex_footer

@@ -24,7 +24,7 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 			"sde_full", "sde_partial"
 		]
 		self.context_fraction_list = ['0.3', '0.5', '0.7', '0.9']
-		self.latex_context_fraction_list = ['0.7']
+		self.latex_context_fraction_list = ['0.3', '0.9']
 	
 	def fetch_sga_recall_results_json_csv(self):
 		db_results = self.fetch_db_sga_results()
@@ -37,7 +37,8 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 					for mode in self.mode_list:
 						sga_results_json[method][scenario_name][mode] = {}
 						for cf in self.context_fraction_list:
-							sga_results_json[method][scenario_name][mode][cf] = self.fetch_paper_recall_empty_metrics_json()
+							sga_results_json[method][scenario_name][mode][
+								cf] = self.fetch_paper_recall_empty_metrics_json()
 				else:
 					percentage_list = self.partial_percentages
 					for percentage_num in percentage_list:
@@ -45,7 +46,8 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 						for mode in self.mode_list:
 							sga_results_json[method][scenario_name][percentage_num][mode] = {}
 							for cf in self.context_fraction_list:
-								sga_results_json[method][scenario_name][percentage_num][mode][cf] = self.fetch_paper_recall_empty_metrics_json()
+								sga_results_json[method][scenario_name][percentage_num][mode][
+									cf] = self.fetch_paper_recall_empty_metrics_json()
 		for sga_result in db_results:
 			mode = sga_result.mode
 			method_name = sga_result.method_name
@@ -171,7 +173,8 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 					for mode in self.mode_list:
 						sga_results_json[method][percentage_num][mode] = {}
 						for cf in self.context_fraction_list:
-							sga_results_json[method][percentage_num][mode][cf] = self.fetch_paper_mean_recall_empty_metrics_json()
+							sga_results_json[method][percentage_num][mode][
+								cf] = self.fetch_paper_mean_recall_empty_metrics_json()
 		
 		for sga_result in db_results:
 			mode = sga_result.mode
@@ -217,11 +220,11 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 				cf = str(sga_result.context_fraction)
 				sga_results_json[paper_method_name][percentage_num][mode][cf] = completed_mean_recall_metrics_json
 		return sga_results_json
-
+	
 	# ---------------------------------------------------------------------------------------------
 	# --------------------------------- CSV Generation Methods ------------------------------------
 	# ---------------------------------------------------------------------------------------------
-
+	
 	def generate_sga_mean_recall_results_csvs_method_wise(self, sga_mean_recall_results_json):
 		csv_file_name = "sga_mean_recall.csv"
 		csv_file_path = os.path.join(os.path.dirname(__file__), "../../results_docs", "paper_sga_results_csvs",
@@ -292,77 +295,113 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 									method_name,
 									scenario_name,
 									partial_num,
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][0][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][
+										0][
 										"mR@10"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][0][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][
+										0][
 										"mR@20"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][0][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][
+										0][
 										"mR@50"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][0][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][
+										0][
 										"mR@100"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][1][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][
+										1][
 										"mR@10"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][1][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][
+										1][
 										"mR@20"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][1][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][
+										1][
 										"mR@50"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][1][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][
+										1][
 										"mR@100"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][2][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][
+										2][
 										"mR@10"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][2][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][
+										2][
 										"mR@20"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][2][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][
+										2][
 										"mR@50"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][2][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgdet"][cf][
+										2][
 										"mR@100"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][0][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][
+										0][
 										"mR@10"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][0][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][
+										0][
 										"mR@20"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][0][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][
+										0][
 										"mR@50"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][0][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][
+										0][
 										"mR@100"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][1][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][
+										1][
 										"mR@10"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][1][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][
+										1][
 										"mR@20"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][1][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][
+										1][
 										"mR@50"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][1][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][
+										1][
 										"mR@100"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][2][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][
+										2][
 										"mR@10"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][2][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][
+										2][
 										"mR@20"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][2][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][
+										2][
 										"mR@50"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][2][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["sgcls"][cf][
+										2][
 										"mR@100"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][cf][0][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][
+										cf][0][
 										"mR@10"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][cf][0][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][
+										cf][0][
 										"mR@20"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][cf][0][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][
+										cf][0][
 										"mR@50"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][cf][0][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][
+										cf][0][
 										"mR@100"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][cf][1][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][
+										cf][1][
 										"mR@10"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][cf][1][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][
+										cf][1][
 										"mR@20"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][cf][1][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][
+										cf][1][
 										"mR@50"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][cf][1][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][
+										cf][1][
 										"mR@100"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][cf][2][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][
+										cf][2][
 										"mR@10"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][cf][2][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][
+										cf][2][
 										"mR@20"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][cf][2][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][
+										cf][2][
 										"mR@50"],
-									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][cf][2][
+									sga_mean_recall_results_json[method_name][scenario_name][partial_num]["predcls"][
+										cf][2][
 										"mR@100"]
 								])
 	
@@ -516,7 +555,7 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 		
 		sga_recall_results_json = self.fetch_sga_recall_results_json_csv()
 		self.generate_sga_recall_results_csvs_method_wise(sga_recall_results_json)
-
+	
 	# ---------------------------------------------------------------------------------------------
 	# --------------------------------- Latex Generation Methods ------------------------------------
 	# ---------------------------------------------------------------------------------------------
@@ -553,38 +592,65 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 			values_matrix[idx, 25] = fetch_value(mean_recall_results_json[comb_method_name]["predcls"][cf][2]["mR@20"])
 			values_matrix[idx, 26] = fetch_value(mean_recall_results_json[comb_method_name]["predcls"][cf][2]["mR@50"])
 		elif "partial" in comb_method_name:
-			values_matrix[idx, 0] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][0]["mR@10"])
-			values_matrix[idx, 1] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][0]["mR@20"])
-			values_matrix[idx, 2] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][0]["mR@50"])
-			values_matrix[idx, 3] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][1]["mR@10"])
-			values_matrix[idx, 4] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][1]["mR@20"])
-			values_matrix[idx, 5] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][1]["mR@50"])
-			values_matrix[idx, 6] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][2]["mR@10"])
-			values_matrix[idx, 7] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][2]["mR@20"])
-			values_matrix[idx, 8] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][2]["mR@50"])
-			values_matrix[idx, 9] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][0]["mR@10"])
-			values_matrix[idx, 10] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][0]["mR@20"])
-			values_matrix[idx, 11] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][0]["mR@50"])
-			values_matrix[idx, 12] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][1]["mR@10"])
-			values_matrix[idx, 13] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][1]["mR@20"])
-			values_matrix[idx, 14] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][1]["mR@50"])
-			values_matrix[idx, 15] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][2]["mR@10"])
-			values_matrix[idx, 16] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][2]["mR@20"])
-			values_matrix[idx, 17] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][2]["mR@50"])
-			values_matrix[idx, 18] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][0]["mR@10"])
-			values_matrix[idx, 19] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][0]["mR@20"])
-			values_matrix[idx, 20] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][0]["mR@50"])
-			values_matrix[idx, 21] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][1]["mR@10"])
-			values_matrix[idx, 22] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][1]["mR@20"])
-			values_matrix[idx, 23] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][1]["mR@50"])
-			values_matrix[idx, 24] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][2]["mR@10"])
-			values_matrix[idx, 25] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][2]["mR@20"])
-			values_matrix[idx, 26] = fetch_value(mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][2]["mR@50"])
+			values_matrix[idx, 0] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][0]["mR@10"])
+			values_matrix[idx, 1] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][0]["mR@20"])
+			values_matrix[idx, 2] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][0]["mR@50"])
+			values_matrix[idx, 3] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][1]["mR@10"])
+			values_matrix[idx, 4] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][1]["mR@20"])
+			values_matrix[idx, 5] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][1]["mR@50"])
+			values_matrix[idx, 6] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][2]["mR@10"])
+			values_matrix[idx, 7] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][2]["mR@20"])
+			values_matrix[idx, 8] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgdet"][cf][2]["mR@50"])
+			values_matrix[idx, 9] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][0]["mR@10"])
+			values_matrix[idx, 10] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][0]["mR@20"])
+			values_matrix[idx, 11] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][0]["mR@50"])
+			values_matrix[idx, 12] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][1]["mR@10"])
+			values_matrix[idx, 13] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][1]["mR@20"])
+			values_matrix[idx, 14] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][1]["mR@50"])
+			values_matrix[idx, 15] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][2]["mR@10"])
+			values_matrix[idx, 16] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][2]["mR@20"])
+			values_matrix[idx, 17] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["sgcls"][cf][2]["mR@50"])
+			values_matrix[idx, 18] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][0]["mR@10"])
+			values_matrix[idx, 19] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][0]["mR@20"])
+			values_matrix[idx, 20] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][0]["mR@50"])
+			values_matrix[idx, 21] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][1]["mR@10"])
+			values_matrix[idx, 22] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][1]["mR@20"])
+			values_matrix[idx, 23] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][1]["mR@50"])
+			values_matrix[idx, 24] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][2]["mR@10"])
+			values_matrix[idx, 25] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][2]["mR@20"])
+			values_matrix[idx, 26] = fetch_value(
+				mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][2]["mR@50"])
 		return values_matrix
 	
 	@staticmethod
 	def fill_sga_combined_values_matrix_mean_recall_no_sc(values_matrix, mean_recall_results_json,
-	                                                idx, comb_method_name, cf, partial_percentage='10'):
+	                                                      idx, comb_method_name, cf, partial_percentage='10'):
 		if "full" in comb_method_name:
 			values_matrix[idx, 0] = fetch_value(mean_recall_results_json[comb_method_name]["sgdet"][cf][0]["mR@10"])
 			values_matrix[idx, 1] = fetch_value(mean_recall_results_json[comb_method_name]["sgdet"][cf][0]["mR@20"])
@@ -641,7 +707,7 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 				mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][1]["mR@20"])
 			values_matrix[idx, 17] = fetch_value(
 				mean_recall_results_json[comb_method_name][partial_percentage]["predcls"][cf][1]["mR@50"])
-			
+		
 		return values_matrix
 	
 	@staticmethod
@@ -729,7 +795,8 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 		os.makedirs(os.path.dirname(latex_file_path), exist_ok=True)
 		latex_table = self.generate_sga_combined_paper_latex_header()
 		
-		values_matrix = np.zeros((12, 18), dtype=np.float32)
+		total_rows = 12 * len(self.latex_context_fraction_list)
+		values_matrix = np.zeros((total_rows, 18), dtype=np.float32)
 		
 		row_counter = 0
 		for cf in self.latex_context_fraction_list:
@@ -744,6 +811,16 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 						cf=cf)
 					row_counter += 1
 		
+		max_value_boolean_matrx = np.zeros(values_matrix.shape, dtype=np.bool)
+		# For every column, take two rows at a time and find the max value
+		# find the column-wise max value and make the corresponding row, column index True in the max_value_boolean_matrix
+		for col_idx in range(18):
+			for row_idx in range(0, total_rows, 2):
+				if values_matrix[row_idx, col_idx] > values_matrix[row_idx + 1, col_idx]:
+					max_value_boolean_matrx[row_idx, col_idx] = True
+				else:
+					max_value_boolean_matrx[row_idx + 1, col_idx] = True
+		
 		row_counter = 0
 		for cf in self.latex_context_fraction_list:
 			for method in self.method_list:
@@ -755,22 +832,24 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 						latex_row = f"        \\multirow{{12}}{{*}}{{{cf}}} &"
 					else:
 						latex_row = "        &"
-					
-					if row_counter % 2 == 1:
-						latex_row += f"        {latex_method_name}"
-						for col_idx in range(18):
-							latex_row += f" & \\cellcolor{{highlightColor}} \\textbf{{{fetch_rounded_value(values_matrix[row_counter, col_idx])}}}"
-						latex_row += "  \\\\ \n"
 						
-						if row_counter < 11:
-							latex_row += "          \\cmidrule(lr){2-11} \\cmidrule(lr){12-20} \n"
-						elif row_counter == 11:
-							latex_row += "          \\hline \n"
-					else:
-						latex_row += f"        {latex_method_name}"
-						for col_idx in range(18):
+					latex_row += f"        {latex_method_name}"
+					
+					for col_idx in range(18):
+						if max_value_boolean_matrx[row_counter, col_idx]:
+							latex_row += f" & \\cellcolor{{highlightColor}} \\textbf{{{fetch_rounded_value(values_matrix[row_counter, col_idx])}}}"
+						else:
 							latex_row += f" & {fetch_rounded_value(values_matrix[row_counter, col_idx])}"
+							
+					if row_counter % 2 == 1:
 						latex_row += "  \\\\ \n"
+						if row_counter % 12 == 11:
+							latex_row += "          \\hline \n"
+						else:
+							latex_row += "          \\cmidrule(lr){2-11} \\cmidrule(lr){12-20} \n"
+					else:
+						latex_row += "  \\\\ \n"
+					
 					latex_table += latex_row
 					row_counter += 1
 		
@@ -782,7 +861,8 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 	
 	def generate_paper_sga_mean_recall_sgcls_predcls_latex_table(self, sga_mean_recall_results_json):
 		latex_file_name = f"sga_mean_recall_sgcls_predcls.tex"
-		latex_file_path = os.path.join(os.path.dirname(__file__), "../../results_docs", "paper_latex_tables", latex_file_name)
+		latex_file_path = os.path.join(os.path.dirname(__file__), "../../results_docs", "paper_latex_tables",
+		                               latex_file_name)
 		os.makedirs(os.path.dirname(latex_file_path), exist_ok=True)
 		latex_table = self.generate_sga_sgcls_predcls_paper_latex_header()
 		
@@ -826,7 +906,7 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 						latex_row += "  \\\\ \n"
 					latex_table += latex_row
 					row_counter += 1
-					
+		
 		latex_footer = self.generate_full_width_latex_footer()
 		latex_table += latex_footer
 		
@@ -835,7 +915,8 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 	
 	def generate_paper_sga_mean_recall_sgdet_latex_table(self, sga_mean_recall_results_json):
 		latex_file_name = f"sga_mean_recall_sgdet.tex"
-		latex_file_path = os.path.join(os.path.dirname(__file__), "../../results_docs", "paper_latex_tables", latex_file_name)
+		latex_file_path = os.path.join(os.path.dirname(__file__), "../../results_docs", "paper_latex_tables",
+		                               latex_file_name)
 		os.makedirs(os.path.dirname(latex_file_path), exist_ok=True)
 		latex_table = self.generate_sga_sgdet_paper_latex_header()
 		
@@ -884,15 +965,16 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 		
 		with open(latex_file_path, "a", newline='') as latex_file:
 			latex_file.write(latex_table)
-			
-			
+
+
 def prepare_paper_sgg_latex_tables():
 	prepare_paper_results_sga = PreparePaperResultsSGA()
 	sga_mean_recall_results_json = prepare_paper_results_sga.fetch_sga_mean_recall_results_json_latex()
 	# prepare_paper_results_sga.generate_paper_sga_mean_recall_sgcls_predcls_latex_table(sga_mean_recall_results_json)
 	# prepare_paper_results_sga.generate_paper_sga_mean_recall_sgdet_latex_table(sga_mean_recall_results_json)
 	prepare_paper_results_sga.generate_paper_sga_mean_recall_latex_table(sga_mean_recall_results_json)
-	
+
+
 def main():
 	prepare_paper_results_sga = PreparePaperResultsSGA()
 	prepare_paper_results_sga.compile_sga_method_wise_results_csvs()

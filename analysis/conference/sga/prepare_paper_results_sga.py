@@ -13,7 +13,7 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 		self.scenario_list = ["full", "partial"]
 		self.mode_list = ["sgcls", "sgdet", "predcls"]
 		self.method_list = ["sttran_ant", "dsgdetr_ant", "sttran_gen_ant", "dsgdetr_gen_ant", "ode", "sde"]
-		self.partial_percentages = [10]
+		self.partial_percentages = ['10']
 		self.task_name = "sga"
 		self.latex_method_list = [
 			"sttran_ant_full", "sttran_ant_partial",
@@ -71,7 +71,7 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 				if sga_result.context_fraction is None:
 					continue
 				
-				percentage_num = sga_result.partial_percentage
+				percentage_num = str(sga_result.partial_percentage)
 				with_constraint_metrics = sga_result.result_details.with_constraint_metrics
 				no_constraint_metrics = sga_result.result_details.no_constraint_metrics
 				semi_constraint_metrics = sga_result.result_details.semi_constraint_metrics
@@ -136,7 +136,6 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 				if sga_result.context_fraction is None:
 					continue
 				
-				percentage_num = sga_result.partial_percentage
 				with_constraint_metrics = sga_result.result_details.with_constraint_metrics
 				no_constraint_metrics = sga_result.result_details.no_constraint_metrics
 				semi_constraint_metrics = sga_result.result_details.semi_constraint_metrics
@@ -146,6 +145,7 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 					semi_constraint_metrics
 				)
 				cf = str(sga_result.context_fraction)
+				percentage_num = str(sga_result.partial_percentage)
 				
 				if percentage_num not in self.partial_percentages:
 					continue
@@ -195,7 +195,7 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 				sga_results_json[paper_method_name][mode][cf] = completed_mean_recall_metrics_json
 				continue
 			elif scenario_name == "partial":
-				percentage_num = sga_result.partial_percentage
+				percentage_num = str(sga_result.partial_percentage)
 				paper_method_name = method_name + "_partial"
 				
 				if sga_result.context_fraction is None:
@@ -522,7 +522,7 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 	
 	@staticmethod
 	def fill_sga_combined_values_matrix_mean_recall(values_matrix, mean_recall_results_json,
-	                                                idx, comb_method_name, cf, partial_percentage=10):
+	                                                idx, comb_method_name, cf, partial_percentage='10'):
 		if "full" in comb_method_name:
 			values_matrix[idx, 0] = fetch_value(mean_recall_results_json[comb_method_name]["sgdet"][cf][0]["mR@10"])
 			values_matrix[idx, 1] = fetch_value(mean_recall_results_json[comb_method_name]["sgdet"][cf][0]["mR@20"])
@@ -670,9 +670,9 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 						for col_idx in range(9, 27):
 							latex_row += f" & \\cellcolor{{highlightColor}} \\textbf{{{fetch_rounded_value(values_matrix[row_counter, col_idx])}}}"
 						latex_row += "  \\\\ \n"
-						latex_row += "          \\hline \n"
+						latex_row += "          \\cmidrule(lr){3-11} \\cmidrule(lr){12-20} \n"
 					else:
-						latex_row = f"        {latex_method_name}"
+						latex_row += f"        {latex_method_name}"
 						for col_idx in range(9, 27):
 							latex_row += f" & {fetch_rounded_value(values_matrix[row_counter, col_idx])}"
 						latex_row += "  \\\\ \n"
@@ -723,9 +723,9 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 						for col_idx in range(9):
 							latex_row += f" & \\cellcolor{{highlightColor}} \\textbf{{{fetch_rounded_value(values_matrix[row_counter, col_idx])}}}"
 						latex_row += "  \\\\ \n"
-						latex_row += "          \\hline \n"
+						latex_row += "          \\cmidrule(lr){3-11} \n"
 					else:
-						latex_row = f"        {latex_method_name}"
+						latex_row += f"        {latex_method_name}"
 						for col_idx in range(9):
 							latex_row += f" & {fetch_rounded_value(values_matrix[row_counter, col_idx])}"
 						latex_row += "  \\\\ \n"

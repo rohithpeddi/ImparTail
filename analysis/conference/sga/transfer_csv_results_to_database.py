@@ -65,7 +65,7 @@ def transfer_sga(
 				mode=mode,
 			)
 			if scenario_name == const.PARTIAL:
-				partial_percentage = 40
+				partial_percentage = 10
 				result.partial_percentage = partial_percentage
 			elif scenario_name == const.LABELNOISE:
 				label_noise_percentage = 20

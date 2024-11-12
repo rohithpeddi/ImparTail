@@ -25,7 +25,11 @@ def impart_corruptions(corruption_methods):
 			severity = 3
 			
 			corrupted_image = corruption_name_to_function[corruption_method](original_image, severity)
-			corrupted_image.save(corrupted_image_path)
+			corrupted_image = corrupted_image[:, :, ::-1]
+
+			# corrupted_image = cv2.cvtColor(corrupted_image, cv2.COLOR_BGR2RGB)
+			# Save or show the composite image
+			cv2.imwrite(corrupted_image_path, corrupted_image)
 
 
 def visualize_corruptions(corruption_methods):

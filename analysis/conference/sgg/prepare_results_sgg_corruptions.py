@@ -9,8 +9,10 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 	
 	def __init__(self):
 		super(PrepareResultsSGGCorruptions, self).__init__()
-		self.mode_list = ["sgcls", "sgdet", "predcls"]
+		self.mode_list = ["sgcls", "predcls"]
 		self.method_list = ["sttran", "dsgdetr"]
+		self.scenario_list = ["full", "partial"]
+		self.partial_percentages = [10]
 		
 		self.corruption_types = [
 			const.NO_CORRUPTION, const.GAUSSIAN_NOISE, const.SHOT_NOISE, const.IMPULSE_NOISE, const.SPECKLE_NOISE,
@@ -20,7 +22,7 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 		]
 		self.dataset_corruption_modes = [const.FIXED, const.MIXED]
 		self.video_corruption_modes = [const.FIXED, const.MIXED]
-		self.severity_levels = ["1", "5"]
+		self.severity_levels = ["3"]
 		
 		self.task_name = "sgg"
 	
@@ -31,20 +33,40 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 			sgg_results_json[mode] = {}
 			for method_name in self.method_list:
 				sgg_results_json[mode][method_name] = {}
-				for dataset_corruption_mode in self.dataset_corruption_modes:
-					sgg_results_json[mode][method_name][dataset_corruption_mode] = {}
-					if dataset_corruption_mode == const.FIXED:
-						for dataset_corruption_type in self.corruption_types:
-							sgg_results_json[mode][method_name][dataset_corruption_mode][dataset_corruption_type] = {}
-							for severity_level in self.severity_levels:
-								sgg_results_json[mode][method_name][dataset_corruption_mode][dataset_corruption_type][
-									severity_level] = self.fetch_empty_metrics_json()
-					elif dataset_corruption_mode == const.MIXED:
-						for video_corruption_mode in self.video_corruption_modes:
-							sgg_results_json[mode][method_name][dataset_corruption_mode][video_corruption_mode] = {}
-							for severity_level in self.severity_levels:
-								sgg_results_json[mode][method_name][dataset_corruption_mode][video_corruption_mode][
-									severity_level] = self.fetch_empty_metrics_json()
+				for scenario in self.scenario_list:
+					sgg_results_json[mode][method_name][scenario] = {}
+					if scenario == "full":
+						for dataset_corruption_mode in self.dataset_corruption_modes:
+							sgg_results_json[mode][method_name][scenario][dataset_corruption_mode] = {}
+							if dataset_corruption_mode == const.FIXED:
+								for dataset_corruption_type in self.corruption_types:
+									sgg_results_json[mode][method_name][scenario][dataset_corruption_mode][dataset_corruption_type] = {}
+									for severity_level in self.severity_levels:
+										sgg_results_json[mode][method_name][scenario][dataset_corruption_mode][dataset_corruption_type][
+											severity_level] = self.fetch_empty_metrics_json()
+							elif dataset_corruption_mode == const.MIXED:
+								for video_corruption_mode in self.video_corruption_modes:
+									sgg_results_json[mode][method_name][scenario][dataset_corruption_mode][video_corruption_mode] = {}
+									for severity_level in self.severity_levels:
+										sgg_results_json[mode][method_name][scenario][dataset_corruption_mode][video_corruption_mode][
+											severity_level] = self.fetch_empty_metrics_json()
+					elif scenario == "partial":
+						for partial_num in self.partial_percentages:
+							sgg_results_json[mode][method_name][scenario][partial_num] = {}
+							for dataset_corruption_mode in self.dataset_corruption_modes:
+								sgg_results_json[mode][method_name][scenario][partial_num][dataset_corruption_mode] = {}
+								if dataset_corruption_mode == const.FIXED:
+									for dataset_corruption_type in self.corruption_types:
+										sgg_results_json[mode][method_name][scenario][partial_num][dataset_corruption_mode][dataset_corruption_type] = {}
+										for severity_level in self.severity_levels:
+											sgg_results_json[mode][method_name][scenario][partial_num][dataset_corruption_mode][dataset_corruption_type][
+												severity_level] = self.fetch_empty_metrics_json()
+								elif dataset_corruption_mode == const.MIXED:
+									for video_corruption_mode in self.video_corruption_modes:
+										sgg_results_json[mode][method_name][scenario][partial_num][dataset_corruption_mode][video_corruption_mode] = {}
+										for severity_level in self.severity_levels:
+											sgg_results_json[mode][method_name][scenario][partial_num][dataset_corruption_mode][video_corruption_mode][
+												severity_level] = self.fetch_empty_metrics_json()
 		
 		for sgg_result in db_results:
 			mode = sgg_result.mode
@@ -53,6 +75,9 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 			dataset_corruption_mode = sgg_result.dataset_corruption_mode
 			video_corruption_mode = sgg_result.video_corruption_mode
 			severity_level = sgg_result.corruption_severity_level
+			
+			if str(severity_level) not in self.severity_levels:
+				continue
 			
 			if dataset_corruption_mode == const.FIXED:
 				sgg_results_json[mode][method_name][dataset_corruption_mode][dataset_corruption_type][
@@ -228,3 +253,4 @@ def combine_results():
 
 if __name__ == '__main__':
 	main()
+	combine_results()

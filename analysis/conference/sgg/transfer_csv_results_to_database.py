@@ -101,13 +101,17 @@ def transfer_sgg_corruptions(
 	details = (base_file_name.split('.')[0]).split('_')
 	
 	# self._corruption_name = (f"{self._conf.dataset_corruption_mode}_{self._conf.video_corruption_mode}_"
-	                         # f"{self._conf.dataset_corruption_type}_{self._conf.corruption_severity_level}")
+	# f"{self._conf.dataset_corruption_type}_{self._conf.corruption_severity_level}")
 	
 	index_of_mode = details.index(mode)
 	
 	dataset_corruption_mode = details[index_of_mode + 1]
 	video_corruption_mode = details[index_of_mode + 2]
 	corruption_severity_level = details[-1]
+	
+	partial_percentage = None
+	if scenario_name == const.PARTIAL:
+		partial_percentage = details[index_of_mode - 1]
 	
 	assert mode in [const.SGCLS, const.SGDET, const.PREDCLS]
 	
@@ -122,6 +126,11 @@ def transfer_sgg_corruptions(
 					method_name = details[0]
 			else:
 				result_details, method_name = process_result_details_from_csv_row(row)
+				
+			if "sttran" in method_name:
+				method_name = "sttran"
+			elif "dsgdetr" in method_name:
+				method_name = "dsgdetr"
 			
 			result = Result(
 				task_name=task_name,
@@ -130,15 +139,15 @@ def transfer_sgg_corruptions(
 				mode=mode,
 			)
 			
+			result.partial_percentage = partial_percentage
 			result.dataset_corruption_mode = dataset_corruption_mode
 			result.video_corruption_mode = video_corruption_mode
 			result.corruption_severity_level = corruption_severity_level
-			
 			if dataset_corruption_mode == const.FIXED:
-				dataset_corruption_type = "_".join(details[4:-1])
+				dataset_corruption_type = "_".join(details[index_of_mode+3:-1])
 				result.dataset_corruption_type = dataset_corruption_type
 			else:
-				dataset_corruption_type = details[4]
+				dataset_corruption_type = details[index_of_mode + 3]
 				result.dataset_corruption_type = dataset_corruption_type
 			
 			result.add_result_details(result_details)
@@ -167,6 +176,10 @@ def transfer_corruption_results_from_directories_sgg():
 			# Convert the method name to lowercase
 			method_name_csv_file = method_name_csv_file.lower()
 			
+			train_scenario_name = const.FULL
+			if "_partial_" in method_name_csv_file:
+				train_scenario_name = const.PARTIAL
+			
 			mode_name = None
 			if "_sgcls_" in method_name_csv_file:
 				mode_name = const.SGCLS
@@ -183,7 +196,7 @@ def transfer_corruption_results_from_directories_sgg():
 				transfer_sgg_corruptions(
 					mode=mode_name,
 					result_file_path=method_name_csv_path,
-					scenario_name=scenario_name
+					scenario_name=train_scenario_name
 				)
 
 

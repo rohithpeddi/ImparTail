@@ -1,7 +1,9 @@
 import csv
 import os
 
-from analysis.conference.prepare_results_base import PrepareResultsBase
+import numpy as np
+
+from analysis.conference.prepare_results_base import PrepareResultsBase, fetch_value, fetch_rounded_value
 from constants import CorruptionConstants as const
 
 
@@ -15,17 +17,27 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 		self.partial_percentages = ["10"]
 		
 		self.corruption_types = [
-			const.NO_CORRUPTION, const.GAUSSIAN_NOISE, const.SHOT_NOISE, const.IMPULSE_NOISE, const.SPECKLE_NOISE,
-			const.GAUSSIAN_BLUR, const.DEFOCUS_BLUR, const.MOTION_BLUR, const.ZOOM_BLUR, const.FOG, const.FROST,
-			const.SNOW, const.SPATTER, const.CONTRAST, const.BRIGHTNESS, const.ELASTIC_TRANSFORM, const.PIXELATE,
-			const.JPEG_COMPRESSION, const.SUN_GLARE, const.RAIN, const.DUST, const.WILDFIRE_SMOKE, const.SATURATE,
-			const.GLASS_BLUR
+			const.GAUSSIAN_NOISE, const.SHOT_NOISE, const.IMPULSE_NOISE, const.SPECKLE_NOISE,
+			const.GAUSSIAN_BLUR, const.DEFOCUS_BLUR, const.FOG, const.FROST,
+			const.SPATTER, const.CONTRAST, const.BRIGHTNESS, const.PIXELATE,
+			const.JPEG_COMPRESSION, const.SUN_GLARE, const.DUST, const.SATURATE
 		]
 		self.dataset_corruption_modes = [const.FIXED, const.MIXED]
 		self.video_corruption_modes = [const.FIXED, const.MIXED]
 		self.severity_levels = ["3"]
 		
+		self.latex_corruption_types = [
+			const.GAUSSIAN_NOISE, const.SHOT_NOISE, const.IMPULSE_NOISE, const.SPECKLE_NOISE,
+			const.GAUSSIAN_BLUR, const.DEFOCUS_BLUR, const.FOG, const.FROST,
+			const.SPATTER, const.CONTRAST, const.BRIGHTNESS, const.PIXELATE,
+			const.JPEG_COMPRESSION, const.SUN_GLARE, const.DUST, const.SATURATE
+		]
+		
 		self.task_name = "sgg"
+	
+	# -----------------------------------------------------------------------------------------------
+	# ----------------------------- DATA GENERATION FILES -----------------------------------------
+	# -----------------------------------------------------------------------------------------------
 	
 	def fetch_sgg_results_json(self):
 		db_results = self.fetch_db_sgg_corruptions_results()
@@ -451,6 +463,216 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 	def compile_sgg_method_wise_results(self):
 		sgg_results_json = self.fetch_sgg_results_json()
 		self.generate_sgg_combined_results_csvs_method_wise(sgg_results_json)
+	
+	# -----------------------------------------------------------------------------------------------
+	# ----------------------------- LATEX GENERATION FILES -----------------------------------------
+	# -----------------------------------------------------------------------------------------------
+	
+	@staticmethod
+	def fill_sgg_paper_combined_values_matrix(values_matrix, sgg_results_json, idx, mode,
+	                                          comb_method_name, corruption_type, severity_level, partial_percentage=10):
+		if "full" in comb_method_name:
+			method_name = comb_method_name.split("_")[0]
+			scenario = "full"
+			corruption_mode = "fixed"
+			# sgg_results_json[mode][method_name][scenario][dataset_corruption_mode][dataset_corruption_type][severity_level]
+			values_matrix[idx, 0] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][0][
+					"mR@10"])
+			values_matrix[idx, 1] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][0][
+					"mR@20"])
+			values_matrix[idx, 2] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][0][
+					"mR@50"])
+			values_matrix[idx, 3] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][1][
+					"R@10"])
+			values_matrix[idx, 4] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][1][
+					"R@20"])
+			values_matrix[idx, 5] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][1][
+					"R@50"])
+			values_matrix[idx, 6] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][1][
+					"mR@10"])
+			values_matrix[idx, 7] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][1][
+					"mR@20"])
+			values_matrix[idx, 8] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][1][
+					"mR@50"])
+			values_matrix[idx, 9] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][2][
+					"mR@10"])
+			values_matrix[idx, 10] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][2][
+					"mR@20"])
+			values_matrix[idx, 11] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][2][
+					"mR@50"])
+		elif "partial" in comb_method_name:
+			method_name = comb_method_name.split("_")[0]
+			scenario = "full"
+			corruption_mode = "fixed"
+			
+			# sgg_results_json[mode][method_name][scenario][partial_num][dataset_corruption_mode][dataset_corruption_type][severity_level]
+			values_matrix[idx, 0] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
+					severity_level][0]["mR@10"])
+			values_matrix[idx, 1] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
+					severity_level][0]["mR@20"])
+			values_matrix[idx, 2] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
+					severity_level][0]["mR@50"])
+			values_matrix[idx, 3] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
+					severity_level][1]["R@10"])
+			values_matrix[idx, 4] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
+					severity_level][1]["R@20"])
+			values_matrix[idx, 5] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
+					severity_level][1]["R@50"])
+			values_matrix[idx, 6] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
+					severity_level][1]["mR@10"])
+			values_matrix[idx, 7] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
+					severity_level][1]["mR@20"])
+			values_matrix[idx, 8] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
+					severity_level][1]["mR@50"])
+			values_matrix[idx, 9] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
+					severity_level][2]["mR@10"])
+			values_matrix[idx, 10] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
+					severity_level][2]["mR@20"])
+			values_matrix[idx, 11] = fetch_value(
+				sgg_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
+					severity_level][2]["mR@50"])
+		return values_matrix
+	
+	@staticmethod
+	def generate_sgg_corruptions_paper_latex_header():
+		latex_header = "\\begin{table*}[!h]\n"
+		latex_header += "    \\centering\n"
+		latex_header += "    \\captionsetup{font=small}\n"
+		latex_header += "    \\caption{Robustness Evaluation Results for SGG.}\n"
+		latex_header += "    \\label{tab:sgg_corruptions_results}\n"
+		latex_header += "    \\renewcommand{\\arraystretch}{1.2} \n"
+		latex_header += "    \\resizebox{\\textwidth}{!}{\n"
+		latex_header += "    \\begin{tabular}{l|l|l|ccc|cccccc|ccc}\n"
+		latex_header += "    \\hline\n"
+		latex_header += "       &  &  & \\multicolumn{3}{c}{\\textbf{With Constraint}} & \\multicolumn{6}{c}{\\textbf{No Constraint}} & \\multicolumn{3}{c}{\\textbf{Semi Constraint}} \\\\ \n"
+		latex_header += "        \\cmidrule(lr){4-6} \\cmidrule(lr){7-12} \\cmidrule(lr){13-15} \n "
+		latex_header += (
+				"        \\multirow{3}{*}{Mode} & \\multirow{3}{*}{Corruption} & \\multirow{3}{*}{Method} & "
+				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50} & "
+				"\\textbf{R@10} & \\textbf{R@20} & \\textbf{R@50}  & "
+				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50}  & "
+				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50}  & "
+				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50}  " + " \\\\ \\hline\n")
+		return latex_header
+	
+	def generate_paper_sgg_corruptions_latex_table(self, sgg_results_json):
+		latex_file_name = f"sgg_corruptions.tex"
+		latex_file_path = os.path.join(os.path.dirname(__file__), "../../results_docs", "paper_latex_tables",
+		                               latex_file_name)
+		os.makedirs(os.path.dirname(latex_file_path), exist_ok=True)
+		latex_table = self.generate_sgg_corruptions_paper_latex_header()
+		
+		num_rows = 2 * len(self.method_list) * len(self.latex_corruption_types) * len(self.mode_list)
+		values_matrix = np.zeros((num_rows, 12), dtype=np.float32)
+		
+		severity_level = "3"
+		
+		row_counter = 0
+		for mode in self.mode_list:
+			for corruption_type in self.latex_corruption_types:
+				for method in self.method_list:
+					for scenario in self.scenario_list:
+						comb_method_name = f"{method}_{scenario}"
+						values_matrix = self.fill_sgg_paper_combined_values_matrix(values_matrix,
+						                                                           sgg_results_json,
+						                                                           row_counter,
+						                                                           mode,
+						                                                           comb_method_name,
+						                                                           corruption_type,
+						                                                           severity_level,
+						                                                           partial_percentage=10)
+						row_counter += 1
+		
+		max_value_boolean_matrx = np.zeros(values_matrix.shape, dtype=np.bool)
+		# For every column, take two rows at a time and find the max value
+		# find the column-wise max value and make the corresponding row, column index True in the max_value_boolean_matrix
+		for col_idx in range(12):
+			for row_idx in range(0, num_rows, 2):
+				if values_matrix[row_idx, col_idx] > values_matrix[row_idx + 1, col_idx]:
+					max_value_boolean_matrx[row_idx, col_idx] = True
+				else:
+					max_value_boolean_matrx[row_idx + 1, col_idx] = True
+		
+		row_counter = 0
+		for mode in self.mode_list:
+			for corruption_type in self.latex_corruption_types:
+				for method in self.method_list:
+					for scenario in self.scenario_list:
+						comb_method_name = f"{method}_{scenario}"
+						latex_method_name = self.fetch_method_name_latex(comb_method_name)
+						
+						# Start Line for each mode
+						if row_counter % (len(self.latex_corruption_types) * 2 * len(self.method_list)) == 0:
+							latex_row = f"         \\multirow{{{len(self.latex_corruption_types) * 2 * len(self.method_list)}}}{{*}}{{{mode}}} & "
+						else:
+							latex_row = "        &"
+						
+						# Start Line for each corruption type
+						if row_counter % (2 * len(self.method_list)) == 0:
+							latex_row += f"\\multirow{{{2 * len(self.method_list)}}}{{*}}{{{corruption_type}}} & "
+						else:
+							latex_row += " & "
+						
+						latex_row += f"        {latex_method_name}"
+						
+						for col_idx in range(12):
+							if max_value_boolean_matrx[row_counter, col_idx]:
+								latex_row += f" & \\cellcolor{{highlightColor}} \\textbf{{{fetch_rounded_value(values_matrix[row_counter, col_idx])}}}"
+							else:
+								latex_row += f" & {fetch_rounded_value(values_matrix[row_counter, col_idx])}"
+						
+						if row_counter % 2 == 1:
+							latex_row += "  \\\\ \n"
+							if row_counter % 12 == 11:
+								latex_row += "          \\hline \n"
+							else:
+								latex_row += "          \\cmidrule(lr){2-11} \\cmidrule(lr){12-20} \n"
+						else:
+							latex_row += "  \\\\ \n"
+						
+						# End Line for each corruption type
+						if row_counter % (2 * len(self.method_list)) == 0:
+							latex_row += f" \\hline \n"
+						else:
+							latex_row += " \\cmidrule(lr){3-15}  \n "
+						
+						# End Line for each mode
+						if row_counter % (len(self.latex_corruption_types) * 2 * len(self.method_list)) == 0:
+							latex_row += "          \\hline \n"
+						else:
+							latex_row += "        \\cmidrule(lr){2-15}  \n "
+						
+						latex_table += latex_row
+						row_counter += 1
+		
+		latex_footer = self.generate_full_width_latex_footer()
+		latex_table += latex_footer
+		
+		with open(latex_file_path, "a", newline='') as latex_file:
+			latex_file.write(latex_table)
 
 
 def main():

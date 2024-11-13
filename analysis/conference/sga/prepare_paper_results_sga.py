@@ -15,16 +15,24 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 		self.method_list = ["sttran_ant", "dsgdetr_ant", "sttran_gen_ant", "dsgdetr_gen_ant", "ode", "sde"]
 		self.partial_percentages = ['10']
 		self.task_name = "sga"
+		# self.latex_method_list = [
+		# 	"sttran_ant_full", "sttran_ant_partial",
+		# 	"dsgdetr_ant_full", "dsgdetr_ant_partial",
+		# 	"sttran_gen_ant_full", "sttran_gen_ant_partial",
+		# 	"dsgdetr_gen_ant_full", "dsgdetr_gen_ant_partial",
+		# 	"ode_full", "ode_partial",
+		# 	"sde_full", "sde_partial"
+		# ]
+		
 		self.latex_method_list = [
-			"sttran_ant_full", "sttran_ant_partial",
-			"dsgdetr_ant_full", "dsgdetr_ant_partial",
 			"sttran_gen_ant_full", "sttran_gen_ant_partial",
 			"dsgdetr_gen_ant_full", "dsgdetr_gen_ant_partial",
 			"ode_full", "ode_partial",
 			"sde_full", "sde_partial"
 		]
+		
 		self.context_fraction_list = ['0.3', '0.5', '0.7', '0.9']
-		self.latex_context_fraction_list = ['0.3', '0.9']
+		self.latex_context_fraction_list =  ['0.3', '0.5', '0.7', '0.9']
 	
 	def fetch_sga_recall_results_json_csv(self):
 		db_results = self.fetch_db_sga_results()
@@ -179,11 +187,15 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 		for sga_result in db_results:
 			mode = sga_result.mode
 			method_name = sga_result.method_name
+			
 			scenario_name = sga_result.scenario_name
 			if scenario_name == "full":
 				paper_method_name = method_name + "_full"
 				
 				if sga_result.context_fraction is None:
+					continue
+					
+				if paper_method_name not in self.latex_method_list:
 					continue
 				
 				with_constraint_metrics = sga_result.result_details.with_constraint_metrics
@@ -203,6 +215,9 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 				paper_method_name = method_name + "_partial"
 				
 				if sga_result.context_fraction is None:
+					continue
+					
+				if paper_method_name not in self.latex_method_list:
 					continue
 				
 				with_constraint_metrics = sga_result.result_details.with_constraint_metrics
@@ -795,7 +810,9 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 		os.makedirs(os.path.dirname(latex_file_path), exist_ok=True)
 		latex_table = self.generate_sga_combined_paper_latex_header()
 		
-		total_rows = 12 * len(self.latex_context_fraction_list)
+		num_methods = len(self.latex_method_list)
+		
+		total_rows = num_methods * len(self.latex_context_fraction_list)
 		values_matrix = np.zeros((total_rows, 18), dtype=np.float32)
 		
 		row_counter = 0
@@ -803,6 +820,10 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 			for method in self.method_list:
 				for scenario in self.scenario_list:
 					comb_method_name = f"{method}_{scenario}"
+					
+					if comb_method_name not in self.latex_method_list:
+						continue
+					
 					values_matrix = self.fill_sga_combined_values_matrix_mean_recall_no_sc(
 						values_matrix=values_matrix,
 						mean_recall_results_json=sga_mean_recall_results_json,
@@ -826,10 +847,14 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 			for method in self.method_list:
 				for scenario in self.scenario_list:
 					comb_method_name = f"{method}_{scenario}"
+					
+					if comb_method_name not in self.latex_method_list:
+						continue
+					
 					latex_method_name = self.fetch_method_name_latex(comb_method_name)
 					
-					if row_counter % 12 == 0:
-						latex_row = f"        \\multirow{{12}}{{*}}{{{cf}}} &"
+					if row_counter % num_methods == 0:
+						latex_row = f"        \\multirow{{{num_methods}}}{{*}}{{{cf}}} &"
 					else:
 						latex_row = "        &"
 						
@@ -843,7 +868,7 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 							
 					if row_counter % 2 == 1:
 						latex_row += "  \\\\ \n"
-						if row_counter % 12 == 11:
+						if (row_counter % num_methods) == (num_methods-1):
 							latex_row += "          \\hline \n"
 						else:
 							latex_row += "          \\cmidrule(lr){2-11} \\cmidrule(lr){12-20} \n"
@@ -967,7 +992,7 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 			latex_file.write(latex_table)
 
 
-def prepare_paper_sgg_latex_tables():
+def prepare_paper_sga_latex_tables():
 	prepare_paper_results_sga = PreparePaperResultsSGA()
 	sga_mean_recall_results_json = prepare_paper_results_sga.fetch_sga_mean_recall_results_json_latex()
 	# prepare_paper_results_sga.generate_paper_sga_mean_recall_sgcls_predcls_latex_table(sga_mean_recall_results_json)
@@ -991,4 +1016,4 @@ def combine_results():
 if __name__ == '__main__':
 	# main()
 	# combine_results()
-	prepare_paper_sgg_latex_tables()
+	prepare_paper_sga_latex_tables()

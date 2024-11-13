@@ -78,7 +78,7 @@ def transfer_sga(
 			
 			result.add_result_details(result_details)
 			print(f"[{task_name}][{scenario_name}][{mode}] Saving result: ", result.result_id)
-			db_service.update_result_to_db("results_11_11_sga", result.result_id, result.to_dict())
+			db_service.update_result_to_db("results_13_11_sga", result.result_id, result.to_dict())
 			print(f"[{task_name}][{scenario_name}][{mode}] Saved result: ", result.result_id)
 			print("-----------------------------------------------------------------------------------")
 
@@ -91,6 +91,10 @@ def transfer_results_from_directories_sga():
 		scenario_name_path = os.path.join(task_directory_path, scenario_name)
 		# Convert the scenario name to lowercase
 		scenario_name = scenario_name.lower()
+		
+		if scenario_name not in [const.PARTIAL, const.FULL]:
+			continue
+		
 		print(f"[{task_name}][{scenario_name}] Processing files for scenario: ", scenario_name)
 		for mode_name in os.listdir(scenario_name_path):
 			# Convert the mode name to lowercase
@@ -246,4 +250,4 @@ def transfer_corruption_results_from_directories_sga():
 
 if __name__ == '__main__':
 	db_service = FirebaseService()
-	transfer_corruption_results_from_directories_sga()
+	transfer_results_from_directories_sga()

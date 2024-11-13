@@ -56,8 +56,6 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 			const.SATURATE: "Saturate"
 		}
 		
-		
-		
 		self.task_name = "sgg"
 	
 	# -----------------------------------------------------------------------------------------------
@@ -675,12 +673,14 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 						
 						# End Line for each corruption type
 						if (row_counter + 1) % (
-								2 * len(self.latex_method_list)) == 0 and row_counter < (num_rows-1):  # At the end of each corruption type group
+								2 * len(self.latex_method_list)) == 0 and row_counter < (
+								num_rows - 1):  # At the end of each corruption type group
 							latex_row += " \\cmidrule(lr){3-15}  \n "
 						
 						# End Line for each mode
 						if (row_counter + 1) % (
-								len(self.latex_corruption_types) * 2 * len(self.latex_method_list)) == 0:  # End of mode group
+								len(self.latex_corruption_types) * 2 * len(
+							self.latex_method_list)) == 0:  # End of mode group
 							latex_row += "          \\hline \n"
 						
 						latex_table += latex_row

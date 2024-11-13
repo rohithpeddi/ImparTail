@@ -51,11 +51,11 @@ class STSGBase:
                 self._checkpoint_name_with_epoch = os.path.basename(self._conf.ckpt).split('.')[0]
                 self._checkpoint_name = "_".join(self._checkpoint_name_with_epoch.split('_')[:-2])
 
-                if const.SGDET in self._checkpoint_name:
+                if "_sgdet" in self._checkpoint_name:
                     self._conf.mode = const.SGDET
-                elif const.SGCLS in self._checkpoint_name:
+                elif "_sgcls" in self._checkpoint_name:
                     self._conf.mode = const.SGCLS
-                elif const.PREDCLS in self._checkpoint_name:
+                elif "_predcls" in self._checkpoint_name:
                     self._conf.mode = const.PREDCLS
 
                 # self._conf.mode = self._checkpoint_name.split('_')[-1]

@@ -32,7 +32,7 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 		]
 		
 		self.context_fraction_list = ['0.3', '0.5', '0.7', '0.9']
-		self.latex_context_fraction_list =  ['0.3', '0.5', '0.7', '0.9']
+		self.latex_context_fraction_list = ['0.5', '0.7']
 	
 	def fetch_sga_recall_results_json_csv(self):
 		db_results = self.fetch_db_sga_results()
@@ -194,7 +194,7 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 				
 				if sga_result.context_fraction is None:
 					continue
-					
+				
 				if paper_method_name not in self.latex_method_list:
 					continue
 				
@@ -216,7 +216,7 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 				
 				if sga_result.context_fraction is None:
 					continue
-					
+				
 				if paper_method_name not in self.latex_method_list:
 					continue
 				
@@ -857,7 +857,7 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 						latex_row = f"        \\multirow{{{num_methods}}}{{*}}{{{cf}}} &"
 					else:
 						latex_row = "        &"
-						
+					
 					latex_row += f"        {latex_method_name}"
 					
 					for col_idx in range(18):
@@ -865,10 +865,10 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 							latex_row += f" & \\cellcolor{{highlightColor}} \\textbf{{{fetch_rounded_value(values_matrix[row_counter, col_idx])}}}"
 						else:
 							latex_row += f" & {fetch_rounded_value(values_matrix[row_counter, col_idx])}"
-							
+					
 					if row_counter % 2 == 1:
 						latex_row += "  \\\\ \n"
-						if (row_counter % num_methods) == (num_methods-1):
+						if (row_counter % num_methods) == (num_methods - 1):
 							latex_row += "          \\hline \n"
 						else:
 							latex_row += "          \\cmidrule(lr){2-11} \\cmidrule(lr){12-20} \n"

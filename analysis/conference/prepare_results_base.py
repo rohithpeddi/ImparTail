@@ -402,9 +402,9 @@ class PrepareResultsBase:
 		elif method_name in ["dsgdetr", "dsgdetr_full"]:
 			method_name = "DSGDetr~\cite{Feng_2021}"
 		elif method_name == "sttran_partial":
-			method_name = f"\\quad+\\textbf{{ImparTail(Ours)}}"
+			method_name = f"\\quad+\\textbf{{\\methodname(Ours)}}"
 		elif method_name == "dsgdetr_partial":
-			method_name = f"\\quad+\\textbf{{ImparTail(Ours)}}"
+			method_name = f"\\quad+\\textbf{{\\methodname(Ours)}}"
 		elif method_name in ["sttran_ant", "sttran_ant_full"]:
 			method_name = "STTran+~\cite{peddi_et_al_scene_sayer_2024}"
 		elif method_name in ["dsgdetr_ant", "dsgdetr_ant_full"]:
@@ -418,17 +418,17 @@ class PrepareResultsBase:
 		elif method_name in ["sde", "sde_full"]:
 			method_name = "SceneSayerSDE~\cite{peddi_et_al_scene_sayer_2024}"
 		elif method_name == "sttran_ant_partial":
-			method_name = f"\\quad+\\textbf{{ImparTail(Ours)}}"
+			method_name = f"\\quad+\\textbf{{\\methodname(Ours)}}"
 		elif method_name == "dsgdetr_ant_partial":
-			method_name = f"\\quad+\\textbf{{ImparTail(Ours)}}"
+			method_name = f"\\quad+\\textbf{{\\methodname(Ours)}}"
 		elif method_name == "sttran_gen_ant_partial":
-			method_name = f"\\quad+\\textbf{{ImparTail(Ours)}}"
+			method_name = f"\\quad+\\textbf{{\\methodname(Ours)}}"
 		elif method_name == "dsgdetr_gen_ant_partial":
-			method_name = f"\\quad+\\textbf{{ImparTail(Ours)}}"
+			method_name = f"\\quad+\\textbf{{\\methodname(Ours)}}"
 		elif method_name == "ode_partial":
-			method_name = f"\\quad+\\textbf{{ImparTail(Ours)}}"
+			method_name = f"\\quad+\\textbf{{\\methodname(Ours)}}"
 		elif method_name == "sde_partial":
-			method_name = f"\\quad+\\textbf{{ImparTail(Ours)}}"
+			method_name = f"\\quad+\\textbf{{\\methodname(Ours)}}"
 		elif method_name == "tempura":
 			method_name = "Tempura~\cite{tempura_2021}"
 		return method_name

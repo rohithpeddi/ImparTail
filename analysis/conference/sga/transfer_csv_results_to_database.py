@@ -201,7 +201,7 @@ def transfer_sga_corruptions(
 			result.add_result_details(result_details)
 			print("-----------------------------------------------------------------------------------")
 			print("Saving result: ", result.result_id)
-			db_service.update_result_to_db("results_11_11_sga_corruptions", result.result_id, result.to_dict())
+			db_service.update_result_to_db("results_14_11_sga_corruptions", result.result_id, result.to_dict())
 			print("Saved result: ", result.result_id)
 			print("-----------------------------------------------------------------------------------")
 
@@ -250,4 +250,4 @@ def transfer_corruption_results_from_directories_sga():
 
 if __name__ == '__main__':
 	db_service = FirebaseService()
-	transfer_results_from_directories_sga()
+	transfer_corruption_results_from_directories_sga()

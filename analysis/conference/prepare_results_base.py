@@ -42,7 +42,7 @@ class PrepareResultsBase:
 		self.sgg_database_name = "results_31_10_sgg"
 		self.easg_database_name = "results_2_11_easg"
 		self.sgg_corruptions_database_name = "results_14_11_sgg_corruptions"
-		self.sga_corruptions_database_name = "results_11_11_sga_corruptions"
+		self.sga_corruptions_database_name = "results_14_11_sga_corruptions"
 		
 		self.sgg_mode_list = ["sgcls", "sgdet", "predcls"]
 		self.sga_mode_list = ["sgcls", "sgdet", "predcls"]
@@ -60,6 +60,15 @@ class PrepareResultsBase:
 	
 	def fetch_db_sgg_corruptions_results(self):
 		results_dict = self.db_service.fetch_results_from_db(self.sgg_corruptions_database_name)
+		sgg_db_result_list = []
+		for result_id, result_dict in results_dict.items():
+			result = Result.from_dict(result_dict)
+			if result.task_name == const.SGG:
+				sgg_db_result_list.append(result)
+		return sgg_db_result_list
+	
+	def fetch_db_sga_corruptions_results(self):
+		results_dict = self.db_service.fetch_results_from_db(self.sga_corruptions_database_name)
 		sgg_db_result_list = []
 		for result_id, result_dict in results_dict.items():
 			result = Result.from_dict(result_dict)

@@ -30,11 +30,16 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 		self.latex_method_list = ["dsgdetr"]
 		self.latex_scenario_list = ["full", "partial"]
 		
+		# self.latex_corruption_types = [
+		# 	const.GAUSSIAN_NOISE, const.SHOT_NOISE, const.IMPULSE_NOISE, const.SPECKLE_NOISE,
+		# 	const.GAUSSIAN_BLUR, const.DEFOCUS_BLUR, const.FOG, const.FROST,
+		# 	const.SPATTER, const.CONTRAST, const.BRIGHTNESS, const.PIXELATE,
+		# 	const.JPEG_COMPRESSION, const.SUN_GLARE, const.DUST, const.SATURATE
+		# ]
+		
 		self.latex_corruption_types = [
 			const.GAUSSIAN_NOISE, const.SHOT_NOISE, const.IMPULSE_NOISE, const.SPECKLE_NOISE,
-			const.GAUSSIAN_BLUR, const.DEFOCUS_BLUR, const.FOG, const.FROST,
-			const.SPATTER, const.CONTRAST, const.BRIGHTNESS, const.PIXELATE,
-			const.JPEG_COMPRESSION, const.SUN_GLARE, const.DUST, const.SATURATE
+			const.FOG, const.FROST, const.BRIGHTNESS, const.SUN_GLARE
 		]
 		
 		self.corruption_type_latex_name_map = {
@@ -50,7 +55,7 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 			const.CONTRAST: "Contrast",
 			const.BRIGHTNESS: "Brightness",
 			const.PIXELATE: "Pixelate",
-			const.JPEG_COMPRESSION: "JPEG Compression",
+			const.JPEG_COMPRESSION: "Compression",
 			const.SUN_GLARE: "Sun Glare",
 			const.DUST: "Dust",
 			const.SATURATE: "Saturate"
@@ -120,6 +125,10 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 			video_corruption_mode = sgg_result.video_corruption_mode
 			severity_level = sgg_result.corruption_severity_level
 			scenario = sgg_result.scenario_name
+			
+			if dataset_corruption_type not in self.corruption_types:
+				print(f"Skipping corruption type: {dataset_corruption_type}")
+				continue
 			
 			if str(severity_level) not in self.severity_levels:
 				print(f"Skipping severity level: {severity_level}")
@@ -589,12 +598,12 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 		latex_header += "    \\label{tab:sgg_corruptions_results}\n"
 		latex_header += "    \\renewcommand{\\arraystretch}{1.2} \n"
 		latex_header += "    \\resizebox{\\textwidth}{!}{\n"
-		latex_header += "    \\begin{tabular}{l|l|l|ccc|cccccc|ccc}\n"
+		latex_header += "    \\begin{tabular}{l|l|l|l|ccc|cccccc|ccc}\n"
 		latex_header += "    \\hline\n"
-		latex_header += "       \\multirow{2}{*}{Mode} & \\multirow{2}{*}{Corruption} & \\multirow{2}{*}{Method} & \\multicolumn{3}{c}{\\textbf{With Constraint}} & \\multicolumn{6}{c}{\\textbf{No Constraint}} & \\multicolumn{3}{c}{\\textbf{Semi Constraint}} \\\\ \n"
-		latex_header += "        \\cmidrule(lr){4-6} \\cmidrule(lr){7-12} \\cmidrule(lr){13-15} \n "
+		latex_header += "      \\multirow{2}{*}{Severity} & \\multirow{2}{*}{Mode} & \\multirow{2}{*}{Corruption} & \\multirow{2}{*}{Method} & \\multicolumn{3}{c}{\\textbf{With Constraint}} & \\multicolumn{6}{c}{\\textbf{No Constraint}} & \\multicolumn{3}{c}{\\textbf{Semi Constraint}} \\\\ \n"
+		latex_header += "        \\cmidrule(lr){5-7} \\cmidrule(lr){8-13} \\cmidrule(lr){14-16} \n "
 		latex_header += (
-				" & & & "
+				" & & & & "
 				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50} & "
 				"\\textbf{R@10} & \\textbf{R@20} & \\textbf{R@50}  & "
 				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50}  & "
@@ -602,7 +611,8 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 		return latex_header
 	
 	def generate_paper_sgg_corruptions_latex_table(self, sgg_results_json):
-		latex_file_name = f"sgg_corruptions.tex"
+		severity_level = "3"
+		latex_file_name = f"sgg_corruptions_{severity_level}.tex"
 		latex_file_path = os.path.join(os.path.dirname(__file__), "../../results_docs", "paper_latex_tables",
 		                               latex_file_name)
 		os.makedirs(os.path.dirname(latex_file_path), exist_ok=True)
@@ -610,8 +620,6 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 		
 		num_rows = 2 * len(self.latex_method_list) * len(self.latex_corruption_types) * len(self.latex_mode_list)
 		values_matrix = np.zeros((num_rows, 12), dtype=np.float32)
-		
-		severity_level = "3"
 		
 		row_counter = 0
 		for mode in self.latex_mode_list:
@@ -630,6 +638,7 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 						row_counter += 1
 		
 		max_value_boolean_matrx = np.zeros(values_matrix.shape, dtype=np.bool)
+		percentage_values = np.zeros(values_matrix.shape, dtype=np.float32)
 		# For every column, take two rows at a time and find the max value
 		# find the column-wise max value and make the corresponding row, column index True in the max_value_boolean_matrix
 		for col_idx in range(12):
@@ -638,6 +647,12 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 					max_value_boolean_matrx[row_idx, col_idx] = True
 				else:
 					max_value_boolean_matrx[row_idx + 1, col_idx] = True
+				
+				# Calculate the percentage values for the row_idx and row_idx + 1 and put it in the percentage_values matrix of row_idx+1
+				percentage_values[row_idx + 1, col_idx] = (
+						                                          (values_matrix[row_idx + 1, col_idx] - values_matrix[
+							                                          row_idx, col_idx]) / values_matrix[
+							                                          row_idx, col_idx]) * 100
 		
 		row_counter = 0
 		for mode in self.latex_mode_list:
@@ -649,9 +664,9 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 						
 						# Start Line for each mode
 						if row_counter % (len(self.latex_corruption_types) * 2 * len(self.latex_method_list)) == 0:
-							latex_row = f"         \\multirow{{{len(self.latex_corruption_types) * 2 * len(self.latex_method_list)}}}{{*}}{{{mode}}} & "
+							latex_row = f"   \\multirow{{{len(self.latex_corruption_types) * 2 * len(self.latex_method_list)}}}{{*}}{{{severity_level}}} &      \\multirow{{{len(self.latex_corruption_types) * 2 * len(self.latex_method_list)}}}{{*}}{{{mode}}} & "
 						else:
-							latex_row = "        &"
+							latex_row = "    &    &"
 						
 						corruption_name = self.corruption_type_latex_name_map[corruption_type]
 						
@@ -668,6 +683,15 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 								latex_row += f" & \\cellcolor{{highlightColor}} \\textbf{{{fetch_rounded_value(values_matrix[row_counter, col_idx])}}}"
 							else:
 								latex_row += f" & {fetch_rounded_value(values_matrix[row_counter, col_idx])}"
+							
+							# Append the percentage values for every alternate row
+							if row_counter % 2 != 0:
+								percentage_change = fetch_rounded_value(percentage_values[row_counter, col_idx])
+								if percentage_change > 0:
+									latex_row += f" (+{percentage_change}\%)"
+								else:
+									latex_row += f" ({percentage_change}\%)"
+								# latex_row += f" ({fetch_rounded_value(percentage_values[row_counter, col_idx])})"
 						
 						latex_row += "  \\\\ \n"
 						
@@ -675,7 +699,7 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 						if (row_counter + 1) % (
 								2 * len(self.latex_method_list)) == 0 and row_counter < (
 								num_rows - 1):  # At the end of each corruption type group
-							latex_row += " \\cmidrule(lr){3-15}  \n "
+							latex_row += " \\cmidrule(lr){4-16}  \n "
 						
 						# End Line for each mode
 						if (row_counter + 1) % (

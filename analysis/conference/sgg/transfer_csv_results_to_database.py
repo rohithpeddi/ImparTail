@@ -153,7 +153,7 @@ def transfer_sgg_corruptions(
 			result.add_result_details(result_details)
 			print("-----------------------------------------------------------------------------------")
 			print("Saving result: ", result.result_id)
-			db_service.update_result_to_db("results_11_11_sgg_corruptions", result.result_id, result.to_dict())
+			db_service.update_result_to_db("results_14_11_sgg_corruptions", result.result_id, result.to_dict())
 			print("Saved result: ", result.result_id)
 			print("-----------------------------------------------------------------------------------")
 

@@ -41,7 +41,7 @@ class PrepareResultsBase:
 		self.sga_database_name = "results_13_11_sga"
 		self.sgg_database_name = "results_31_10_sgg"
 		self.easg_database_name = "results_2_11_easg"
-		self.sgg_corruptions_database_name = "results_11_11_sgg_corruptions"
+		self.sgg_corruptions_database_name = "results_14_11_sgg_corruptions"
 		self.sga_corruptions_database_name = "results_11_11_sga_corruptions"
 		
 		self.sgg_mode_list = ["sgcls", "sgdet", "predcls"]

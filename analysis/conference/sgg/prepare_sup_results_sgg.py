@@ -18,7 +18,7 @@ class PrepareSupResultsSGG(PrepareResultsBase):
 			"sttran_full", "sttran_partial",
 			"dsgdetr_full", "dsgdetr_partial"
 		]
-		self.partial_percentages = [10, 40, 70]
+		self.partial_percentages = [70, 40, 10]
 		self.task_name = "sgg"
 	
 	def fetch_sgg_combined_results_json_latex(self):
@@ -45,12 +45,12 @@ class PrepareSupResultsSGG(PrepareResultsBase):
 				with_constraint_metrics = sgg_result.result_details.with_constraint_metrics
 				no_constraint_metrics = sgg_result.result_details.no_constraint_metrics
 				semi_constraint_metrics = sgg_result.result_details.semi_constraint_metrics
-				completed_mean_recall_metrics_json = self.fetch_paper_completed_mean_recall_metrics_json(
+				completed_metrics_json = self.fetch_completed_metrics_json(
 					with_constraint_metrics,
 					no_constraint_metrics,
 					semi_constraint_metrics
 				)
-				sgg_results_json[paper_method_name][mode] = completed_mean_recall_metrics_json
+				sgg_results_json[paper_method_name][mode] = completed_metrics_json
 				continue
 			elif scenario_name == "partial":
 				percentage_num = sgg_result.partial_percentage if scenario_name == "partial" else sgg_result.label_noise_percentage
@@ -58,12 +58,12 @@ class PrepareSupResultsSGG(PrepareResultsBase):
 				with_constraint_metrics = sgg_result.result_details.with_constraint_metrics
 				no_constraint_metrics = sgg_result.result_details.no_constraint_metrics
 				semi_constraint_metrics = sgg_result.result_details.semi_constraint_metrics
-				completed_mean_recall_metrics_json = self.fetch_paper_completed_mean_recall_metrics_json(
+				completed_metrics_json = self.fetch_completed_metrics_json(
 					with_constraint_metrics,
 					no_constraint_metrics,
 					semi_constraint_metrics
 				)
-				sgg_results_json[paper_method_name][percentage_num][mode] = completed_mean_recall_metrics_json
+				sgg_results_json[paper_method_name][percentage_num][mode] = completed_metrics_json
 		return sgg_results_json
 	
 	# ---------------------------------------------------------------------------------------------
@@ -123,7 +123,7 @@ class PrepareSupResultsSGG(PrepareResultsBase):
 		latex_header += "        \\cmidrule(lr){4-7} \\cmidrule(lr){8-11} \n "
 		latex_header += (
 				"        & & & "
-				"\\textbf{R@10} & \\textbf{R@20} & \\textbf{R@50} & \\textbf{R@100}"
+				"\\textbf{R@10} & \\textbf{R@20} & \\textbf{R@50} & \\textbf{R@100} &"
 				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50}  & \\textbf{mR@100}" + " \\\\ \\hline\n")
 		
 		return latex_header
@@ -175,7 +175,6 @@ class PrepareSupResultsSGG(PrepareResultsBase):
 		row_counter = 0
 		for mode in self.latex_mode_list:
 			for method_name in self.latex_method_list:
-				base_values = None
 				if "full" in method_name:
 					base_values = values_matrix[row_counter]
 					row_counter += 1
@@ -185,6 +184,7 @@ class PrepareSupResultsSGG(PrepareResultsBase):
 						assert base_values is not None
 						percentage_changes[row_counter] = self.calculate_percentage_changes(base_values, cur_values)
 						row_counter += 1
+					base_values = None
 		
 		# Calculate Max value for each column compared to the original training method
 		# For each method, calculate the max percentage change compared to the original training method
@@ -204,12 +204,11 @@ class PrepareSupResultsSGG(PrepareResultsBase):
 		for mode in self.latex_mode_list:
 			for method_name in self.latex_method_list:
 				latex_method_name = self.fetch_method_name_latex(method_name)
-				if row_counter % 8 == 0:
-					latex_row = f"   \\multirow{{8}}{{*}}{{{mode}}} "
-				else:
-					latex_row = "  & "
-				latex_row += f"& \\multirow{{4}}{{*}}{{{latex_method_name}}} "
 				if "full" in method_name:
+					if row_counter % 8 == 0:
+						latex_row = f"   \\multirow{{8}}{{*}}{{{self.fetch_sgg_mode_name_latex(mode)}}} & {latex_method_name}"
+					else:
+						latex_row = f"  &  {latex_method_name}"
 					# Add this as it does not apply for the percentage parameter for the full row in latex
 					latex_row += f"& - "
 					latex_row += self.generate_sup_sgg_latex_row(values_matrix, percentage_changes, max_values,
@@ -218,6 +217,11 @@ class PrepareSupResultsSGG(PrepareResultsBase):
 					row_counter += 1
 				elif "partial" in method_name:
 					for partial_per in self.partial_percentages:
+						if row_counter % 8 == 0:
+							latex_row = f"   \\multirow{{8}}{{*}}{{{self.fetch_sgg_mode_name_latex(mode)}}} & {latex_method_name}"
+						else:
+							latex_row = f"  &  {latex_method_name}"
+							
 						latex_row += f"& {partial_per} "
 						latex_row += self.generate_sup_sgg_latex_row(values_matrix, percentage_changes, max_values,
 						                                             row_counter)
@@ -227,19 +231,19 @@ class PrepareSupResultsSGG(PrepareResultsBase):
 					
 					# Add the midrule for methods after every 4 rows (4 rows for each method)
 					if row_counter % 4 == 0 and row_counter > 0:
-						latex_table += "    \\cmidrule(lr){3-11}\n"
+						latex_table += "    \\cmidrule(lr){2-11}\n"
 			
 			# Add the midrule for methods after every 4 rows (4 rows for each method)
 			if row_counter % 8 == 0 and row_counter > 0:
-				latex_table += "    \\cmidrule(lr){2-11}\n"
-				
+				latex_table += "    \\cmidrule(lr){1-11}\n"
+		
 		latex_table += "    \\hline\n"
 		latex_footer = self.generate_full_width_latex_footer()
 		latex_table += latex_footer
 		
 		with open(latex_file_path, "a", newline='') as latex_file:
 			latex_file.write(latex_table)
-			
+		
 		print(f"Generated {latex_file_name} file.")
 
 
@@ -249,6 +253,6 @@ def main():
 	for eval_setting in eval_setting_list:
 		sup_results_sgg.generate_eval_setting_latex_file(eval_setting)
 
-		
+
 if __name__ == "__main__":
 	main()

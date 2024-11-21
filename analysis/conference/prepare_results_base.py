@@ -425,7 +425,7 @@ class PrepareResultsBase:
 		return percentage_change
 	
 	@staticmethod
-	def fetch_sgg_setting_name_latex(mode):
+	def fetch_sgg_mode_name_latex(mode):
 		if mode == "sgdet":
 			setting_name = "\\textbf{SGDET}"
 		elif mode == "sgcls":

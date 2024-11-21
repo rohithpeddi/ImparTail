@@ -1,5 +1,6 @@
 import os
 
+import numpy as np
 import pandas as pd
 
 from analysis.results.FirebaseService import FirebaseService
@@ -39,7 +40,7 @@ class PrepareResultsBase:
 		self.database_name = "results_31_10"
 		
 		self.sga_database_name = "results_13_11_sga"
-		self.sgg_database_name = "results_31_10_sgg"
+		self.sgg_database_name = "results_21_11_sgg"
 		self.easg_database_name = "results_2_11_easg"
 		self.sgg_corruptions_database_name = "results_14_11_sgg_corruptions"
 		self.sga_corruptions_database_name = "results_14_11_sga_corruptions"
@@ -334,7 +335,6 @@ class PrepareResultsBase:
 			ref_tab_name = f"predcls_{eval_horizon}_{train_future_frame}"
 		return ref_tab_name
 	
-	
 	@staticmethod
 	def fetch_method_name_json(method_name):
 		if method_name == "NeuralODE" or method_name == "ode":
@@ -380,6 +380,49 @@ class PrepareResultsBase:
 		
 		# Save the Excel file
 		writer.save()
+	
+	@staticmethod
+	def fetch_eval_setting_name_nocap_latex(eval_setting_name):
+		if eval_setting_name == "with_constraint":
+			eval_setting_name = "With Constraint"
+		elif eval_setting_name == "no_constraint":
+			eval_setting_name = "No Constraint"
+		elif eval_setting_name == "semi_constraint":
+			eval_setting_name = "Semi Constraint"
+		
+		return eval_setting_name
+	
+	@staticmethod
+	def fetch_eval_setting_id_latex(eval_setting_name):
+		if eval_setting_name == "with_constraint":
+			eval_setting_id = 0
+		elif eval_setting_name == "no_constraint":
+			eval_setting_id = 1
+		elif eval_setting_name == "semi_constraint":
+			eval_setting_id = 2
+		
+		return eval_setting_id
+	
+	@staticmethod
+	def fetch_eval_setting_name_cap_latex(eval_setting_name):
+		if eval_setting_name == "with_constraint":
+			eval_setting_name = "WITH CONSTRAINT"
+		elif eval_setting_name == "no_constraint":
+			eval_setting_name = "NO CONSTRAINT"
+		elif eval_setting_name == "semi_constraint":
+			eval_setting_name = "SEMI CONSTRAINT"
+		
+		return eval_setting_name
+	
+	@staticmethod
+	def calculate_percentage_changes(base_values, cur_values):
+		percentage_change = np.zeros(base_values.shape, dtype=np.float32)
+		for i in range(base_values.shape[0]):
+			if base_values[i] != 0:
+				percentage_change[i] = ((cur_values[i] - base_values[i]) / base_values[i]) * 100
+			else:
+				percentage_change[i] = 0.0
+		return percentage_change
 	
 	@staticmethod
 	def fetch_sgg_setting_name_latex(mode):

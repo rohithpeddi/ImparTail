@@ -2,7 +2,7 @@ import csv
 import os
 
 from analysis.conference.transfer_base import process_result_details_from_csv_row, \
-	process_result_details_from_csv_row_no_method
+	process_result_details_from_csv_row_no_method, get_mode_name, get_partial_percentage
 from analysis.results.FirebaseService import FirebaseService
 from analysis.results.Result import Result
 from constants import ResultConstants as const
@@ -16,8 +16,7 @@ from constants import ResultConstants as const
 # Methods: sttran, dsgdetr
 # Modes: sgcls, sgdet, predcls
 # Partial Percentages: 10, 40, 70
-# Label Noise Percentages: 10, 20, 30
-# Scenario: partial, labelnoise, full
+# Scenario: partial, full
 def transfer_sgg(
 		mode,
 		result_file_path,
@@ -25,16 +24,12 @@ def transfer_sgg(
 		task_name=const.SGG
 ):
 	base_file_name = os.path.basename(result_file_path)
-	details = (base_file_name.split('.')[0]).split('_')
 	
-	assert mode == details[1]
-	if mode is None:
-		mode = details[1]
-	
+	mode_name = get_mode_name(base_file_name)
+	assert mode_name == mode
 	assert mode in [const.SGCLS, const.SGDET, const.PREDCLS]
 	
 	with open(result_file_path, 'r') as read_obj:
-		# pass the file object to reader() to get the reader object
 		csv_reader = csv.reader(read_obj)
 		for row in csv_reader:
 			result_details, method_name = process_result_details_from_csv_row(row)
@@ -44,18 +39,19 @@ def transfer_sgg(
 				method_name=method_name,
 				mode=mode,
 			)
+			
 			if scenario_name == const.PARTIAL:
-				partial_percentage = 10
+				partial_percentage = get_partial_percentage(base_file_name)
 				result.partial_percentage = partial_percentage
 			elif scenario_name == const.LABELNOISE:
-				label_noise_percentage = 20
-				result.label_noise_percentage = label_noise_percentage
+				# label_noise_percentage = 20
+				# result.label_noise_percentage = label_noise_percentage
+				raise Exception("Label Noise percentage not implemented")
 			
 			result.add_result_details(result_details)
-			print("-----------------------------------------------------------------------------------")
-			print("Saving result: ", result.result_id)
-			db_service.update_result_to_db("results_31_10_sgg", result.result_id, result.to_dict())
-			print("Saved result: ", result.result_id)
+			print(f"[{task_name}][{scenario_name}][{mode_name}][{base_file_name}] Saving result: {result.result_id}")
+			db_service.update_result_to_db("results_21_11_sgg", result.result_id, result.to_dict())
+			print(f"[{task_name}][{scenario_name}][{mode_name}][{base_file_name}] Saved result: {result.result_id}")
 			print("-----------------------------------------------------------------------------------")
 
 
@@ -73,9 +69,9 @@ def transfer_results_from_directories_sgg():
 			method_name_csv_file = method_name_csv_file.lower()
 			method_name_csv_path = os.path.join(scenario_name_path, method_name_csv_file)
 			
-			mode_name = (method_name_csv_file.split('.')[0]).split('_')[1]
+			mode_name = get_mode_name(method_name_csv_file.split('.')[0])
 			assert mode_name in [const.SGCLS, const.SGDET, const.PREDCLS]
-			if task_name == const.SGG and scenario_name in [const.PARTIAL, const.LABELNOISE, const.FULL]:
+			if task_name == const.SGG and scenario_name in [const.PARTIAL, const.FULL]:
 				print(
 					f"[{task_name}][{scenario_name}][{mode_name}][{method_name_csv_file[:-4]}] Processing file: ",
 					method_name_csv_path)
@@ -126,7 +122,7 @@ def transfer_sgg_corruptions(
 					method_name = details[0]
 			else:
 				result_details, method_name = process_result_details_from_csv_row(row)
-				
+			
 			if "sttran" in method_name:
 				method_name = "sttran"
 			elif "dsgdetr" in method_name:
@@ -144,7 +140,7 @@ def transfer_sgg_corruptions(
 			result.video_corruption_mode = video_corruption_mode
 			result.corruption_severity_level = corruption_severity_level
 			if dataset_corruption_mode == const.FIXED:
-				dataset_corruption_type = "_".join(details[index_of_mode+3:-1])
+				dataset_corruption_type = "_".join(details[index_of_mode + 3:-1])
 				result.dataset_corruption_type = dataset_corruption_type
 			else:
 				dataset_corruption_type = details[index_of_mode + 3]
@@ -202,4 +198,5 @@ def transfer_corruption_results_from_directories_sgg():
 
 if __name__ == '__main__':
 	db_service = FirebaseService()
-	transfer_corruption_results_from_directories_sgg()
+	# transfer_corruption_results_from_directories_sgg()
+	transfer_results_from_directories_sgg()

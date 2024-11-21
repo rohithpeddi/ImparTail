@@ -25,6 +25,24 @@ def get_partial_percentage(method_name):
 	raise Exception(f"Partial percentage not found for method name: {method_name}")
 
 
+def get_sga_method_name(method_name):
+	if "sttran_ant" in method_name:
+		method_name = "sttran_ant"
+	elif "dsgdetr_ant" in method_name:
+		method_name = "dsgdetr_ant"
+	elif "sttran_gen_ant" in method_name:
+		method_name = "sttran_gen_ant"
+	elif "dsgdetr_gen_ant" in method_name:
+		method_name = "dsgdetr_gen_ant"
+	elif "ode" in method_name:
+		method_name = "ode"
+	elif "sde" in method_name:
+		method_name = "sde"
+	else:
+		raise Exception(f"Method name not found for method name: {method_name}")
+	return method_name
+
+
 # -----------------------------------------------------------------------------------
 # ---------------------------- PROCESS CSV ROWS EXTRACTION ---------------------------
 # -----------------------------------------------------------------------------------

@@ -2,7 +2,7 @@ import csv
 import os
 
 from analysis.conference.transfer_base import process_result_details_from_csv_row, \
-	process_result_details_from_csv_row_no_method
+	process_result_details_from_csv_row_no_method, get_mode_name, get_partial_percentage, get_sga_method_name
 from analysis.results.FirebaseService import FirebaseService
 from analysis.results.Result import Result
 from constants import ResultConstants as const
@@ -22,6 +22,9 @@ def transfer_sga(
 	base_file_name = os.path.basename(result_file_path)
 	# As context fraction has "." in it so we cannot split by "."
 	eval_csv_file_name = base_file_name[:-4]
+	mode_name = get_mode_name(eval_csv_file_name)
+	assert mode_name == mode
+	
 	csv_attributes = eval_csv_file_name.split("_")
 	
 	# Test future frames
@@ -59,6 +62,8 @@ def transfer_sga(
 				continue
 			
 			result_details, method_name = process_result_details_from_csv_row(row)
+			method_name = get_sga_method_name(method_name)
+			
 			result = Result(
 				task_name=task_name,
 				scenario_name=scenario_name,
@@ -66,11 +71,16 @@ def transfer_sga(
 				mode=mode,
 			)
 			if scenario_name == const.PARTIAL:
-				partial_percentage = 10
+				try:
+					partial_percentage = get_partial_percentage(base_file_name)
+				except Exception as e:
+					print("ERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERROR")
+					print(f"[{task_name}][{scenario_name}][{mode}] Error in getting partial percentage: ", e)
+					print("ERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERROR")
+					partial_percentage = 10
 				result.partial_percentage = partial_percentage
 			elif scenario_name == const.LABELNOISE:
-				label_noise_percentage = 20
-				result.label_noise_percentage = label_noise_percentage
+				raise Exception("Label Noise scenario not supported for SGA")
 			
 			result.train_num_future_frames = train_future_frames
 			result.test_num_future_frames = test_future_frames
@@ -78,7 +88,7 @@ def transfer_sga(
 			
 			result.add_result_details(result_details)
 			print(f"[{task_name}][{scenario_name}][{mode}] Saving result: ", result.result_id)
-			db_service.update_result_to_db("results_13_11_sga", result.result_id, result.to_dict())
+			db_service.update_result_to_db("results_21_11_sga", result.result_id, result.to_dict())
 			print(f"[{task_name}][{scenario_name}][{mode}] Saved result: ", result.result_id)
 			print("-----------------------------------------------------------------------------------")
 
@@ -250,4 +260,5 @@ def transfer_corruption_results_from_directories_sga():
 
 if __name__ == '__main__':
 	db_service = FirebaseService()
-	transfer_corruption_results_from_directories_sga()
+	# transfer_corruption_results_from_directories_sga()
+	transfer_results_from_directories_sga()

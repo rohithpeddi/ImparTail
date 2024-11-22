@@ -44,6 +44,10 @@ def transfer_sga(
 		print("File does not exist: ", result_file_path)
 		return
 	
+	if test_context_fraction is None:
+		print("Skipping test future frame results!")
+		return
+	
 	with open(result_file_path, 'r') as read_obj:
 		csv_reader = csv.reader(read_obj)
 		num_rows = len(list(csv_reader))
@@ -77,7 +81,7 @@ def transfer_sga(
 					print("ERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERROR")
 					print(f"[{task_name}][{scenario_name}][{mode}] Error in getting partial percentage: ", e)
 					print("ERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERRORERROR")
-					partial_percentage = 10
+					partial_percentage = 40
 				result.partial_percentage = partial_percentage
 			elif scenario_name == const.LABELNOISE:
 				raise Exception("Label Noise scenario not supported for SGA")

@@ -70,8 +70,8 @@ class PrepareSupResultsSGG(PrepareResultsBase):
 	# --------------------------------- Latex Generation Methods ----------------------------------
 	# ---------------------------------------------------------------------------------------------
 	
-	def fill_sgg_combined_values_matrix_mean_recall(self, values_matrix, results_json, eval_setting_name, mode_name,
-	                                                idx, comb_method_name, partial_per=10):
+	def fill_sgg_combined_values_matrix(self, values_matrix, results_json, eval_setting_name, mode_name,
+	                                    idx, comb_method_name, partial_per=10):
 		
 		setting_id = self.fetch_eval_setting_id_latex(eval_setting_name)
 		if "full" in comb_method_name:
@@ -114,7 +114,7 @@ class PrepareSupResultsSGG(PrepareResultsBase):
 		latex_header += "    \\centering\n"
 		latex_header += "    \\captionsetup{font=small}\n"
 		latex_header += f"    \\caption{{{nocap_setting_name} Results for VidSGG.}}\n"
-		latex_header += "    \\label{tab:sup_sgg_with_constraint}\n"
+		latex_header += f"    \\label{{tab:sup_sgg_{eval_setting_name}}}\n"
 		latex_header += "    \\renewcommand{\\arraystretch}{1.2} \n"
 		latex_header += "    \\resizebox{\\textwidth}{!}{\n"
 		latex_header += "    \\begin{tabular}{l|l|l|cccc|cccc}\n"
@@ -161,12 +161,12 @@ class PrepareSupResultsSGG(PrepareResultsBase):
 		for mode in self.latex_mode_list:
 			for method_name in self.latex_method_list:
 				if "full" in method_name:
-					values_matrix = self.fill_sgg_combined_values_matrix_mean_recall(
+					values_matrix = self.fill_sgg_combined_values_matrix(
 						values_matrix, results_json, eval_setting_name, mode, row_counter, method_name)
 					row_counter += 1
 				elif "partial" in method_name:
 					for partial_per in self.partial_percentages:
-						values_matrix = self.fill_sgg_combined_values_matrix_mean_recall(
+						values_matrix = self.fill_sgg_combined_values_matrix(
 							values_matrix, results_json, eval_setting_name, mode, row_counter, method_name, partial_per)
 						row_counter += 1
 		

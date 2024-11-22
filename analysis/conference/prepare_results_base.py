@@ -39,7 +39,7 @@ class PrepareResultsBase:
 		self.db_service = FirebaseService()
 		self.database_name = "results_31_10"
 		
-		self.sga_database_name = "results_13_11_sga"
+		self.sga_database_name = "results_21_11_sga"
 		self.sgg_database_name = "results_21_11_sgg"
 		self.easg_database_name = "results_2_11_easg"
 		self.sgg_corruptions_database_name = "results_14_11_sgg_corruptions"
@@ -435,7 +435,7 @@ class PrepareResultsBase:
 		return setting_name
 	
 	@staticmethod
-	def fetch_sga_setting_name_latex(mode):
+	def fetch_sga_mode_name_latex(mode):
 		if mode == "sgdet":
 			setting_name = "\\textbf{AGS}"
 		elif mode == "sgcls":
@@ -443,6 +443,20 @@ class PrepareResultsBase:
 		elif mode == "predcls":
 			setting_name = "\\textbf{GAGS}"
 		return setting_name
+	
+	@staticmethod
+	def fetch_sga_cf_name_latex(cf):
+		if cf == "0.3" or cf == 0.3:
+			cf = str(30)
+		elif cf == "0.5" or cf == 0.5:
+			cf = str(50)
+		elif cf == "0.7" or cf == 0.7:
+			cf = str(70)
+		elif cf == "0.9" or cf == 0.9:
+			cf = str(90)
+		else:
+			raise ValueError(f"Invalid context fraction: {cf}")
+		return cf
 	
 	def fetch_method_name_latex(self, method_name):
 		"""

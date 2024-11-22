@@ -196,17 +196,18 @@ class PrepareResultsSGACorruptions(PrepareResultsBase):
 		latex_header = "\\begin{table}[!h]\n"
 		latex_header += "    \\centering\n"
 		latex_header += "    \\captionsetup{font=small}\n"
-		latex_header += "    \\caption{Robustness Evaluation Results for SGG.}\n"
-		latex_header += "    \\label{tab:sgg_corruptions_results}\n"
+		latex_header += "    \\caption{Robustness Evaluation Results for SGA.}\n"
+		latex_header += "    \\label{tab:sup_sga_corruptions_vertical}\n"
 		latex_header += "    \\renewcommand{\\arraystretch}{1.2} \n"
 		latex_header += "    \\resizebox{\\linewidth}{!}{\n"
-		latex_header += "    \\begin{tabular}{l|l|l|l|ccc}\n"
+		latex_header += "    \\begin{tabular}{l|l|l|l|cccccc|cccccc}\n"
 		latex_header += "    \\hline\n"
-		latex_header += "      \\multirow{2}{*}{$\\mathcal{F}$} & \\multirow{2}{*}{Mode} & \\multirow{2}{*}{Corruption} & \\multirow{2}{*}{Method} & \\multicolumn{3}{c}{\\textbf{With Constraint}}  \\\\ \n"
-		latex_header += "        \\cmidrule(lr){5-7} \n "
+		latex_header += "      \\multirow{2}{*}{$\\mathcal{F}$} & \\multirow{2}{*}{Mode} & \\multirow{2}{*}{Corruption} & \\multirow{2}{*}{Method} & \\multicolumn{6}{c}{\\textbf{With Constraint}} & \\multicolumn{6}{c}{\\textbf{No Constraint}}  \\\\ \n"
+		latex_header += "        \\cmidrule(lr){5-10} \\cmidrule(lr){11-16} \n "
 		latex_header += (
 				" & & & & "
-				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50} " + " \\\\ \\hline\n")
+				"\\textbf{R@10} & \\textbf{R@20} & \\textbf{R@50} & \\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50} & "
+				"\\textbf{R@10} & \\textbf{R@20} & \\textbf{R@50} & \\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50} "+ " \\\\ \\hline\n")
 		return latex_header
 	
 	@staticmethod
@@ -220,30 +221,84 @@ class PrepareResultsSGACorruptions(PrepareResultsBase):
 			
 			values_matrix[idx, 0] = fetch_value(
 				sga_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][0][
-					"mR@10"])
+					"R@10"])
 			values_matrix[idx, 1] = fetch_value(
 				sga_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][0][
-					"mR@20"])
+					"R@20"])
 			values_matrix[idx, 2] = fetch_value(
 				sga_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][0][
+					"R@50"])
+			values_matrix[idx, 3] = fetch_value(
+				sga_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][0][
+					"mR@10"])
+			values_matrix[idx, 4] = fetch_value(
+				sga_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][0][
+					"mR@20"])
+			values_matrix[idx, 5] = fetch_value(
+				sga_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][0][
+					"mR@50"])
+			values_matrix[idx, 6] = fetch_value(
+				sga_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][1][
+					"R@10"])
+			values_matrix[idx, 7] = fetch_value(
+				sga_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][1][
+					"R@20"])
+			values_matrix[idx, 8] = fetch_value(
+				sga_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][1][
+					"R@50"])
+			values_matrix[idx, 9] = fetch_value(
+				sga_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][1][
+					"mR@10"])
+			values_matrix[idx, 10] = fetch_value(
+				sga_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][1][
+					"mR@20"])
+			values_matrix[idx, 11] = fetch_value(
+				sga_results_json[mode][method_name][scenario][corruption_mode][corruption_type][severity_level][1][
 					"mR@50"])
 		elif scenario == "partial":
 			corruption_mode = "fixed"
 			# sga_results_json[mode][method_name][scenario][partial_num][dataset_corruption_mode][dataset_corruption_type][severity_level]
 			values_matrix[idx, 0] = fetch_value(
 				sga_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
-					severity_level][0]["mR@10"])
+					severity_level][0]["R@10"])
 			values_matrix[idx, 1] = fetch_value(
 				sga_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
-					severity_level][0]["mR@20"])
+					severity_level][0]["R@20"])
 			values_matrix[idx, 2] = fetch_value(
 				sga_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
+					severity_level][0]["R@50"])
+			values_matrix[idx, 3] = fetch_value(
+				sga_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
+					severity_level][0]["mR@10"])
+			values_matrix[idx, 4] = fetch_value(
+				sga_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
+					severity_level][0]["mR@20"])
+			values_matrix[idx, 5] = fetch_value(
+				sga_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
 					severity_level][0]["mR@50"])
+			values_matrix[idx, 6] = fetch_value(
+				sga_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
+					severity_level][1]["R@10"])
+			values_matrix[idx, 7] = fetch_value(
+				sga_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
+					severity_level][1]["R@20"])
+			values_matrix[idx, 8] = fetch_value(
+				sga_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
+					severity_level][1]["R@50"])
+			values_matrix[idx, 9] = fetch_value(
+				sga_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
+					severity_level][1]["mR@10"])
+			values_matrix[idx, 10] = fetch_value(
+				sga_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
+					severity_level][1]["mR@20"])
+			values_matrix[idx, 11] = fetch_value(
+				sga_results_json[mode][method_name][scenario][partial_percentage][corruption_mode][corruption_type][
+					severity_level][1]["mR@50"])
 		
 		return values_matrix
 	
 	def generate_paper_sga_corruptions_latex_table_vertical(self, sga_results_json):
-		latex_file_name = f"sga_corruptions_vertical.tex"
+		latex_file_name = f"sga_corruptions_vertical_comb.tex"
 		latex_file_path = os.path.join(os.path.dirname(__file__), "../../results_docs", "paper_latex_tables",
 		                               latex_file_name)
 		os.makedirs(os.path.dirname(latex_file_path), exist_ok=True)
@@ -251,7 +306,7 @@ class PrepareResultsSGACorruptions(PrepareResultsBase):
 		
 		num_rows = 2 * len(self.latex_method_list) * len(self.latex_corruption_types) * len(self.latex_mode_list) * len(
 			self.latex_context_fraction_list)
-		values_matrix = np.zeros((num_rows, 3), dtype=np.float32)
+		values_matrix = np.zeros((num_rows, 12), dtype=np.float32)
 		
 		row_counter = 0
 		for mode in self.latex_mode_list:
@@ -275,7 +330,7 @@ class PrepareResultsSGACorruptions(PrepareResultsBase):
 		percentage_values = np.zeros(values_matrix.shape, dtype=np.float32)
 		# For every column, take two rows at a time and find the max value
 		# find the column-wise max value and make the corresponding row, column index True in the max_value_boolean_matrix
-		for col_idx in range(3):
+		for col_idx in range(12):
 			for row_idx in range(0, num_rows, 2):
 				if values_matrix[row_idx, col_idx] > values_matrix[row_idx + 1, col_idx]:
 					max_value_boolean_matrx[row_idx, col_idx] = True
@@ -312,7 +367,7 @@ class PrepareResultsSGACorruptions(PrepareResultsBase):
 							
 							latex_row += f"        {latex_method_name}"
 							
-							for col_idx in range(3):
+							for col_idx in range(12):
 								if max_value_boolean_matrx[row_counter, col_idx]:
 									latex_row += f" & \\cellcolor{{highlightColor}} \\textbf{{{fetch_rounded_value(values_matrix[row_counter, col_idx])}}}"
 								else:

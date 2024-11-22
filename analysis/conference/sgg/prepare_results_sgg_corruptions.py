@@ -24,23 +24,23 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 		]
 		self.dataset_corruption_modes = [const.FIXED, const.MIXED]
 		self.video_corruption_modes = [const.FIXED, const.MIXED]
-		self.severity_levels = ["3"]
+		self.severity_levels = ["5"]
 		
-		self.latex_mode_list = ["sgcls"]
-		self.latex_method_list = ["dsgdetr"]
+		self.latex_mode_list = ["predcls"]
+		self.latex_method_list = ["sttran"]
 		self.latex_scenario_list = ["full", "partial"]
-		
-		# self.latex_corruption_types = [
-		# 	const.GAUSSIAN_NOISE, const.SHOT_NOISE, const.IMPULSE_NOISE, const.SPECKLE_NOISE,
-		# 	const.GAUSSIAN_BLUR, const.DEFOCUS_BLUR, const.FOG, const.FROST,
-		# 	const.SPATTER, const.CONTRAST, const.BRIGHTNESS, const.PIXELATE,
-		# 	const.JPEG_COMPRESSION, const.SUN_GLARE, const.DUST, const.SATURATE
-		# ]
 		
 		self.latex_corruption_types = [
 			const.GAUSSIAN_NOISE, const.SHOT_NOISE, const.IMPULSE_NOISE, const.SPECKLE_NOISE,
-			const.FOG, const.FROST, const.BRIGHTNESS, const.SUN_GLARE
+			const.GAUSSIAN_BLUR, const.DEFOCUS_BLUR, const.FOG, const.FROST,
+			const.SPATTER, const.CONTRAST, const.BRIGHTNESS, const.PIXELATE,
+			const.JPEG_COMPRESSION, const.SUN_GLARE, const.DUST, const.SATURATE
 		]
+		
+		# self.latex_corruption_types = [
+		# 	const.GAUSSIAN_NOISE, const.SHOT_NOISE, const.IMPULSE_NOISE, const.SPECKLE_NOISE,
+		# 	const.FOG, const.FROST, const.BRIGHTNESS, const.SUN_GLARE
+		# ]
 		
 		self.corruption_type_latex_name_map = {
 			const.GAUSSIAN_NOISE: "Gaussian Noise",
@@ -611,7 +611,7 @@ class PrepareResultsSGGCorruptions(PrepareResultsBase):
 		return latex_header
 	
 	def generate_paper_sgg_corruptions_latex_table(self, sgg_results_json):
-		severity_level = "3"
+		severity_level = self.severity_levels[0]
 		latex_file_name = f"sgg_corruptions_{severity_level}.tex"
 		latex_file_path = os.path.join(os.path.dirname(__file__), "../../results_docs", "paper_latex_tables",
 		                               latex_file_name)

@@ -198,5 +198,5 @@ def transfer_corruption_results_from_directories_sgg():
 
 if __name__ == '__main__':
 	db_service = FirebaseService()
-	# transfer_corruption_results_from_directories_sgg()
-	transfer_results_from_directories_sgg()
+	transfer_corruption_results_from_directories_sgg()
+	# transfer_results_from_directories_sgg()

@@ -140,9 +140,9 @@ class PrepareSupResultsSGG(PrepareResultsBase):
 				latex_row += f" & {values_matrix[row_counter, column_id]:.2f} "
 			
 			if percentage_changes[row_counter, column_id] > 0:
-				latex_row += f" (+{percentage_changes[row_counter, column_id]:.2f})"
+				latex_row += f" (+{percentage_changes[row_counter, column_id]:.2f}\%)"
 			elif percentage_changes[row_counter, column_id] < 0:
-				latex_row += f" ({percentage_changes[row_counter, column_id]:.2f})"
+				latex_row += f" ({percentage_changes[row_counter, column_id]:.2f}\%)"
 		
 		latex_row += " \\\\ \n"
 		

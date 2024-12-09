@@ -499,6 +499,27 @@ class PrepareResultsBase:
 			method_name = "Tempura~\cite{tempura_2021}"
 		return method_name
 	
+	def fetch_full_sga_method_name_latex(self, method_name):
+		if method_name == "NeuralODE" or method_name == "ode":
+			method_name = "\\textbf{SceneSayerODE (Ours)}"
+		elif method_name == "NeuralSDE" or method_name == "sde":
+			method_name = "\\textbf{SceneSayerSDE (Ours)}"
+		elif method_name == "sttran_ant":
+			method_name = "STTran+ \cite{cong_et_al_sttran_2021}"
+		elif method_name == "sttran_gen_ant":
+			method_name = "STTran++ \cite{cong_et_al_sttran_2021}"
+		elif method_name == "dsgdetr_ant":
+			method_name = "DSGDetr+ \cite{Feng_2021}"
+		elif method_name == "dsgdetr_gen_ant":
+			method_name = "DSGDetr++ \cite{Feng_2021}"
+		elif method_name == "sde_wo_bb":
+			method_name = "\\textbf{SceneSayerSDE (w/o BB)}"
+		elif method_name == "sde_wo_recon":
+			method_name = "\\textbf{SceneSayerSDE (w/o Recon)}"
+		elif method_name == "sde_wo_gen":
+			method_name = "\\textbf{SceneSayerSDE (w/o GenLoss)}"
+		return method_name
+	
 	@staticmethod
 	def generate_latex_footer():
 		latex_footer = "    \\end{tabular}\n"

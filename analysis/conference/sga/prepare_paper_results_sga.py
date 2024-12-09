@@ -99,6 +99,40 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 				sga_results_json[method_name][scenario_name][percentage_num][mode][cf] = completed_recall_metrics_json
 		return sga_results_json
 	
+	def full_sga_results_json(self):
+		db_results = self.fetch_db_sga_results()
+		sga_results_json = {}
+		for method in self.method_list:
+			sga_results_json[method] = {}
+			for mode in self.mode_list:
+				sga_results_json[method][mode] = {}
+				for cf in self.context_fraction_list:
+					sga_results_json[method][mode][cf] = self.fetch_empty_metrics_json()
+		for sga_result in db_results:
+			mode = sga_result.mode
+			method_name = sga_result.method_name
+			scenario_name = sga_result.scenario_name
+			if scenario_name == "full":
+				# Take only the context fraction results and ignore the future frames results
+				if sga_result.context_fraction is None:
+					continue
+				
+				with_constraint_metrics = sga_result.result_details.with_constraint_metrics
+				no_constraint_metrics = sga_result.result_details.no_constraint_metrics
+				semi_constraint_metrics = sga_result.result_details.semi_constraint_metrics
+				completed_recall_metrics_json = self.fetch_completed_metrics_json(
+					with_constraint_metrics,
+					no_constraint_metrics,
+					semi_constraint_metrics
+				)
+				cf = str(sga_result.context_fraction)
+				sga_results_json[method_name][mode][cf] = completed_recall_metrics_json
+				continue
+			elif scenario_name == "partial":
+				continue
+		
+		return sga_results_json
+	
 	def fetch_sga_mean_recall_results_json_csv(self):
 		db_results = self.fetch_db_sga_results()
 		sga_results_json = {}
@@ -576,6 +610,22 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 	# ---------------------------------------------------------------------------------------------
 	
 	@staticmethod
+	def fill_full_sga_values_matrix(values_matrix, results_json, idx, method_name, mode, cf):
+		values_matrix[idx, 0] = fetch_value(results_json[method_name][mode][cf][0]["R@10"])
+		values_matrix[idx, 1] = fetch_value(results_json[method_name][mode][cf][0]["R@20"])
+		values_matrix[idx, 2] = fetch_value(results_json[method_name][mode][cf][0]["R@50"])
+		values_matrix[idx, 3] = fetch_value(results_json[method_name][mode][cf][1]["R@10"])
+		values_matrix[idx, 4] = fetch_value(results_json[method_name][mode][cf][1]["R@20"])
+		values_matrix[idx, 5] = fetch_value(results_json[method_name][mode][cf][1]["R@50"])
+		values_matrix[idx, 6] = fetch_value(results_json[method_name][mode][cf][0]["mR@10"])
+		values_matrix[idx, 7] = fetch_value(results_json[method_name][mode][cf][0]["mR@20"])
+		values_matrix[idx, 8] = fetch_value(results_json[method_name][mode][cf][0]["mR@50"])
+		values_matrix[idx, 9] = fetch_value(results_json[method_name][mode][cf][1]["mR@10"])
+		values_matrix[idx, 10] = fetch_value(results_json[method_name][mode][cf][1]["mR@20"])
+		values_matrix[idx, 11] = fetch_value(results_json[method_name][mode][cf][1]["mR@50"])
+		return values_matrix
+	
+	@staticmethod
 	def fill_sga_combined_values_matrix_mean_recall(values_matrix, mean_recall_results_json,
 	                                                idx, comb_method_name, cf, partial_percentage='10'):
 		if "full" in comb_method_name:
@@ -750,6 +800,28 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50}  & "
 				"\\textbf{@10} & \\textbf{@20} & \\textbf{@50} " + " \\\\ \\hline\n")
 		
+		return latex_header
+	
+	@staticmethod
+	def generate_combined_wn_recalls_latex_header(setting_name, mode):
+		latex_header = "\\begin{table}[!h]\n"
+		latex_header += "    \\centering\n"
+		latex_header += "    \\captionsetup{font=small}\n"
+		latex_header += "    \\caption{Results for " + setting_name + ", when trained using anticipatory horizon of 3 future frames.}\n"
+		latex_header += "    \\label{tab:anticipation_results_" + mode + "}\n"
+		latex_header += "    \\setlength{\\tabcolsep}{5pt} \n"
+		latex_header += "    \\renewcommand{\\arraystretch}{1.2} \n"
+		latex_header += "    \\resizebox{\\textwidth}{!}{\n"
+		latex_header += "    \\begin{tabular}{ll|cccccc|cccccc}\n"
+		latex_header += "    \\hline\n"
+		latex_header += "         & & \\multicolumn{6}{c|}{\\textbf{Recall (R)}} & \\multicolumn{6}{c}{\\textbf{Mean Recall (mR)}} \\\\ \n"
+		latex_header += "        \\cmidrule(lr){3-8} \\cmidrule(lr){9-14} \n "
+		latex_header += "        \\multicolumn{2}{c|}{\\textbf{" + setting_name + "}} & \\multicolumn{3}{c}{\\textbf{With Constraint}} & \\multicolumn{3}{c|}{\\textbf{No Constraint}} & \\multicolumn{3}{c}{\\textbf{With Constraint}} & \\multicolumn{3}{c}{\\textbf{No Constraint}}\\\\ \n"
+		latex_header += "        \\cmidrule(lr){1-2}\\cmidrule(lr){3-5} \\cmidrule(lr){6-8}\\cmidrule(lr){9-11} \\cmidrule(lr){12-14} \n "
+		latex_header += ("        $\\mathcal{F}$ & \\textbf{Method} & \\textbf{10} & \\textbf{20} & \\textbf{50} & "
+		                 "\\textbf{10} & \\textbf{20} & \\textbf{50} & "
+		                 "\\textbf{10} & \\textbf{20} & \\textbf{50}  & "
+		                 "\\textbf{10} & \\textbf{20} & \\textbf{50}   \\\\ \\hline\n")
 		return latex_header
 	
 	@staticmethod
@@ -990,6 +1062,76 @@ class PreparePaperResultsSGA(PrepareResultsBase):
 		
 		with open(latex_file_path, "a", newline='') as latex_file:
 			latex_file.write(latex_table)
+	
+	def generate_paper_full_sga_latex_table(self, sga_results_json):
+		for mode in ["sgdet", "sgcls", "predcls"]:
+			latex_file_name = f"sga_results_{mode}.tex"
+			latex_file_path = os.path.join(os.path.dirname(__file__), "../../results_docs",
+			                               "paper_full_sga_latex_tables",
+			                               latex_file_name)
+			os.makedirs(os.path.dirname(latex_file_path), exist_ok=True)
+			setting_name = f"SGA of {self.fetch_sga_mode_name_latex(mode)}"
+			latex_table = self.generate_combined_wn_recalls_latex_header(setting_name, mode)
+			values_matrix = np.zeros((24, 12), dtype=np.float32)
+			
+			counter = 0
+			for cf in self.context_fraction_list:
+				for method in self.method_list:
+					values_matrix = self.fill_full_sga_values_matrix(values_matrix, sga_results_json, counter, method,
+					                                                 mode, cf)
+					counter += 1
+			
+			max_boolean_matrix = np.zeros(values_matrix.shape, dtype=np.bool)
+			for col_idx in range(12):
+				for row_idx in range(0, 24, 6):
+					method_metric_values_matrix = values_matrix[row_idx:row_idx + 6, col_idx]
+					max_idx = np.argmax(method_metric_values_matrix)
+					max_boolean_matrix[row_idx + max_idx, col_idx] = True
+			
+			row_counter = 0
+			for cf in self.context_fraction_list:
+				# Multirow for each context fraction
+				for method in self.method_list:
+					latex_method_name = self.fetch_full_sga_method_name_latex(method)
+					# For starting row of each method in a context fraction
+					if row_counter % 6 == 0:
+						latex_row = f"        \\multirow{{6}}{{*}}{{{cf}}} &"
+					else:
+						latex_row = "        &"
+					
+					latex_row += f"        {latex_method_name}"
+					
+					for col_idx in range(12):
+						if max_boolean_matrix[row_counter, col_idx]:
+							latex_row += f" & \\cellcolor{{highlightColor}} \\textbf{{{fetch_rounded_value(values_matrix[row_counter, col_idx])}}}"
+						else:
+							latex_row += f" & {fetch_rounded_value(values_matrix[row_counter, col_idx])}"
+					
+					if row_counter % 6 == 5:
+						latex_row += "  \\\\ \n"
+						if (row_counter % 24) == 23:
+							latex_row += "          \\hline \n"
+						else:
+							latex_row += "          \\cmidrule(lr){2-7} \\cmidrule(lr){8-13} \n"
+					else:
+						latex_row += "  \\\\ \n"
+					
+					latex_table += latex_row
+					
+					row_counter += 1
+			
+			latex_footer = self.generate_latex_footer()
+			
+			latex_table += latex_footer
+			
+			with open(latex_file_path, "a", newline='') as latex_file:
+				latex_file.write(latex_table)
+
+
+def prepare_paper_full_sga_latex_tables():
+	prepare_paper_results_sga = PreparePaperResultsSGA()
+	sga_results_json = prepare_paper_results_sga.full_sga_results_json()
+	prepare_paper_results_sga.generate_paper_full_sga_latex_table(sga_results_json)
 
 
 def prepare_paper_sga_latex_tables():
@@ -1016,4 +1158,5 @@ def combine_results():
 if __name__ == '__main__':
 	# main()
 	# combine_results()
-	prepare_paper_sga_latex_tables()
+	# prepare_paper_sga_latex_tables()
+	prepare_paper_full_sga_latex_tables()

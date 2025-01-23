@@ -1,0 +1,37 @@
+\begin{table*}[!h]
+    \centering
+    \captionsetup{font=small}
+    \caption{\textbf{PGAGS}-With Constraint-0.7 results for SGA.}
+    \label{tab:sup_sgg_with_constraint_sgcls_70}
+    \renewcommand{\arraystretch}{1.2} 
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{l|l|l|cccc|cccc}
+    \hline
+        \multirow{2}{*}{$\mathcal{F}$} & \multirow{2}{*}{Method} & \multirow{2}{*}{$\mathcal{S}$} &  \multicolumn{8}{c}{\textbf{WITH CONSTRAINT}} \\ 
+        \cmidrule(lr){4-7} \cmidrule(lr){8-11} 
+         & & & \textbf{R@10} & \textbf{R@20} & \textbf{R@50} & \textbf{R@100} &\textbf{mR@10} & \textbf{mR@20} & \textbf{mR@50}  & \textbf{mR@100} \\ \hline
+   \multirow{16}{*}{0.7} & STTran++~\cite{peddi_et_al_scene_sayer_2024}& -  & 27.10  & 28.20  & 28.20  & 28.20  & 17.20  & 18.60  & 18.60  & 18.60  \\ 
+  &  \quad+\textbf{\methodname(Ours)}& 70  & \cellcolor{highlightColor}\textbf{36.10}  (+33.21\%) & \cellcolor{highlightColor}\textbf{37.10}  (+31.56\%) & \cellcolor{highlightColor}\textbf{37.10}  (+31.56\%) & \cellcolor{highlightColor}\textbf{37.10}  (+31.56\%) & 18.70  (+8.72\%) & 19.90  (+6.99\%) & 19.90  (+6.99\%) & 19.90  (+6.99\%) \\ 
+  &  \quad+\textbf{\methodname(Ours)}& 40  & 36.00  (+32.84\%) & 37.00  (+31.21\%) & 37.00  (+31.21\%) & 37.00  (+31.21\%) & 21.00  (+22.09\%) & 22.70  (+22.04\%) & 22.70  (+22.04\%) & 22.70  (+22.04\%) \\ 
+  &  \quad+\textbf{\methodname(Ours)}& 10  & 29.60  (+9.23\%) & 30.20  (+7.09\%) & 30.20  (+7.09\%) & 30.20  (+7.09\%) & \cellcolor{highlightColor}\textbf{25.60}  (+48.84\%) & \cellcolor{highlightColor}\textbf{27.40}  (+47.31\%) & \cellcolor{highlightColor}\textbf{27.40}  (+47.31\%) & \cellcolor{highlightColor}\textbf{27.40}  (+47.31\%) \\ 
+    \cmidrule(lr){2-11}
+  &  DSGDetr++~\cite{peddi_et_al_scene_sayer_2024}& -  & \cellcolor{highlightColor}\textbf{37.30}  & \cellcolor{highlightColor}\textbf{38.50}  & \cellcolor{highlightColor}\textbf{38.50}  & \cellcolor{highlightColor}\textbf{38.50}  & 18.10  & 19.40  & 19.40  & 19.40  \\ 
+  &  \quad+\textbf{\methodname(Ours)}& 70  & 34.30  (-8.04\%) & 35.40  (-8.05\%) & 35.40  (-8.05\%) & 35.40  (-8.05\%) & 20.70  (+14.36\%) & 22.10  (+13.92\%) & 22.10  (+13.92\%) & 22.10  (+13.92\%) \\ 
+  &  \quad+\textbf{\methodname(Ours)}& 40  & 33.90  (-9.12\%) & 34.90  (-9.35\%) & 34.90  (-9.35\%) & 34.90  (-9.35\%) & 20.60  (+13.81\%) & 21.80  (+12.37\%) & 21.80  (+12.37\%) & 21.80  (+12.37\%) \\ 
+  &  \quad+\textbf{\methodname(Ours)}& 10  & 33.40  (-10.46\%) & 34.50  (-10.39\%) & 34.50  (-10.39\%) & 34.50  (-10.39\%) & \cellcolor{highlightColor}\textbf{23.60}  (+30.39\%) & \cellcolor{highlightColor}\textbf{25.50}  (+31.44\%) & \cellcolor{highlightColor}\textbf{25.50}  (+31.44\%) & \cellcolor{highlightColor}\textbf{25.50}  (+31.44\%) \\ 
+    \cmidrule(lr){2-11}
+  &  SceneSayerODE~\cite{peddi_et_al_scene_sayer_2024}& -  & 30.80  & 32.20  & 32.20  & 32.20  & 13.60  & 15.10  & 15.10  & 15.10  \\ 
+  &  \quad+\textbf{\methodname(Ours)}& 70  & 25.60  (-16.88\%) & 26.60  (-17.39\%) & 26.60  (-17.39\%) & 26.60  (-17.39\%) & 14.70  (+8.09\%) & 16.70  (+10.60\%) & 16.70  (+10.60\%) & 16.70  (+10.60\%) \\ 
+  &  \quad+\textbf{\methodname(Ours)}& 40  & \cellcolor{highlightColor}\textbf{37.20}  (+20.78\%) & \cellcolor{highlightColor}\textbf{38.70}  (+20.19\%) & \cellcolor{highlightColor}\textbf{38.70}  (+20.19\%) & \cellcolor{highlightColor}\textbf{38.70}  (+20.19\%) & 16.90  (+24.26\%) & 18.70  (+23.84\%) & 18.80  (+24.50\%) & 18.80  (+24.50\%) \\ 
+  &  \quad+\textbf{\methodname(Ours)}& 10  & 31.10  (+0.97\%) & 32.10  (-0.31\%) & 32.10  (-0.31\%) & 32.10  (-0.31\%) & \cellcolor{highlightColor}\textbf{22.20}  (+63.24\%) & \cellcolor{highlightColor}\textbf{25.60}  (+69.54\%) & \cellcolor{highlightColor}\textbf{25.70}  (+70.20\%) & \cellcolor{highlightColor}\textbf{25.70}  (+70.20\%) \\ 
+    \cmidrule(lr){2-11}
+  &  SceneSayerSDE~\cite{peddi_et_al_scene_sayer_2024}& -  & \cellcolor{highlightColor}\textbf{38.80}  & \cellcolor{highlightColor}\textbf{40.30}  & \cellcolor{highlightColor}\textbf{40.30}  & \cellcolor{highlightColor}\textbf{40.30}  & 17.90  & 19.90  & 19.90  & 19.90  \\ 
+  &  \quad+\textbf{\methodname(Ours)}& 70  & 36.80  (-5.15\%) & 38.30  (-4.96\%) & 38.30  (-4.96\%) & 38.30  (-4.96\%) & 21.70  (+21.23\%) & 24.00  (+20.60\%) & 24.00  (+20.60\%) & 24.00  (+20.60\%) \\ 
+  &  \quad+\textbf{\methodname(Ours)}& 40  & 38.40  (-1.03\%) & 40.00  (-0.74\%) & 40.00  (-0.74\%) & 40.00  (-0.74\%) & 18.80  (+5.03\%) & 20.70  (+4.02\%) & 20.70  (+4.02\%) & 20.70  (+4.02\%) \\ 
+  &  \quad+\textbf{\methodname(Ours)}& 10  & 34.40  (-11.34\%) & 35.60  (-11.66\%) & 35.60  (-11.66\%) & 35.60  (-11.66\%) & \cellcolor{highlightColor}\textbf{25.90}  (+44.69\%) & \cellcolor{highlightColor}\textbf{30.00}  (+50.75\%) & \cellcolor{highlightColor}\textbf{30.10}  (+51.26\%) & \cellcolor{highlightColor}\textbf{30.10}  (+51.26\%) \\ 
+    \cmidrule(lr){2-11}
+    \cmidrule(lr){1-11}
+    \hline
+    \end{tabular}
+    }
+\end{table*}

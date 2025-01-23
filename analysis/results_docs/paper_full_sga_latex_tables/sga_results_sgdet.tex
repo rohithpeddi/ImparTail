@@ -1,0 +1,46 @@
+\begin{table}[!h]
+    \centering
+    \captionsetup{font=small}
+    \caption{Results for SGA of \textbf{AGS}, when trained using anticipatory horizon of 3 future frames.}
+    \label{tab:anticipation_results_sgdet}
+    \setlength{\tabcolsep}{5pt} 
+    \renewcommand{\arraystretch}{1.2} 
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{ll|cccccc|cccccc}
+    \hline
+         & & \multicolumn{6}{c|}{\textbf{Recall (R)}} & \multicolumn{6}{c}{\textbf{Mean Recall (mR)}} \\ 
+        \cmidrule(lr){3-8} \cmidrule(lr){9-14} 
+         \multicolumn{2}{c|}{\textbf{SGA of \textbf{AGS}}} & \multicolumn{3}{c}{\textbf{With Constraint}} & \multicolumn{3}{c|}{\textbf{No Constraint}} & \multicolumn{3}{c}{\textbf{With Constraint}} & \multicolumn{3}{c}{\textbf{No Constraint}}\\ 
+        \cmidrule(lr){1-2}\cmidrule(lr){3-5} \cmidrule(lr){6-8}\cmidrule(lr){9-11} \cmidrule(lr){12-14} 
+         $\mathcal{F}$ & \textbf{Method} & \textbf{10} & \textbf{20} & \textbf{50} & \textbf{10} & \textbf{20} & \textbf{50} & \textbf{10} & \textbf{20} & \textbf{50}  & \textbf{10} & \textbf{20} & \textbf{50}   \\ \hline
+        \multirow{6}{*}{0.3} &        STTran+ \cite{cong_et_al_sttran_2021} & 15.1 & 26.2 & 28.4 & 21.5 & 33.3 & 50.2 & 6.1 & 12.2 & 13.5 & 11.9 & 17.4 & 33.5  \\ 
+        &        DSGDetr+ \cite{Feng_2021} & 12.2 & 22.7 & 24.5 & 21.8 & 32.0 & 49.9 & 6.9 & 13.1 & 14.3 & 12.7 & 19.1 & 35.2  \\ 
+        &        STTran++ \cite{cong_et_al_sttran_2021} & \cellcolor{highlightColor} \textbf{19.4} & \cellcolor{highlightColor} \textbf{31.1} & \cellcolor{highlightColor} \textbf{33.5} & 22.9 & \cellcolor{highlightColor} \textbf{36.0} & \cellcolor{highlightColor} \textbf{51.3} & \cellcolor{highlightColor} \textbf{7.6} & \cellcolor{highlightColor} \textbf{15.3} & 16.9 & 13.1 & 20.2 & 36.2  \\ 
+        &        DSGDetr++ \cite{Feng_2021} & 18.8 & 28.3 & 29.9 & 20.8 & 33.1 & 49.2 & 7.1 & 12.8 & 13.8 & 11.5 & 17.8 & 34.1  \\ 
+        &        \textbf{SceneSayerODE (Ours)} & 15.1 & 25.7 & 30.1 & 22.6 & 31.6 & 44.5 & 5.5 & 11.9 & \cellcolor{highlightColor} \textbf{19.0} & 12.6 & 19.3 & 32.7  \\ 
+        &        \textbf{SceneSayerSDE (Ours)} & 15.9 & 27.8 & 33.4 & \cellcolor{highlightColor} \textbf{26.3} & 35.7 & 47.2 & 5.9 & 13.4 & 17.2 & \cellcolor{highlightColor} \textbf{14.3} & \cellcolor{highlightColor} \textbf{22.0} & \cellcolor{highlightColor} \textbf{36.4}  \\ 
+          \cmidrule(lr){2-7} \cmidrule(lr){8-13} 
+        \multirow{6}{*}{0.5} &        STTran+ \cite{cong_et_al_sttran_2021} & 16.3 & 28.7 & 31.1 & 23.3 & 35.7 & 53.7 & 6.5 & 13.2 & 14.7 & 12.6 & 18.3 & 36.1  \\ 
+        &        DSGDetr+ \cite{Feng_2021} & 12.9 & 24.4 & 26.5 & 23.6 & 34.1 & 53.4 & 7.2 & 14.0 & 15.4 & 13.7 & 20.5 & 38.1  \\ 
+        &        STTran++ \cite{cong_et_al_sttran_2021} & \cellcolor{highlightColor} \textbf{20.4} & \cellcolor{highlightColor} \textbf{33.3} & 35.9 & 24.6 & 38.4 & \cellcolor{highlightColor} \textbf{54.5} & \cellcolor{highlightColor} \textbf{7.9} & \cellcolor{highlightColor} \textbf{16.4} & \cellcolor{highlightColor} \textbf{18.4} & 13.9 & 21.3 & 38.5  \\ 
+        &        DSGDetr++ \cite{Feng_2021} & 19.8 & 30.0 & 31.9 & 21.9 & 34.7 & 52.1 & 7.4 & 13.4 & 14.6 & 11.8 & 18.2 & 36.1  \\ 
+        &        \textbf{SceneSayerODE (Ours)} & 16.6 & 28.2 & 33.5 & 25.8 & 35.8 & 48.9 & 5.8 & 12.6 & 16.9 & 14.0 & 22.3 & 36.5  \\ 
+        &        \textbf{SceneSayerSDE (Ours)} & 17.5 & 30.0 & \cellcolor{highlightColor} \textbf{36.5} & \cellcolor{highlightColor} \textbf{29.0} & \cellcolor{highlightColor} \textbf{39.1} & 51.5 & 6.4 & 13.7 & 18.3 & \cellcolor{highlightColor} \textbf{15.4} & \cellcolor{highlightColor} \textbf{23.7} & \cellcolor{highlightColor} \textbf{38.7}  \\ 
+          \cmidrule(lr){2-7} \cmidrule(lr){8-13} 
+        \multirow{6}{*}{0.7} &        STTran+ \cite{cong_et_al_sttran_2021} & 18.4 & 31.7 & 34.3 & 26.2 & 39.6 & 59.0 & 7.4 & 14.7 & 16.4 & 13.8 & 20.4 & 39.7  \\ 
+        &        DSGDetr+ \cite{Feng_2021} & 14.5 & 27.0 & 29.1 & 26.0 & 37.4 & 58.5 & 8.3 & 15.8 & 17.1 & 15.1 & 22.9 & 41.0  \\ 
+        &        STTran++ \cite{cong_et_al_sttran_2021} & \cellcolor{highlightColor} \textbf{22.5} & \cellcolor{highlightColor} \textbf{36.4} & 39.2 & 27.2 & 42.1 & \cellcolor{highlightColor} \textbf{59.7} & \cellcolor{highlightColor} \textbf{9.1} & \cellcolor{highlightColor} \textbf{18.2} & \cellcolor{highlightColor} \textbf{20.2} & 15.7 & 23.7 & 41.9  \\ 
+        &        DSGDetr++ \cite{Feng_2021} & 22.2 & 33.2 & 35.1 & 24.9 & 38.2 & 56.9 & 8.4 & 14.8 & 16.0 & 13.2 & 20.0 & 38.8  \\ 
+        &        \textbf{SceneSayerODE (Ours)} & 19.0 & 32.0 & 37.9 & 31.7 & 42.1 & 55.1 & 6.7 & 14.0 & 18.5 & 16.4 & 24.9 & 40.5  \\ 
+        &        \textbf{SceneSayerSDE (Ours)} & 19.5 & 33.0 & \cellcolor{highlightColor} \textbf{39.6} & \cellcolor{highlightColor} \textbf{33.8} & \cellcolor{highlightColor} \textbf{43.9} & 56.4 & 7.1 & 14.6 & 19.3 & \cellcolor{highlightColor} \textbf{17.3} & \cellcolor{highlightColor} \textbf{26.1} & \cellcolor{highlightColor} \textbf{42.5}  \\ 
+          \cmidrule(lr){2-7} \cmidrule(lr){8-13} 
+        \multirow{6}{*}{0.9} &        STTran+ \cite{cong_et_al_sttran_2021} & 19.5 & 33.8 & 36.7 & 28.2 & 42.8 & 63.4 & 8.1 & 16.7 & 18.7 & 15.1 & 23.5 & 42.9  \\ 
+        &        DSGDetr+ \cite{Feng_2021} & 15.6 & 29.4 & 31.6 & 28.6 & 40.7 & 62.9 & 9.1 & 18.1 & 19.6 & 17.4 & 26.2 & 45.2  \\ 
+        &        STTran++ \cite{cong_et_al_sttran_2021} & 24.6 & \cellcolor{highlightColor} \textbf{39.8} & 42.9 & 30.2 & 45.8 & \cellcolor{highlightColor} \textbf{64.4} & \cellcolor{highlightColor} \textbf{9.8} & \cellcolor{highlightColor} \textbf{20.9} & \cellcolor{highlightColor} \textbf{23.5} & 18.2 & 27.5 & \cellcolor{highlightColor} \textbf{47.2}  \\ 
+        &        DSGDetr++ \cite{Feng_2021} & \cellcolor{highlightColor} \textbf{24.8} & 37.5 & 39.7 & 28.7 & 43.4 & 62.7 & 9.5 & 17.7 & 19.2 & 15.5 & 23.8 & 44.9  \\ 
+        &        \textbf{SceneSayerODE (Ours)} & 21.0 & 36.0 & 43.2 & 37.8 & 49.1 & 61.4 & 7.0 & 15.6 & 21.0 & 18.9 & 28.6 & 45.2  \\ 
+        &        \textbf{SceneSayerSDE (Ours)} & 21.0 & 36.4 & \cellcolor{highlightColor} \textbf{43.9} & \cellcolor{highlightColor} \textbf{38.5} & \cellcolor{highlightColor} \textbf{49.9} & 61.9 & 7.4 & 16.0 & 21.1 & \cellcolor{highlightColor} \textbf{19.1} & \cellcolor{highlightColor} \textbf{29.0} & 45.6  \\ 
+          \hline 
+    \end{tabular}
+    }
+\end{table}

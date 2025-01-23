@@ -1,0 +1,23 @@
+\begin{table}[!h]
+    \centering
+    \captionsetup{font=small}
+    \caption{SGDET Mean Recall Results for VidSGG.}
+    \label{tab:sgg_mean_recall_results}
+    \renewcommand{\arraystretch}{1.2} 
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{l|ccccccccc}
+    \hline
+         \multirow{3}{*}{Method} & \multicolumn{9}{c}{\textbf{SGDET}} \\ 
+        \cmidrule(lr){2-10} 
+          & \multicolumn{3}{c}{\textbf{With Constraint}} & \multicolumn{3}{c}{\textbf{No Constraint}} & \multicolumn{3}{c}{\textbf{Semi Constraint}} \\ 
+        \cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10}  
+          & \textbf{@10} & \textbf{@20} & \textbf{@50} & \textbf{@10} & \textbf{@20} & \textbf{@50}  & \textbf{@10} & \textbf{@20} & \textbf{@50}  \\ \hline
+        STTran~\cite{cong_et_al_sttran_2021} & 8.0 & 16.6 & 19.3 & 19.3 & 26.9 & 35.6 & 7.7 & 18.2 & 30.4  \\ 
+        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{9.4} & \cellcolor{highlightColor} \textbf{21.5} & \cellcolor{highlightColor} \textbf{25.9} & \cellcolor{highlightColor} \textbf{23.5} & \cellcolor{highlightColor} \textbf{33.6} & \cellcolor{highlightColor} \textbf{43.8} & \cellcolor{highlightColor} \textbf{8.6} & \cellcolor{highlightColor} \textbf{21.8} & \cellcolor{highlightColor} \textbf{38.3}  \\ 
+          \hline 
+        DSGDetr~\cite{Feng_2021} & 6.7 & 14.7 & 19.1 & 23.3 & 29.8 & 36.0 & 6.5 & 16.0 & 30.4  \\ 
+        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{7.5} & \cellcolor{highlightColor} \textbf{17.8} & \cellcolor{highlightColor} \textbf{23.7} & \cellcolor{highlightColor} \textbf{27.5} & \cellcolor{highlightColor} \textbf{35.2} & \cellcolor{highlightColor} \textbf{43.3} & \cellcolor{highlightColor} \textbf{7.3} & \cellcolor{highlightColor} \textbf{18.4} & \cellcolor{highlightColor} \textbf{36.6}  \\ 
+          \hline 
+    \end{tabular}
+    }
+\end{table}

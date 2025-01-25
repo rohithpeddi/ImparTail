@@ -1,4 +1,51 @@
 from analysis.results.Result import Metrics, ResultDetails
+from constants import ResultConstants as const
+
+# -----------------------------------------------------------------------------------
+# ---------------------------- METHOD DETAILS EXTRACTION ---------------------------
+# -----------------------------------------------------------------------------------
+
+def get_mode_name(result_file_name):
+	if "_sgdet" in result_file_name:
+		return const.SGDET
+	elif "_sgcls" in result_file_name:
+		return const.SGCLS
+	elif "_predcls" in result_file_name:
+		return const.PREDCLS
+	
+	raise Exception(f"Mode not found for method name: {result_file_name}")
+
+
+def get_partial_percentage(method_name):
+	if "_partial" in method_name:
+		method_vars = method_name.split('_')
+		index_of_partial = method_vars.index("partial")
+		return int(method_vars[index_of_partial + 1])
+	
+	raise Exception(f"Partial percentage not found for method name: {method_name}")
+
+
+def get_sga_method_name(method_name):
+	if "sttran_ant" in method_name:
+		method_name = "sttran_ant"
+	elif "dsgdetr_ant" in method_name:
+		method_name = "dsgdetr_ant"
+	elif "sttran_gen_ant" in method_name:
+		method_name = "sttran_gen_ant"
+	elif "dsgdetr_gen_ant" in method_name:
+		method_name = "dsgdetr_gen_ant"
+	elif "ode" in method_name:
+		method_name = "ode"
+	elif "sde" in method_name:
+		method_name = "sde"
+	else:
+		raise Exception(f"Method name not found for method name: {method_name}")
+	return method_name
+
+
+# -----------------------------------------------------------------------------------
+# ---------------------------- PROCESS CSV ROWS EXTRACTION ---------------------------
+# -----------------------------------------------------------------------------------
 
 
 def process_result_details_from_csv_row(row):

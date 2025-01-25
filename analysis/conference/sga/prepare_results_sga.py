@@ -68,6 +68,10 @@ class PrepareResultsSGA(PrepareResultsBase):
 		
 		return sga_results_json
 	
+	# ---------------------------------------------------------------------------------------------------
+	# ------------------------------------ CSV GENERATION METHODS ---------------------------------------
+	# ---------------------------------------------------------------------------------------------------
+	
 	def generate_sga_results_csvs_method_wise(self, sga_results_json):
 		for mode in self.mode_list:
 			csv_file_name = f"sga_combined_method_wise_{mode}.csv"
@@ -291,6 +295,39 @@ class PrepareResultsSGA(PrepareResultsBase):
 		sga_results_json = self.fetch_sga_results_json()
 		self.generate_sga_results_csvs_method_wise(sga_results_json)
 		self.generate_sga_results_csvs_context_wise(sga_results_json)
+	
+	# ---------------------------------------------------------------------------------------------------
+	# ------------------------------------ LATEX GENERATION METHODS -------------------------------------
+	# ---------------------------------------------------------------------------------------------------
+	
+	@staticmethod
+	def generate_sga_paper_latex_header():
+		latex_header = "\\begin{table}[!h]\n"
+		latex_header += "    \\centering\n"
+		latex_header += "    \\captionsetup{font=small}\n"
+		latex_header += "    \\caption{Results for SGG.}\n"
+		latex_header += "    \\label{tab:sgg_mean_recall_results}\n"
+		latex_header += "    \\renewcommand{\\arraystretch}{1.2} \n"
+		latex_header += "    \\resizebox{\\textwidth}{!}{\n"
+		latex_header += "    \\begin{tabular}{ll|ccccccccc|ccccccccc|ccccccccc}\n"
+		latex_header += "    \\hline\n"
+		latex_header += "       &  & \\multicolumn{9}{c}{\\textbf{AGS}} & \\multicolumn{9}{c}{\\textbf{PGAGS}} & \\multicolumn{9}{c}{\\textbf{GAGS}} \\\\ \n"
+		latex_header += "        \\cmidrule(lr){1-2}\\cmidrule(lr){3-11} \\cmidrule(lr){12-20} \\cmidrule(lr){21-29} \n "
+		latex_header += "       &  & \\multicolumn{3}{c}{\\textbf{With}} & \\multicolumn{3}{c}{\\textbf{No}} & \\multicolumn{3}{c}{\\textbf{Semi}} & \\multicolumn{3}{c}{\\textbf{With}} & \\multicolumn{3}{c}{\\textbf{No}} & \\multicolumn{3}{c}{\\textbf{Semi}} & \\multicolumn{3}{c}{\\textbf{With}} & \\multicolumn{3}{c}{\\textbf{No}} & \\multicolumn{3}{c}{\\textbf{Semi}} \\\\ \n"
+		latex_header += "        \\cmidrule(lr){1-2} \\cmidrule(lr){3-5} \\cmidrule(lr){6-8} \\cmidrule(lr){9-11} \\cmidrule(lr){12-14} \\cmidrule(lr){15-17} \\cmidrule(lr){18-20} \\cmidrule(lr){21-23} \\cmidrule(lr){24-26} \\cmidrule(lr){27-29} \n "
+		
+		latex_header += (
+				"    $\\mathcal{F}$ &  \\textbf{Method} & "
+				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50} & "
+				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50}  & "
+				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50}  & "
+				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50}  & "
+				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50}  & "
+				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50}  & "
+				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50}  & "
+				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50}  & "
+				"\\textbf{mR@10} & \\textbf{mR@20} & \\textbf{mR@50}  & " + " \\\\ \\hline\n")
+		return latex_header
 
 
 def main():

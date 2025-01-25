@@ -1,0 +1,89 @@
+\begin{table}[!h]
+    \centering
+    \captionsetup{font=small}
+    \caption{SGDET Mean Recall Results for SGA.}
+    \label{tab:sgg_mean_recall_results}
+    \renewcommand{\arraystretch}{1.2} 
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{l|l|ccccccccc}
+    \hline
+        \multirow{3}{*}{$\mathcal{F}$} & \multirow{3}{*}{Method} & \multicolumn{9}{c}{\textbf{SGDET}} \\ 
+        \cmidrule(lr){3-11} 
+         & & \multicolumn{3}{c}{\textbf{With Constraint}} & \multicolumn{3}{c}{\textbf{No Constraint}} & \multicolumn{3}{c}{\textbf{Semi Constraint}} \\ 
+        \cmidrule(lr){3-5} \cmidrule(lr){6-8} \cmidrule(lr){9-11}  
+     &    & \textbf{@10} & \textbf{@20} & \textbf{@50} & \textbf{@10} & \textbf{@20} & \textbf{@50}  & \textbf{@10} & \textbf{@20} & \textbf{@50}  \\ \hline
+        \multirow{12}{*}{0.3} &        STTran+~\cite{peddi_et_al_scene_sayer_2024} & 6.1 & 12.2 & 13.5 & 11.9 & 17.4 & 33.5 & 5.7 & 7.9 & 8.0  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{8.3} & \cellcolor{highlightColor} \textbf{15.3} & \cellcolor{highlightColor} \textbf{16.6} & \cellcolor{highlightColor} \textbf{11.2} & \cellcolor{highlightColor} \textbf{18.2} & \cellcolor{highlightColor} \textbf{33.8} & \cellcolor{highlightColor} \textbf{3.1} & \cellcolor{highlightColor} \textbf{3.1} & \cellcolor{highlightColor} \textbf{3.1}  \\ 
+          \cmidrule(lr){3-11} 
+        &        DSGDetr+~\cite{peddi_et_al_scene_sayer_2024} & 6.9 & 13.1 & 14.3 & 12.7 & 19.1 & 35.2 & 5.2 & 6.1 & 6.1  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{6.8} & \cellcolor{highlightColor} \textbf{11.8} & \cellcolor{highlightColor} \textbf{12.5} & \cellcolor{highlightColor} \textbf{7.8} & \cellcolor{highlightColor} \textbf{14.6} & \cellcolor{highlightColor} \textbf{29.7} & \cellcolor{highlightColor} \textbf{2.7} & \cellcolor{highlightColor} \textbf{2.7} & \cellcolor{highlightColor} \textbf{2.7}  \\ 
+          \cmidrule(lr){3-11} 
+        &        STTran++~\cite{peddi_et_al_scene_sayer_2024} & 7.6 & 15.3 & 16.9 & 13.1 & 20.2 & 36.2 & 5.0 & 6.4 & 6.4  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{8.9} & \cellcolor{highlightColor} \textbf{17.9} & \cellcolor{highlightColor} \textbf{19.7} & \cellcolor{highlightColor} \textbf{11.1} & \cellcolor{highlightColor} \textbf{18.5} & \cellcolor{highlightColor} \textbf{36.5} & \cellcolor{highlightColor} \textbf{3.6} & \cellcolor{highlightColor} \textbf{3.6} & \cellcolor{highlightColor} \textbf{3.6}  \\ 
+          \cmidrule(lr){3-11} 
+        &        DSGDetr++~\cite{peddi_et_al_scene_sayer_2024} & 7.1 & 12.8 & 13.8 & 11.5 & 17.8 & 34.1 & 4.9 & 5.7 & 5.7  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{9.3} & \cellcolor{highlightColor} \textbf{18.4} & \cellcolor{highlightColor} \textbf{20.2} & \cellcolor{highlightColor} \textbf{12.8} & \cellcolor{highlightColor} \textbf{21.8} & \cellcolor{highlightColor} \textbf{37.5} & \cellcolor{highlightColor} \textbf{3.1} & \cellcolor{highlightColor} \textbf{3.1} & \cellcolor{highlightColor} \textbf{3.1}  \\ 
+          \cmidrule(lr){3-11} 
+        &        SceneSayerODE~\cite{peddi_et_al_scene_sayer_2024} & 5.5 & 11.9 & 19.0 & 12.6 & 19.3 & 32.7 & 4.7 & 7.9 & 9.9  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0}  \\ 
+          \cmidrule(lr){3-11} 
+        &        SceneSayerSDE~\cite{peddi_et_al_scene_sayer_2024} & 5.9 & 13.4 & 17.2 & 14.3 & 22.0 & 36.4 & 4.3 & 6.1 & 6.4  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0}  \\ 
+          \cmidrule(lr){3-11} 
+        \multirow{12}{*}{0.5} &        STTran+~\cite{peddi_et_al_scene_sayer_2024} & 6.5 & 13.2 & 14.7 & 12.6 & 18.3 & 36.1 & 6.0 & 8.3 & 8.4  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{8.9} & \cellcolor{highlightColor} \textbf{16.3} & \cellcolor{highlightColor} \textbf{18.0} & \cellcolor{highlightColor} \textbf{11.8} & \cellcolor{highlightColor} \textbf{19.5} & \cellcolor{highlightColor} \textbf{35.8} & \cellcolor{highlightColor} \textbf{3.3} & \cellcolor{highlightColor} \textbf{3.3} & \cellcolor{highlightColor} \textbf{3.3}  \\ 
+          \cmidrule(lr){3-11} 
+        &        DSGDetr+~\cite{peddi_et_al_scene_sayer_2024} & 7.2 & 14.0 & 15.4 & 13.7 & 20.5 & 38.1 & 5.5 & 6.6 & 6.6  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{7.2} & \cellcolor{highlightColor} \textbf{12.7} & \cellcolor{highlightColor} \textbf{13.4} & \cellcolor{highlightColor} \textbf{8.2} & \cellcolor{highlightColor} \textbf{15.6} & \cellcolor{highlightColor} \textbf{32.9} & \cellcolor{highlightColor} \textbf{2.9} & \cellcolor{highlightColor} \textbf{2.9} & \cellcolor{highlightColor} \textbf{2.9}  \\ 
+          \cmidrule(lr){3-11} 
+        &        STTran++~\cite{peddi_et_al_scene_sayer_2024} & 7.9 & 16.4 & 18.4 & 13.9 & 21.3 & 38.5 & 5.1 & 6.6 & 6.6  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{9.3} & \cellcolor{highlightColor} \textbf{18.7} & \cellcolor{highlightColor} \textbf{20.9} & \cellcolor{highlightColor} \textbf{12.1} & \cellcolor{highlightColor} \textbf{20.0} & \cellcolor{highlightColor} \textbf{39.6} & \cellcolor{highlightColor} \textbf{3.9} & \cellcolor{highlightColor} \textbf{4.0} & \cellcolor{highlightColor} \textbf{4.0}  \\ 
+          \cmidrule(lr){3-11} 
+        &        DSGDetr++~\cite{peddi_et_al_scene_sayer_2024} & 7.4 & 13.4 & 14.6 & 11.8 & 18.2 & 36.1 & 5.0 & 5.7 & 5.7  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{9.8} & \cellcolor{highlightColor} \textbf{19.8} & \cellcolor{highlightColor} \textbf{21.9} & \cellcolor{highlightColor} \textbf{13.5} & \cellcolor{highlightColor} \textbf{22.9} & \cellcolor{highlightColor} \textbf{40.7} & \cellcolor{highlightColor} \textbf{3.3} & \cellcolor{highlightColor} \textbf{3.3} & \cellcolor{highlightColor} \textbf{3.3}  \\ 
+          \cmidrule(lr){3-11} 
+        &        SceneSayerODE~\cite{peddi_et_al_scene_sayer_2024} & 5.8 & 12.6 & 16.9 & 14.0 & 22.3 & 36.5 & 4.7 & 7.8 & 9.9  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0}  \\ 
+          \cmidrule(lr){3-11} 
+        &        SceneSayerSDE~\cite{peddi_et_al_scene_sayer_2024} & 6.4 & 13.7 & 18.3 & 15.4 & 23.7 & 38.7 & 4.6 & 6.9 & 7.2  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0}  \\ 
+          \cmidrule(lr){3-11} 
+        \multirow{12}{*}{0.7} &        STTran+~\cite{peddi_et_al_scene_sayer_2024} & 7.4 & 14.7 & 16.4 & 13.8 & 20.4 & 39.7 & 6.7 & 9.3 & 9.3  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{10.0} & \cellcolor{highlightColor} \textbf{18.3} & \cellcolor{highlightColor} \textbf{20.0} & \cellcolor{highlightColor} \textbf{13.4} & \cellcolor{highlightColor} \textbf{21.6} & \cellcolor{highlightColor} \textbf{39.6} & \cellcolor{highlightColor} \textbf{3.6} & \cellcolor{highlightColor} \textbf{3.6} & \cellcolor{highlightColor} \textbf{3.6}  \\ 
+          \cmidrule(lr){3-11} 
+        &        DSGDetr+~\cite{peddi_et_al_scene_sayer_2024} & 8.3 & 15.8 & 17.1 & 15.1 & 22.9 & 41.0 & 6.1 & 7.3 & 7.3  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{8.1} & \cellcolor{highlightColor} \textbf{13.7} & \cellcolor{highlightColor} \textbf{14.7} & \cellcolor{highlightColor} \textbf{9.3} & \cellcolor{highlightColor} \textbf{17.3} & \cellcolor{highlightColor} \textbf{35.7} & \cellcolor{highlightColor} \textbf{3.0} & \cellcolor{highlightColor} \textbf{3.0} & \cellcolor{highlightColor} \textbf{3.0}  \\ 
+          \cmidrule(lr){3-11} 
+        &        STTran++~\cite{peddi_et_al_scene_sayer_2024} & 9.1 & 18.2 & 20.2 & 15.7 & 23.7 & 41.9 & 5.8 & 7.3 & 7.3  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{10.9} & \cellcolor{highlightColor} \textbf{21.9} & \cellcolor{highlightColor} \textbf{24.1} & \cellcolor{highlightColor} \textbf{14.0} & \cellcolor{highlightColor} \textbf{23.2} & \cellcolor{highlightColor} \textbf{43.7} & \cellcolor{highlightColor} \textbf{4.3} & \cellcolor{highlightColor} \textbf{4.4} & \cellcolor{highlightColor} \textbf{4.4}  \\ 
+          \cmidrule(lr){3-11} 
+        &        DSGDetr++~\cite{peddi_et_al_scene_sayer_2024} & 8.4 & 14.8 & 16.0 & 13.2 & 20.0 & 38.8 & 5.6 & 6.3 & 6.3  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{11.5} & \cellcolor{highlightColor} \textbf{23.1} & \cellcolor{highlightColor} \textbf{25.2} & \cellcolor{highlightColor} \textbf{15.9} & \cellcolor{highlightColor} \textbf{26.7} & \cellcolor{highlightColor} \textbf{45.3} & \cellcolor{highlightColor} \textbf{3.5} & \cellcolor{highlightColor} \textbf{3.5} & \cellcolor{highlightColor} \textbf{3.5}  \\ 
+          \cmidrule(lr){3-11} 
+        &        SceneSayerODE~\cite{peddi_et_al_scene_sayer_2024} & 6.7 & 14.0 & 18.5 & 16.4 & 24.9 & 40.5 & 5.1 & 7.4 & 8.5  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0}  \\ 
+          \cmidrule(lr){3-11} 
+        &        SceneSayerSDE~\cite{peddi_et_al_scene_sayer_2024} & 7.1 & 14.6 & 19.3 & 17.3 & 26.1 & 42.5 & 5.2 & 7.3 & 7.5  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0}  \\ 
+          \cmidrule(lr){3-11} 
+        \multirow{12}{*}{0.9} &        STTran+~\cite{peddi_et_al_scene_sayer_2024} & 8.1 & 16.7 & 18.7 & 15.1 & 23.5 & 42.9 & 7.0 & 10.2 & 10.3  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{11.5} & \cellcolor{highlightColor} \textbf{22.1} & \cellcolor{highlightColor} \textbf{24.5} & \cellcolor{highlightColor} \textbf{16.6} & \cellcolor{highlightColor} \textbf{25.5} & \cellcolor{highlightColor} \textbf{44.7} & \cellcolor{highlightColor} \textbf{4.1} & \cellcolor{highlightColor} \textbf{4.1} & \cellcolor{highlightColor} \textbf{4.1}  \\ 
+          \cmidrule(lr){3-11} 
+        &        DSGDetr+~\cite{peddi_et_al_scene_sayer_2024} & 9.1 & 18.1 & 19.6 & 17.4 & 26.2 & 45.2 & 6.5 & 8.0 & 8.0  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{9.7} & \cellcolor{highlightColor} \textbf{16.9} & \cellcolor{highlightColor} \textbf{18.0} & \cellcolor{highlightColor} \textbf{11.3} & \cellcolor{highlightColor} \textbf{20.7} & \cellcolor{highlightColor} \textbf{40.9} & \cellcolor{highlightColor} \textbf{3.5} & \cellcolor{highlightColor} \textbf{3.5} & \cellcolor{highlightColor} \textbf{3.5}  \\ 
+          \cmidrule(lr){3-11} 
+        &        STTran++~\cite{peddi_et_al_scene_sayer_2024} & 9.8 & 20.9 & 23.5 & 18.2 & 27.5 & 47.2 & 7.1 & 9.4 & 9.4  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{12.6} & \cellcolor{highlightColor} \textbf{27.1} & \cellcolor{highlightColor} \textbf{29.9} & \cellcolor{highlightColor} \textbf{18.8} & \cellcolor{highlightColor} \textbf{30.4} & \cellcolor{highlightColor} \textbf{51.4} & \cellcolor{highlightColor} \textbf{5.4} & \cellcolor{highlightColor} \textbf{5.5} & \cellcolor{highlightColor} \textbf{5.5}  \\ 
+          \cmidrule(lr){3-11} 
+        &        DSGDetr++~\cite{peddi_et_al_scene_sayer_2024} & 9.5 & 17.7 & 19.2 & 15.5 & 23.8 & 44.9 & 6.9 & 8.1 & 8.1  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{13.6} & \cellcolor{highlightColor} \textbf{27.8} & \cellcolor{highlightColor} \textbf{30.2} & \cellcolor{highlightColor} \textbf{21.2} & \cellcolor{highlightColor} \textbf{32.1} & \cellcolor{highlightColor} \textbf{51.2} & \cellcolor{highlightColor} \textbf{4.4} & \cellcolor{highlightColor} \textbf{4.4} & \cellcolor{highlightColor} \textbf{4.4}  \\ 
+          \cmidrule(lr){3-11} 
+        &        SceneSayerODE~\cite{peddi_et_al_scene_sayer_2024} & 7.0 & 15.6 & 21.0 & 18.9 & 28.6 & 45.2 & 5.1 & 6.9 & 7.2  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0}  \\ 
+          \cmidrule(lr){3-11} 
+        &        SceneSayerSDE~\cite{peddi_et_al_scene_sayer_2024} & 7.4 & 16.0 & 21.1 & 19.1 & 29.0 & 45.6 & 5.8 & 8.2 & 8.6  \\ 
+        &        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0} & \cellcolor{highlightColor} \textbf{0.0}  \\ 
+          \cmidrule(lr){3-11} 
+    \end{tabular}
+    }
+\end{table}

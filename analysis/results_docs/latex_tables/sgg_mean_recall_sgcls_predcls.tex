@@ -1,0 +1,23 @@
+\begin{table*}[!h]
+    \centering
+    \captionsetup{font=small}
+    \caption{SGCLS and PREDCLS Mean Recall Results for SGG.}
+    \label{tab:sgg_mean_recall_results}
+    \renewcommand{\arraystretch}{1.2} 
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{l|ccccccccc|ccccccccc}
+    \hline
+         \multirow{3}{*}{Method} & \multicolumn{9}{c}{\textbf{SGCLS}} & \multicolumn{9}{c}{\textbf{PREDCLS}} \\ 
+        \cmidrule(lr){2-10} \cmidrule(lr){11-19} 
+          & \multicolumn{3}{c}{\textbf{With Constraint}} & \multicolumn{3}{c}{\textbf{No Constraint}} & \multicolumn{3}{c}{\textbf{Semi Constraint}} & \multicolumn{3}{c}{\textbf{With Constraint}} & \multicolumn{3}{c}{\textbf{No Constraint}} & \multicolumn{3}{c}{\textbf{Semi Constraint}} \\ 
+        \cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10} \cmidrule(lr){11-13} \cmidrule(lr){14-16} \cmidrule(lr){17-19} 
+          & \textbf{@10} & \textbf{@20} & \textbf{@50} & \textbf{@10} & \textbf{@20} & \textbf{@50}  & \textbf{@10} & \textbf{@20} & \textbf{@50}  & \textbf{@10} & \textbf{@20} & \textbf{@50}  & \textbf{@10} & \textbf{@20} & \textbf{@50}  & \textbf{@10} & \textbf{@20} & \textbf{@50}  \\ \hline
+        STTran~\cite{cong_et_al_sttran_2021} & 25.0 & 27.5 & 27.6 & 38.8 & 47.1 & 59.9 & 29.5 & 39.9 & 40.9 & 30.5 & 34.7 & 34.8 & 45.7 & 63.4 & 80.5 & 36.6 & 51.8 & 53.8  \\ 
+        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{32.3} & \cellcolor{highlightColor} \textbf{36.2} & \cellcolor{highlightColor} \textbf{36.2} & \cellcolor{highlightColor} \textbf{47.4} & \cellcolor{highlightColor} \textbf{57.5} & \cellcolor{highlightColor} \textbf{66.6} & \cellcolor{highlightColor} \textbf{36.2} & \cellcolor{highlightColor} \textbf{50.5} & \cellcolor{highlightColor} \textbf{52.2} & \cellcolor{highlightColor} \textbf{44.0} & \cellcolor{highlightColor} \textbf{52.7} & \cellcolor{highlightColor} \textbf{52.9} & \cellcolor{highlightColor} \textbf{65.5} & \cellcolor{highlightColor} \textbf{82.0} & \cellcolor{highlightColor} \textbf{93.0} & \cellcolor{highlightColor} \textbf{47.7} & \cellcolor{highlightColor} \textbf{69.7} & \cellcolor{highlightColor} \textbf{73.4}  \\ 
+          \hline 
+        DSGDetr~\cite{Feng_2021} & 25.6 & 28.1 & 28.1 & 39.9 & 49.4 & 64.6 & 30.1 & 40.6 & 41.6 & 31.5 & 36.1 & 36.2 & 45.6 & 64.4 & 80.5 & 36.5 & 52.5 & 55.2  \\ 
+        \quad+\textbf{ImparTail(Ours)} & \cellcolor{highlightColor} \textbf{32.2} & \cellcolor{highlightColor} \textbf{36.0} & \cellcolor{highlightColor} \textbf{36.0} & \cellcolor{highlightColor} \textbf{48.8} & \cellcolor{highlightColor} \textbf{59.6} & \cellcolor{highlightColor} \textbf{70.1} & \cellcolor{highlightColor} \textbf{36.8} & \cellcolor{highlightColor} \textbf{52.4} & \cellcolor{highlightColor} \textbf{54.9} & \cellcolor{highlightColor} \textbf{41.0} & \cellcolor{highlightColor} \textbf{48.1} & \cellcolor{highlightColor} \textbf{48.2} & \cellcolor{highlightColor} \textbf{59.4} & \cellcolor{highlightColor} \textbf{76.2} & \cellcolor{highlightColor} \textbf{89.8} & \cellcolor{highlightColor} \textbf{43.9} & \cellcolor{highlightColor} \textbf{65.4} & \cellcolor{highlightColor} \textbf{69.8}  \\ 
+          \hline 
+    \end{tabular}
+    }
+\end{table*}

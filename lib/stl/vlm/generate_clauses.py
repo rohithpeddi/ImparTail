@@ -69,7 +69,7 @@ class GenerateClauses(BaseInstructLLama):
         G(sitting_on(person,bed)∧touching(person,laptop)⟹F(holding(person,cup)∧drinking_from(person,cup)))
         G(touching(cup/glass/bottle,laptop)⟹F(typing(person,laptop)))
         G(drinking_from(person,cup/glass/bottle)∧holding(person,cup/glass/bottle)⟹F(touching(cup/glass/bottle,laptop)∧¬holding(person,cup/glass/bottle)))
-        G(holding(person,cup/glass/bottle)∧drinking_from(person,cup/glass/bottle)⟹F(looking_at(person,laptop)∧touching(person,laptop)))
+        G(holding(person,cup/glass/bottle)∧drinking_from(person,cup/glass/bottle) ⟹ F(looking_at(person,laptop)∧touching(person,laptop)))
         G(sitting_on(person,bed)∧holding(person,cup/glass/bottle)⟹F(drinking_from(person,cup/glass/bottle)∧touching(person,laptop)))
 
 		Follow the same format to generate plausible STL Formulas for a given video input and make sure to include only the output response. 
@@ -93,7 +93,7 @@ class GenerateClauses(BaseInstructLLama):
         ]
         outputs = self.pipe(
             messages,
-            max_new_tokens=1024,
+            max_new_tokens=512,
         )
 
         summary = outputs[0]["generated_text"][-1]["content"]

@@ -94,9 +94,9 @@ class TestSGGBase(STSGBase):
         self._object_detector.is_train = False
 
     def _collate_evaluation_stats(self):
-        with_constraint_evaluator_stats = self._with_constraint_evaluator.fetch_stats_json()
-        no_constraint_evaluator_stats = self._no_constraint_evaluator.fetch_stats_json()
-        semi_constraint_evaluator_stats = self._semi_constraint_evaluator.fetch_stats_json()
+        with_constraint_evaluator_stats = self._with_constraint_evaluator.fetch_stats_json(save_file_path = f"with_constraint_{self._checkpoint_name}")
+        no_constraint_evaluator_stats = self._no_constraint_evaluator.fetch_stats_json(save_file_path = f"no_constraint_{self._checkpoint_name}")
+        semi_constraint_evaluator_stats = self._semi_constraint_evaluator.fetch_stats_json(save_file_path = f"semi_constraint_{self._checkpoint_name}")
 
         collated_stats = [
             self._conf.method_name,

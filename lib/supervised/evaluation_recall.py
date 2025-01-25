@@ -47,7 +47,7 @@ class BasicSceneGraphEvaluator:
             k: [[] for _ in range(self.num_rel)] for k in (10, 20, 50, 100)
         }
     
-    def fetch_stats_json(self):
+    def fetch_stats_json(self, save_file_path=None):
         recall_dict = {}
         mean_recall_dict = {}
         harmonic_mean_recall_dict = {}
@@ -65,7 +65,19 @@ class BasicSceneGraphEvaluator:
             mean_recall_value = mean_recall_dict[k]
             harmonic_mean = 2 * mean_recall_value * recall_value / (mean_recall_value + recall_value)
             harmonic_mean_recall_dict[k] = harmonic_mean
-        
+
+        if save_file_path is not None:
+            # Save the results corresponding to mean recall collection for each k in to the file
+            # Construct a matrix - k x num_rel
+            recall_matrix = np.zeros((len(self.result_dict[self.mode + '_mean_recall_collect']), self.num_rel))
+            for i, (k, v) in enumerate(self.result_dict[self.mode + '_mean_recall_collect'].items()):
+                recall_matrix[i, :] = np.array(v)
+
+            # Print the recall matrix to the file
+            with open(save_file_path, "w") as stats_file:
+                stats_file.write(f'======================{self.mode}======================\n')
+                stats_file.write(f'{recall_matrix}\n')
+
         results = {
             "recall": recall_dict,
             "mean_recall": mean_recall_dict,

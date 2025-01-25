@@ -57,9 +57,9 @@ class TestDsgDetr(TestSGGBase):
 
 def main():
     conf = Config()
-    if conf.method_name in ["sttran", "sttran_partial_10"]:
+    if conf.method_name in ["sttran"]:
         evaluate_class = TestSTTran(conf)
-    elif conf.method_name in ["dsgdetr", "dsgdetr_partial_10"]:
+    elif conf.method_name in ["dsgdetr"]:
         evaluate_class = TestDsgDetr(conf)
     else:
         raise NotImplementedError

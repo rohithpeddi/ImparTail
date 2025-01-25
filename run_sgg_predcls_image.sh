@@ -6,7 +6,7 @@ METHODS=("sttran" "dsgdetr")
 TASKS=("sgg")
 MODES=("predcls")
 CORRUPTION_TYPES=("gaussian_noise" "shot_noise" "impulse_noise" "speckle_noise" "fog" "frost" "brightness" "sun_glare")
-DATASET_CORRUPTION_MODES=("fixed" "mixed")
+DATASET_CORRUPTION_MODES=("fixed")
 VIDEO_CORRUPTION_MODES=("fixed" "mixed")
 SEVERITY_LEVELS=(3)
 

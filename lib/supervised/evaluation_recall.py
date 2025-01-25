@@ -1,3 +1,5 @@
+import csv
+import os
 from functools import reduce
 
 import numpy as np
@@ -71,12 +73,13 @@ class BasicSceneGraphEvaluator:
             # Construct a matrix - k x num_rel
             recall_matrix = np.zeros((len(self.result_dict[self.mode + '_mean_recall_collect']), self.num_rel))
             for i, (k, v) in enumerate(self.result_dict[self.mode + '_mean_recall_collect'].items()):
-                recall_matrix[i, :] = np.array(v)
+                recall_matrix[i, :] = np.array([np.mean(v[id]) for id in range(len(v))])
 
-            # Print the recall matrix to the file
+            # Print the recall matrix to the csv file for further analysis
             with open(save_file_path, "w") as stats_file:
-                stats_file.write(f'======================{self.mode}======================\n')
-                stats_file.write(f'{recall_matrix}\n')
+                writer = csv.writer(stats_file, quoting=csv.QUOTE_NONNUMERIC)
+                for i in range(len(recall_matrix)):
+                    writer.writerow(recall_matrix[i])
 
         results = {
             "recall": recall_dict,

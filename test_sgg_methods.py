@@ -67,5 +67,17 @@ def main():
     evaluate_class.init_method_evaluation()
 
 
+def main_qual():
+    conf = Config()
+    if conf.method_name in ["sttran"]:
+        evaluate_class = TestSTTran(conf)
+    elif conf.method_name in ["dsgdetr"]:
+        evaluate_class = TestDsgDetr(conf)
+    else:
+        raise NotImplementedError
+
+    evaluate_class.store_qualitative_results()
+
+
 if __name__ == "__main__":
-    main()
+    main_qual()

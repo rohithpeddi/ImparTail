@@ -3,9 +3,12 @@ import csv
 import os
 import time
 
+import networkx as nx
 import torch
 from abc import abstractmethod
 
+from matplotlib import pyplot as plt
+from matplotlib.patches import FancyArrowPatch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from analysis.results.FirebaseService import FirebaseService
@@ -77,9 +80,9 @@ class TestSGGBase(STSGBase):
             iou_threshold=iou_threshold,
             constraint='semi', semi_threshold=0.9)
 
-        self._evaluators.append(self._with_constraint_evaluator)
-        self._evaluators.append(self._no_constraint_evaluator)
-        self._evaluators.append(self._semi_constraint_evaluator)
+        self._evaluators.append(self._with_constraint_evaluator)  # 0
+        self._evaluators.append(self._no_constraint_evaluator)  # 1
+        self._evaluators.append(self._semi_constraint_evaluator)  # 2
 
     def _init_object_detector(self):
         self._object_detector = Detector(
@@ -94,9 +97,12 @@ class TestSGGBase(STSGBase):
         self._object_detector.is_train = False
 
     def _collate_evaluation_stats(self):
-        with_constraint_evaluator_stats = self._with_constraint_evaluator.fetch_stats_json(save_file_path = f"with_constraint_{self._checkpoint_name}.csv")
-        no_constraint_evaluator_stats = self._no_constraint_evaluator.fetch_stats_json(save_file_path = f"no_constraint_{self._checkpoint_name}.csv")
-        semi_constraint_evaluator_stats = self._semi_constraint_evaluator.fetch_stats_json(save_file_path = f"semi_constraint_{self._checkpoint_name}.csv")
+        with_constraint_evaluator_stats = self._with_constraint_evaluator.fetch_stats_json(
+            save_file_path=f"with_constraint_{self._checkpoint_name}.csv")
+        no_constraint_evaluator_stats = self._no_constraint_evaluator.fetch_stats_json(
+            save_file_path=f"no_constraint_{self._checkpoint_name}.csv")
+        semi_constraint_evaluator_stats = self._semi_constraint_evaluator.fetch_stats_json(
+            save_file_path=f"semi_constraint_{self._checkpoint_name}.csv")
 
         collated_stats = [
             self._conf.method_name,
@@ -281,7 +287,6 @@ class TestSGGBase(STSGBase):
 
                 self._evaluate_predictions(gt_annotation, prediction)
 
-
         end_time = time.time()
         print(f"Time taken for testing: {end_time - start_time} seconds")
         print('-----------------------------------------------------------------------------------', flush=True)
@@ -358,6 +363,180 @@ class TestSGGBase(STSGBase):
 
         # 5. Publish the evaluation results
         self._publish_evaluation_results()
+
+    def _prepare_prediction_graph(
+            self,
+            predictions_map,
+            dataset,
+            video_id,
+            constraint_type
+    ):
+        # Loop through each frame in the video
+        for frame_idx, pred_numpy_array in predictions_map.items():
+            graph = nx.MultiGraph()
+            pred_set = set()
+            for pred in pred_numpy_array:
+                # Convert numpy arrays to tuples for hashing
+                pred_set.add(tuple(pred))
+
+            # Process each prediction
+            for pred_tuple in pred_set:
+                subject_class = dataset.object_classes[pred_tuple[0]]
+                object_class = dataset.object_classes[pred_tuple[1]]
+                predicate_class = dataset.relationship_classes[pred_tuple[2]]
+
+                # Add nodes and edge
+                graph.add_node(subject_class, label=subject_class)
+                graph.add_node(object_class, label=object_class)
+                graph.add_edge(subject_class, object_class, label=predicate_class)
+
+            self._draw_and_save_graph(graph, video_id, frame_idx, constraint_type)
+
+    def _draw_and_save_graph(
+            self,
+            graph,
+            video_id,
+            frame_idx,
+            constraint_type
+    ):
+        plt.figure(figsize=(12, 12))
+
+        pos = nx.spring_layout(graph, seed=42)  # positions for all nodes, with a fixed layout
+
+        # Draw nodes and labels
+        nx.draw_networkx_nodes(graph, pos, node_size=700)
+        nx.draw_networkx_labels(graph, pos)
+
+        # Custom drawing of the edges using FancyArrowPatch
+        for u, v, key, data in graph.edges(keys=True, data=True):
+            # Determine if there are multiple edges and calculate offset
+            num_edges = graph.number_of_edges(u, v)
+            edge_count = sum(1 for _ in graph[u][v])
+            offset = 0.13 * (key - edge_count // 2)  # Offset for curvature
+
+            # Parameters for the FancyArrowPatch
+            arrow_options = {
+                'arrowstyle': '-',
+                'connectionstyle': f"arc3,rad={offset}",
+                'color': 'black',
+                'linewidth': 1
+            }
+
+            # Draw the edge with curvature
+            edge = FancyArrowPatch(pos[u], pos[v], **arrow_options)
+            plt.gca().add_patch(edge)
+
+            # Improved calculation for the position of the edge label
+            label_pos_x = (pos[u][0] + pos[v][0]) / 2 + offset * 0.75 * (pos[v][1] - pos[u][1])
+            label_pos_y = (pos[u][1] + pos[v][1]) / 2 - offset * 0.75 * (pos[v][0] - pos[u][0])
+            plt.text(label_pos_x, label_pos_y, str(data['label']), color='blue', fontsize=10, ha='center', va='center')
+
+        # Save graph
+        file_name = "{}_{}.png".format(video_id, frame_idx)
+        file_directory_path = os.path.join(
+            os.path.dirname(__file__),
+            "analysis",
+            "docs",
+            "qualitative_results",
+            self._checkpoint_name,
+            video_id,
+            self._conf.mode,
+            constraint_type
+        )
+
+        os.makedirs(file_directory_path, exist_ok=True)
+        file_path = os.path.join(file_directory_path, file_name)
+        plt.savefig(file_path)
+
+    def _generate_graphs(self):
+        start_time = time.time()
+        print('-----------------------------------------------------------------------------------', flush=True)
+        print(f"Testing the model: {self._conf.method_name} on {self._conf.mode} mode", flush=True)
+        print(f"Starting testing at: {start_time}", flush=True)
+        if self._conf.use_input_corruptions:
+            print(f"Testing the model on corruption: {self._corruption_name}", flush=True)
+        test_iter = iter(self._dataloader_test)
+        self._model.eval()
+        self._object_detector.is_train = False
+
+        video_id_index_map = {}
+        for index, video_gt_annotation in enumerate(self._test_dataset.gt_annotations):
+            video_id = video_gt_annotation[0][0]['frame'].split(".")[0]
+            video_id_index_map[video_id] = index
+
+        video_id_list = ["21F9H", "X95D0", "M18XP", "0A8CF", "LUQWY", "QE4YE", "ENOLD"]
+        with torch.no_grad():
+            for video_id in video_id_list:
+                d_im_data, d_im_info, d_gt_boxes, d_num_boxes, d_index = self._test_dataset.fetch_video_data(
+                    video_id_index_map[video_id])
+                im_data = copy.deepcopy(d_im_data.cuda(0))
+                im_info = copy.deepcopy(d_im_info.cuda(0))
+                gt_boxes = copy.deepcopy(d_gt_boxes.cuda(0))
+                num_boxes = copy.deepcopy(d_num_boxes.cuda(0))
+                gt_annotation = self._test_dataset.gt_annotations[video_id_index_map[video_id]]
+                frame_size = (im_info[0][:2] / im_info[0, 2]).cpu().data
+
+                entry = self._object_detector(
+                    im_data,
+                    im_info,
+                    gt_boxes,
+                    num_boxes,
+                    gt_annotation,
+                    im_all=None,
+                    gt_annotation_mask=None,
+                )
+
+                # ----------------- Process the video (Method Specific) -----------------
+                prediction = self.process_test_video(entry, frame_size, gt_annotation)
+                # ----------------------------------------------------------------------
+
+                # 0 - With Constraint, 1 - No Constraint, 2 - Semi Constraint
+                with_constraint_predictions_map = self._evaluators[0].fetch_pred_tuples(gt_annotation, prediction)
+                no_constraint_prediction_map = self._evaluators[1].fetch_pred_tuples(gt_annotation, prediction)
+                semi_constraint_prediction_map = self._evaluators[2].fetch_pred_tuples(gt_annotation, prediction)
+
+                self._prepare_prediction_graph(
+                    predictions_map=with_constraint_predictions_map,
+                    dataset=self._test_dataset,
+                    video_id=video_id,
+                    constraint_type="with_constraints"
+                )
+
+                self._prepare_prediction_graph(
+                    predictions_map=no_constraint_prediction_map,
+                    dataset=self._test_dataset,
+                    video_id=video_id,
+                    constraint_type="no_constraints"
+                )
+
+                self._prepare_prediction_graph(
+                    predictions_map=semi_constraint_prediction_map,
+                    dataset=self._test_dataset,
+                    video_id=video_id,
+                    constraint_type="semi_constraints"
+                )
+
+        end_time = time.time()
+        print(f"Time taken for testing: {end_time - start_time} seconds")
+        print('-----------------------------------------------------------------------------------', flush=True)
+
+    def store_qualitative_results(self):
+        # 0. Init config
+        self._init_config()
+
+        # 1. Initialize the dataset
+        self._init_dataset()
+
+        # 2. Initialize evaluators
+        self._init_evaluators()
+
+        # 3. Initialize and load pretrained model
+        self.init_model()
+        self._load_checkpoint()
+        self._init_object_detector()
+
+        # 4. Generate qualitative results
+        self._generate_graphs()
 
     @abstractmethod
     def init_model(self):

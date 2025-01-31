@@ -80,4 +80,4 @@ def main_qual():
 
 
 if __name__ == "__main__":
-    main_qual()
+    main()

@@ -212,7 +212,9 @@ Under the following settings:
 
 **NOTE**: Although the names follow the convention: sgdet(ags), sgcls(pgags), predcls(gags).
 
-Please find the checkpoints with the following name structure.
+Please find the checkpoints here: [LINK](https://utdallas.box.com/s/exbgy57fjnkt5aahoz9z07njtw1y2z9o)
+
+The checkpoints follow this naming structure.
 
 ```
 <CKPT_METHOD_NAME>_[partial_((1-<MASK_RATIO>)*100)]_<MODE>_future_<#TRAIN_FUTURE_FRAMES>_epoch_<#STORED_EPOCH>.tar

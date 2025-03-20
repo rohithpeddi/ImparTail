@@ -157,7 +157,7 @@ We provide the checkpoints for the following methods:
 
 ### Video Scene Graph Generation
 
-#### Fully Supervised Setting:
+#### A) Fully Supervised Setting:
 
 We trained each model for 5 epochs and provided the checkpoint that performed best on the MeanRecall Metrics on the 5 epochs. 
 
@@ -166,7 +166,7 @@ We trained each model for 5 epochs and provided the checkpoint that performed be
 
 Please find the checkpoints here: [LINK](https://utdallas.box.com/s/ji6aekd4d8iguqk59rfwcalhpu608mop)
 
-#### Impartail Trained Models:
+#### B) ImparTail Trained Models:
 
 We provide the checkpoints for the following methods:
 
@@ -181,7 +181,7 @@ Please find the checkpoints here: [LINK](https://utdallas.box.com/s/1515xwjjt04t
 
 ### Video Scene Graph Anticipation
 
-#### Fully Supervised Setting:
+#### A) Fully Supervised Setting:
 
 We trained each model for 5 epochs and provided the checkpoint that performed best on the MeanRecall Metrics on the 5 epochs.
 We primarily focus on the future prediction of 3 frames during training as described in SceneSayer.
@@ -195,7 +195,7 @@ We primarily focus on the future prediction of 3 frames during training as descr
 
 Please find the checkpoints here: [LINK](https://utdallas.box.com/s/ddr2wnwt0qi8ihrw69zdpo5o3blesukl)
 
-#### Impartail Trained Models:
+#### B) ImparTail Trained Models:
 
 We provide the checkpoints for the following methods:
 

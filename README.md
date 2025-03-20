@@ -1,13 +1,17 @@
 <h1 align=center>
-  Logic constrained learning of Spatio Temporal Scene Graphs
+  Towards Unbiased and Robust Spatio-Temporal Scene Graph Generation and Anticipation
 </h1>
 
 <p align=center>  
   Rohith Peddi, Saurabh, Ayush, Parag Singla, Vibhav Gogate
 </p>
 
+<p align="center">
+    CVPR 2025
+</p>
+
 <div align=center>
-  <a src="https://img.shields.io/badge/project-website-green" href="">
+  <a src="https://img.shields.io/badge/project-website-green" href="https://rohithpeddi.github.io/#/impartail">
     <img src="https://img.shields.io/badge/project-website-green">
   </a>
   <a src="https://img.shields.io/badge/paper-arxiv-red" href="https://arxiv.org/pdf/2403.04899v1.pdf">
@@ -26,7 +30,8 @@
 
 ## UPDATE
 
-----
+- **Feb 2025** - Our paper is accepted at CVPR 2025
+- **March 2025** - Initial Release of Code and Checkpoints
 
 -------
 ### ACKNOWLEDGEMENTS
@@ -66,8 +71,8 @@ and place it in the data loader folder
 ### Install required libraries
 
 ```
-conda create -n sga python=3.7 pip
-conda activate sga
+conda create -n impartail python=3.7 pip
+conda activate impartail
 pip install torch==1.10.1+cu111 torchvision==0.11.2+cu111 torchaudio==0.10.1 -f https://download.pytorch.org/whl/cu111/torch_stable.html
 pip install -r requirements.txt
 ```
@@ -148,40 +153,76 @@ Download the pkl file from [here](https://utdallas.box.com/s/wioo5obxkggs7lyqftv
 
 ## CHECKPOINTS
 
-| Method Name     | Checkpoint method Name |
-|-----------------|------------------------|
-| STTran+         | sttran_ant  |
-| DSGDetr+        | dsgdetr_ant  | 
-| STTran++        | sttran_gen_ant | 
-| DSGDetr++       | dsgdetr_gen_ant | 
-| SceneSayerODE   | ode | 
-| SceneSayerSDE   | sde | 
+We provide the checkpoints for the following methods:
 
+### Video Scene Graph Generation
+
+#### Fully Supervised Setting:
+
+We trained each model for 5 epochs and provided the checkpoint that performed best on the MeanRecall Metrics on the 5 epochs. 
+
+1. **DSG-DETR** 
+2. **STTran**
+
+Please find the checkpoints here: [LINK](https://utdallas.box.com/s/ji6aekd4d8iguqk59rfwcalhpu608mop)
+
+#### Impartail Trained Models:
+
+We provide the checkpoints for the following methods:
+
+1. **DSG-DETR**
+2. **STTran**
+
+Under the following settings:
+1. Curriculum which is capped at a Maximum Mask Ratio of 0.3, 0.6, 0.9
+2. For the following modes: sgdet, sgcls, predcls
+
+Please find the checkpoints here: [LINK](https://utdallas.box.com/s/1515xwjjt04tnby8zfy9m8jnk9pztnv4)
+
+### Video Scene Graph Anticipation
+
+#### Fully Supervised Setting:
+
+We trained each model for 5 epochs and provided the checkpoint that performed best on the MeanRecall Metrics on the 5 epochs.
+We primarily focus on the future prediction of 3 frames during training as described in SceneSayer.
+
+1. **DsgDETR+**
+2. **STTran+**
+3. **DsgDETR++** (DsgDETR-GEN-ANT)
+4. **STTran++** (sttran_gen_ant)
+5. **SceneSayerODE**
+6. **SceneSayerSDE**
+
+Please find the checkpoints here: [LINK](https://utdallas.box.com/s/ddr2wnwt0qi8ihrw69zdpo5o3blesukl)
+
+#### Impartail Trained Models:
+
+We provide the checkpoints for the following methods:
+
+1. **DsgDETR+**
+2. **STTran+**
+3. **DsgDETR++** (DsgDETR-GEN-ANT)
+4. **STTran++** (sttran_gen_ant)
+5. **SceneSayerODE**
+6. **SceneSayerSDE**
+
+Under the following settings:
+1. Curriculum which is capped at a Maximum Mask Ratio of (0.3, 0.6, 0.9) in the curriculum. 
+2. For the following modes: ags, pgags, gags
+
+**NOTE**: Although the names follow the convention: sgdet(ags), sgcls(pgags), predcls(gags).
 
 Please find the checkpoints with the following name structure.
 
 ```
-<CKPT_METHOD_NAME>_<MODE>_future_<#TRAIN_FUTURE_FRAMES>_epoch_<#STORED_EPOCH>.tar
+<CKPT_METHOD_NAME>_[partial_((1-<MASK_RATIO>)*100)]_<MODE>_future_<#TRAIN_FUTURE_FRAMES>_epoch_<#STORED_EPOCH>.tar
 ```
+
 Eg:
 
-**dsgdetr_ant**\_**sgdet**\_future\_**3**\_epoch\_**0**
+Mask Ratio = 0.3 --> **dsgdetr_ant**\_**partial**\_**70**\_**sgdet**\_future\_**3**\_epoch\_**0**
 
-**ode**\_**sgdet**\_future\_**1**\_epoch\_**0**
-
-## Settings
-
-### Action Genome Scenes [AGS] (~sgdet)
-
-Download the required checkpoints from [here](https://utdallas.box.com/s/g94v2zfgxkxfgcs68q31lkf3olg6p7wy)
-
-### Partially Grounded Action Genome Scenes [PGAGS] (~sgcls)
-
-Download the required checkpoints from [here](https://utdallas.box.com/s/mvdwz8fe1ct9q8l1pv6ndi0wi7bkbl8r)
-
-### Grounded Action Genome Scenes [GAGS] (~predcls)
-
-Download the required checkpoints from [here](https://utdallas.box.com/s/9xncf5498o4nvqkjzpjp268gajmhiygo)
+Mask Ratio = 0.9 --> **ode**\_**partial**\_**10**\_**sgdet**\_future\_**1**\_epoch\_**0**
 
 ------
 
@@ -194,5 +235,19 @@ Please see the scripts/tests for testing Python modules.
 ------
 
 
+## Citation
 
+If you find this code useful, please consider citing our paper:
+
+```
+@misc{peddi2024unbiasedrobustspatiotemporalscene,
+      title={Towards Unbiased and Robust Spatio-Temporal Scene Graph Generation and Anticipation}, 
+      author={Rohith Peddi and Saurabh and Ayush Abhay Shrivastava and Parag Singla and Vibhav Gogate},
+      year={2024},
+      eprint={2411.13059},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2411.13059}, 
+}
+```
 

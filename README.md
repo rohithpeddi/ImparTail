@@ -32,6 +32,7 @@
 
 - **Feb 2025** - Our paper is accepted at CVPR 2025
 - **March 2025** - Initial Release of Code and Checkpoints
+- **Apr 2025** - Our paper is selected as a highlight (Acceptance rate: **~3.7%** (387/13000))
 
 -------
 ### ACKNOWLEDGEMENTS

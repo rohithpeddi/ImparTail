@@ -1,16 +1,16 @@
-<h1 align=center>
-  Towards Unbiased and Robust Spatio-Temporal Scene Graph Generation and Anticipation
+<h1 align="center">
+  🚀✨ Towards Unbiased and Robust Spatio-Temporal Scene Graph Generation and Anticipation ✨🚀
 </h1>
 
-<p align=center>  
-  Rohith Peddi, Saurabh, Ayush, Parag Singla, Vibhav Gogate
+<p align="center">  
+  🌟 Rohith Peddi, Saurabh, Ayush, Parag Singla, Vibhav Gogate 🌟
 </p>
 
 <p align="center">
-    CVPR 2025
+  🎤 CVPR 2025 (Highlight Presentation) 🎤
 </p>
 
-<div align=center>
+<div align="center">
   <a src="https://img.shields.io/badge/project-website-green" href="https://rohithpeddi.github.io/#/impartail">
     <img src="https://img.shields.io/badge/project-website-green">
   </a>
@@ -23,16 +23,17 @@
 </div>
 
 <p align="center">
-  (This page is under continuous update)
+  🌈 (This page is under continuous update) 🌈
 </p>
 
 ----
 
-## UPDATE
+## 🔄 UPDATE
 
-- **Feb 2025** - Our paper is accepted at CVPR 2025
-- **March 2025** - Initial Release of Code and Checkpoints
-- **Apr 2025** - Our paper is selected as a highlight (Acceptance rate: **~3.7%** (387/13000))
+- **Feb 2025** - 🎊 Our paper is accepted at CVPR 2025 🎊
+- **March 2025** - 🚀 Initial Release of Code and Checkpoints 🚀
+- **Apr 2025** - 🌟 Our paper is selected as a highlight (Acceptance rate: **~3.7%** (387/13000)) 🌟
+
 
 -------
 ### ACKNOWLEDGEMENTS

@@ -13,57 +13,19 @@
 # Label Noise with percentage 10%
 
 python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_10_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_generic_label_noise_10_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_ds_label_noise_10_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_ds_label_noise_10_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_comb_label_noise_10_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_comb_label_noise_10_sgdet_epoch_3.tar
-
-
 python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_10_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_generic_label_noise_10_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_ds_label_noise_10_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_ds_label_noise_10_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_comb_label_noise_10_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_comb_label_noise_10_sgdet_epoch_3.tar
-
 
 
 # Label Noise with percentage 20%
 
 python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_20_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_generic_label_noise_20_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_ds_label_noise_20_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_ds_label_noise_20_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_comb_label_noise_20_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_comb_label_noise_20_sgdet_epoch_3.tar
-
-
 python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_20_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_generic_label_noise_20_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_ds_label_noise_20_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_ds_label_noise_20_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_comb_label_noise_20_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_comb_label_noise_20_sgdet_epoch_3.tar
 
 
 # Label Noise with percentage 30%
 
 python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_30_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_generic_label_noise_30_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_ds_label_noise_30_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_ds_label_noise_30_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_comb_label_noise_30_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_comb_label_noise_30_sgdet_epoch_3.tar
-
-
 python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_30_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_generic_label_noise_30_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_ds_label_noise_30_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_ds_label_noise_30_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_comb_label_noise_30_sgdet_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_comb_label_noise_30_sgdet_epoch_3.tar
-
 # ------------------------------------------------------------------------------
 # ---------------- SGCLS (Scene Graph Classification) ----------
 # ------------------------------------------------------------------------------
@@ -71,56 +33,17 @@ python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_c
 # Label Noise with percentage 10%
 
 python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_10_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_generic_label_noise_10_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_ds_label_noise_10_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_ds_label_noise_10_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_comb_label_noise_10_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_comb_label_noise_10_sgcls_epoch_3.tar
-
-
 python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_10_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_generic_label_noise_10_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_ds_label_noise_10_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_ds_label_noise_10_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_comb_label_noise_10_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_comb_label_noise_10_sgcls_epoch_3.tar
-
-
 
 # Label Noise with percentage 20%
 
 python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_20_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_generic_label_noise_20_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_ds_label_noise_20_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_ds_label_noise_20_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_comb_label_noise_20_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_comb_label_noise_20_sgcls_epoch_3.tar
-
-
 python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_20_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_generic_label_noise_20_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_ds_label_noise_20_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_ds_label_noise_20_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_comb_label_noise_20_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_comb_label_noise_20_sgcls_epoch_3.tar
-
 
 # Label Noise with percentage 30%
 
 python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_30_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_generic_label_noise_30_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_ds_label_noise_30_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_ds_label_noise_30_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_comb_label_noise_30_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_comb_label_noise_30_sgcls_epoch_3.tar
-
-
 python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_30_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_generic_label_noise_30_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_ds_label_noise_30_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_ds_label_noise_30_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_comb_label_noise_30_sgcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_comb_label_noise_30_sgcls_epoch_3.tar
 
 
 # ------------------------------------------------------------------------------
@@ -130,53 +53,16 @@ python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_c
 # Label Noise with percentage 10%
 
 python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_10_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_generic_label_noise_10_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_ds_label_noise_10_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_ds_label_noise_10_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_comb_label_noise_10_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_comb_label_noise_10_predcls_epoch_3.tar
-
-
 python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_10_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_generic_label_noise_10_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_ds_label_noise_10_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_ds_label_noise_10_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_comb_label_noise_10_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_comb_label_noise_10_predcls_epoch_3.tar
-
 
 
 # Label Noise with percentage 20%
 
 python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_20_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_generic_label_noise_20_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_ds_label_noise_20_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_ds_label_noise_20_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_comb_label_noise_20_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_comb_label_noise_20_predcls_epoch_3.tar
-
-
 python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_20_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_generic_label_noise_20_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_ds_label_noise_20_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_ds_label_noise_20_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_comb_label_noise_20_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_comb_label_noise_20_predcls_epoch_3.tar
 
 
 # Label Noise with percentage 30%
 
 python test_sgg_methods.py --task_name=sgg --method_name=sttran --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_label_noise_30_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_generic_label_noise_30_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_ds_label_noise_30_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_ds_label_noise_30_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_comb_label_noise_30_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/sttran/sttran_stl_time_cond_comb_label_noise_30_predcls_epoch_3.tar
-
-
 python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_label_noise_30_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_generic_label_noise_30_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_ds_label_noise_30_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_ds_label_noise_30_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_comb_label_noise_30_predcls_epoch_3.tar
-python test_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --ckpt=/data/rohith/ag/checkpoints/sgg/dsgdetr/dsgdetr_stl_time_cond_comb_label_noise_30_predcls_epoch_3.tar

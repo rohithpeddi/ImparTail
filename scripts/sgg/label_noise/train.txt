@@ -5,47 +5,18 @@
 # Label Noise with percentage 10
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgdet --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=sgdet --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=sgdet --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=sgdet --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --mode=sgdet --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --mode=sgdet --use_label_noise --label_noise_percentage=10
-
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgdet --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --mode=sgdet --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --mode=sgdet --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --mode=sgdet --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mode=sgdet --use_label_noise --label_noise_percentage=10
+
 
 # Label Noise with percentage 20
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgdet --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=sgdet --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=sgdet --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=sgdet --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --mode=sgdet --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --mode=sgdet --use_label_noise --label_noise_percentage=20
-
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgdet --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --mode=sgdet --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --mode=sgdet --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --mode=sgdet --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mode=sgdet --use_label_noise --label_noise_percentage=20
 
 # Label Noise with percentage 30
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgdet --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=sgdet --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=sgdet --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=sgdet --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --mode=sgdet --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --mode=sgdet --use_label_noise --label_noise_percentage=30
-
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgdet --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --mode=sgdet --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --mode=sgdet --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --mode=sgdet --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mode=sgdet --use_label_noise --label_noise_percentage=30
 
 
 # ------------------------------------------------------------------------------
@@ -55,47 +26,18 @@ python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mod
 # Label Noise with percentage 10
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgcls --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=sgcls --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=sgcls --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=sgcls --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --mode=sgcls --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --mode=sgcls --use_label_noise --label_noise_percentage=10
-
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgcls --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --mode=sgcls --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --mode=sgcls --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --mode=sgcls --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mode=sgcls --use_label_noise --label_noise_percentage=10
+
 
 # Label Noise with percentage 20
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgcls --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=sgcls --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=sgcls --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=sgcls --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --mode=sgcls --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --mode=sgcls --use_label_noise --label_noise_percentage=20
-
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgcls --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --mode=sgcls --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --mode=sgcls --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --mode=sgcls --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mode=sgcls --use_label_noise --label_noise_percentage=20
 
 # Label Noise with percentage 30
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgcls --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=sgcls --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=sgcls --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=sgcls --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --mode=sgcls --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --mode=sgcls --use_label_noise --label_noise_percentage=30
-
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgcls --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --mode=sgcls --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --mode=sgcls --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --mode=sgcls --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mode=sgcls --use_label_noise --label_noise_percentage=30
 
 # ------------------------------------------------------------------------------
 # ---------------- PREDCLS (Predicate Classification) ----------
@@ -104,44 +46,14 @@ python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mod
 # Label Noise with percentage 10
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=predcls --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=predcls --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=predcls --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=predcls --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --mode=predcls --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --mode=predcls --use_label_noise --label_noise_percentage=10
-
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=predcls --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --mode=predcls --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --mode=predcls --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --mode=predcls --use_label_noise --label_noise_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mode=predcls --use_label_noise --label_noise_percentage=10
 
 # Label Noise with percentage 20
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=predcls --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=predcls --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=predcls --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=predcls --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --mode=predcls --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --mode=predcls --use_label_noise --label_noise_percentage=20
-
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=predcls --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --mode=predcls --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --mode=predcls --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --mode=predcls --use_label_noise --label_noise_percentage=20
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mode=predcls --use_label_noise --label_noise_percentage=20
 
 # Label Noise with percentage 30
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=predcls --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=predcls --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=predcls --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=predcls --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --mode=predcls --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --mode=predcls --use_label_noise --label_noise_percentage=30
-
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=predcls --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --mode=predcls --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --mode=predcls --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --mode=predcls --use_label_noise --label_noise_percentage=30
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mode=predcls --use_label_noise --label_noise_percentage=30

@@ -5,50 +5,18 @@
 # Partial Annotations with percentage 10
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgdet --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=sgdet --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=sgdet --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=sgdet --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --mode=sgdet --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --mode=sgdet --use_partial_annotations --partial_percentage=10
-
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgdet --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --mode=sgdet --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --mode=sgdet --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --mode=sgdet --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mode=sgdet --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --mode=sgdet --use_partial_annotations --partial_percentage=10
+
 
 # Partial Annotations with percentage 40
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgdet --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=sgdet --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=sgdet --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=sgdet --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --mode=sgdet --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --mode=sgdet --use_partial_annotations --partial_percentage=40
-
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgdet --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --mode=sgdet --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --mode=sgdet --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --mode=sgdet --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mode=sgdet --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --mode=sgdet --use_partial_annotations --partial_percentage=40
 
 # Partial Annotations with percentage 70
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgdet --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=sgdet --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=sgdet --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=sgdet --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --mode=sgdet --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --mode=sgdet --use_partial_annotations --partial_percentage=70
-
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgdet --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --mode=sgdet --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --mode=sgdet --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --mode=sgdet --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mode=sgdet --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --mode=sgdet --use_partial_annotations --partial_percentage=70
 
 
 # ------------------------------------------------------------------------------
@@ -58,52 +26,18 @@ python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_
 # Partial Annotations with percentage 10
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgcls --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=sgcls --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=sgcls --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=sgcls --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --mode=sgcls --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --mode=sgcls --use_partial_annotations --partial_percentage=10
-
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgcls --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --mode=sgcls --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --mode=sgcls --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --mode=sgcls --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mode=sgcls --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --mode=sgcls --use_partial_annotations --partial_percentage=10
 
 # Partial Annotations with percentage 40
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgcls --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=sgcls --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=sgcls --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=sgcls --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --mode=sgcls --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --mode=sgcls --use_partial_annotations --partial_percentage=40
-
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgcls --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --mode=sgcls --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --mode=sgcls --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --mode=sgcls --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mode=sgcls --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --mode=sgcls --use_partial_annotations --partial_percentage=40
 
 
 # Partial Annotations with percentage 70
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=sgcls --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=sgcls --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=sgcls --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=sgcls --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --mode=sgcls --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --mode=sgcls --use_partial_annotations --partial_percentage=70
-
-
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=sgcls --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --mode=sgcls --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --mode=sgcls --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --mode=sgcls --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mode=sgcls --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --mode=sgcls --use_partial_annotations --partial_percentage=70
 
 
 # ------------------------------------------------------------------------------
@@ -113,50 +47,15 @@ python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_
 # Partial Annotations with percentage 10
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=predcls --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=predcls --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=predcls --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=predcls --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --mode=predcls --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --mode=predcls --use_partial_annotations --partial_percentage=10
-
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=predcls --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --mode=predcls --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --mode=predcls --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --mode=predcls --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mode=predcls --use_partial_annotations --partial_percentage=10
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --mode=predcls --use_partial_annotations --partial_percentage=10
 
 # Partial Annotations with percentage 40
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=predcls --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=predcls --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=predcls --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=predcls --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --mode=predcls --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --mode=predcls --use_partial_annotations --partial_percentage=40
-
-
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=predcls --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --mode=predcls --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --mode=predcls --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --mode=predcls --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mode=predcls --use_partial_annotations --partial_percentage=40
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --mode=predcls --use_partial_annotations --partial_percentage=40
 
 
 # Partial Annotations with percentage 70
 
 python train_sgg_methods.py --task_name=sgg --method_name=sttran --mode=predcls --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_generic --mode=predcls --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_ds --mode=predcls --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_ds --mode=predcls --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_comb --mode=predcls --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=sttran_stl_time_cond_comb --mode=predcls --use_partial_annotations --partial_percentage=70
-
-
 python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr --mode=predcls --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_generic --mode=predcls --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_ds --mode=predcls --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_ds --mode=predcls --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_comb --mode=predcls --use_partial_annotations --partial_percentage=70
-python train_sgg_methods.py --task_name=sgg --method_name=dsgdetr_stl_time_cond_comb --mode=predcls --use_partial_annotations --partial_percentage=70

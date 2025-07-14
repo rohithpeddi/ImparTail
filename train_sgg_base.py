@@ -17,10 +17,6 @@ from dataloader.partial.action_genome.ag_dataset import PartialAG
 from dataloader.standard.action_genome.ag_dataset import StandardAG
 from dataloader.standard.action_genome.ag_dataset import cuda_collate_fn as ag_data_cuda_collate_fn
 from lib.object_detector import Detector
-from lib.stl.core.stl_formula import Expression, GreaterThan
-from lib.stl.iterative_parser import IterativeParser
-from lib.stl.parser import Parser
-from lib.stl.tokenizer import Tokenizer
 from stsg_base import STSGBase
 
 
